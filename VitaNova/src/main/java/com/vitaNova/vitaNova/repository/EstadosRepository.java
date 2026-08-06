@@ -1,0 +1,10 @@
+package com.vitaNova.vitaNova.repository;
+
+import com.vitaNova.vitaNova.model.Estados;
+import com.vitaNova.vitaNova.model.Usuarios;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EstadosRepository extends JpaRepository<Estados, Long>
+{
+
+}

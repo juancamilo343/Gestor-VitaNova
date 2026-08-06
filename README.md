@@ -1,2 +1,2 @@
-# Gestor-Documental-Odin
+# Gestor-Documental-VitaNova
 Proyecto del Sena -> Gestor de Radicacion

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle + ' | VitaNova'}">Dashboard | VitaNova</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          referrerpolicy="no-referrer">
+
+    <link rel="stylesheet" th:href="@{/css/globals.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">
+                <i class="fa-solid fa-briefcase-medical"></i>
+            </div>
+            <div class="brand-copy">
+                <span class="brand-name">VitaNova</span>
+                <span class="brand-tag">PHARMA ERP</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+            <a th:href="@{/view/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+                <i class="fa-solid fa-table-cells-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-users"></i>
+                <span>Clientes</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-capsules"></i>
+                <span>Productos</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>Inventario</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-cash-register"></i>
+                <span>Ventas</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Compras</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-truck"></i>
+                <span>Proveedores</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-id-card"></i>
+                <span>Empleados</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Usuarios</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-sitemap"></i>
+                <span>Roles</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span>Reportes</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configuración</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="logout-link">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="dashboard-header">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="search-input" placeholder="Buscar medicamento, cliente o factura...">
+            </div>
+
+            <div class="header-user">
+                <button type="button" class="icon-button" aria-label="Notificaciones">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <div class="user-profile">
+                    <div class="user-meta">
+                        <span class="user-name" th:text="${userName}">Administrador</span>
+                        <span class="user-role" th:text="${userRole}">Farmacia Central</span>
+                    </div>
+                    <div class="user-avatar">AD</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <section class="page-header">
+                <div class="page-title">
+                    <h1 th:text="${pageTitle}">Dashboard</h1>
+                    <p th:text="${pageSubtitle}">Resumen operativo para hoy</p>
+                </div>
+
+                <div class="page-actions">
+                    <button type="button" class="btn btn-white">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>Hoy</span>
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Exportar reporte</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="kpi-grid">
+                <article class="kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-icon blue">
+                            <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        </div>
+                        <span class="badge-pill badge-blue">Catálogo</span>
+                    </div>
+                    <div class="kpi-label">Productos registrados</div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" th:text="${dashboard.totalProductosTexto}">1,250</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-icon blue">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+                        <span class="badge-pill badge-green">Hoy</span>
+                    </div>
+                    <div class="kpi-label">Ventas del día</div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" th:text="${dashboard.ventasHoyTexto}">$0</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-icon yellow">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <span class="badge-pill badge-red">Alerta</span>
+                    </div>
+                    <div class="kpi-label">Stock bajo</div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" th:text="${dashboard.stockBajoTexto}">0</span>
+                        <span class="kpi-unit">productos</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-icon blue">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="badge-pill badge-blue">Activos</span>
+                    </div>
+                    <div class="kpi-label">Clientes registrados</div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" th:text="${dashboard.clientesRegistradosTexto}">0</span>
+                    </div>
+                </article>
+            </section>
+
+            <section class="action-bar">
+                <button type="button" class="action-btn">
+                    <i class="fa-solid fa-square-plus"></i>
+                    <span>Nuevo producto</span>
+                </button>
+                <button type="button" class="action-btn">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span>Registrar venta</span>
+                </button>
+                <button type="button" class="action-btn">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Nuevo cliente</span>
+                </button>
+                <button type="button" class="action-btn">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Crear factura</span>
+                </button>
+            </section>
+
+            <section class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-wrap">
+                        <span class="chart-title">Evolución de ventas mensual</span>
+                        <p class="chart-subtitle">
+                            Ventas del mes:
+                            <strong th:text="${dashboard.ventasMensualesTexto}">$0</strong>
+                        </p>
+                    </div>
+                    <div class="chart-tabs">
+                        <span class="chart-tab active">Ventas</span>
+                        <span class="chart-tab">Margen</span>
+                    </div>
+                </div>
+
+                <div class="chart-body">
+                    <svg class="chart-svg" viewBox="0 0 1000 180" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.18"></stop>
+                                <stop offset="100%" stop-color="#0284c7" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <polygon th:attr="points=${dashboard.chartAreaPoints}" fill="url(#chartGrad)"></polygon>
+                        <polyline th:attr="points=${dashboard.chartLinePoints}" fill="none" stroke="#0284c7" stroke-width="3"></polyline>
+                    </svg>
+
+                    <div class="chart-months">
+                        <span th:each="mes : ${dashboard.ventasMensuales}"
+                              th:title="${mes.totalTexto}"
+                              th:text="${mes.mes}">ENE</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-bottom">
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="card-title">Productos más vendidos</span>
+                        <a href="#" class="link-more">Ver todos los productos</a>
+                    </div>
+
+                    <table class="custom-table">
+                        <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Categoría</th>
+                            <th>Cant. vendida</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(dashboard.topProductos)}">
+                            <td colspan="5" class="table-empty">Todavía no hay productos con ventas registradas.</td>
+                        </tr>
+                        <tr th:each="producto : ${dashboard.topProductos}">
+                            <td>
+                                <div class="med-cell">
+                                    <div class="med-icon">
+                                        <i class="fa-solid fa-capsules"></i>
+                                    </div>
+                                    <span class="med-name" th:text="${producto.nombre}">Acetaminofén 500mg</span>
+                                </div>
+                            </td>
+                            <td th:text="${producto.categoria}">Analgésico</td>
+                            <td class="table-strong" th:text="${producto.cantidadVendidaTexto}">150</td>
+                            <td>
+                                <span class="status-pill" th:classappend="${producto.estadoClase}" th:text="${producto.estado}">
+                                    Disponible
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="table-action-btn" aria-label="Más acciones">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="right-column">
+                    <section class="alerts-card">
+                        <div class="alerts-title">Alertas del inventario</div>
+
+                        <div class="alert-list">
+                            <article th:each="alerta : ${dashboard.alertas}"
+                                     th:class="${'alert-item ' + alerta.severity}">
+                                <div th:class="${'alert-icon-wrap ' + alerta.severity}">
+                                    <i th:class="${alerta.iconClass}"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <span class="alert-heading" th:text="${alerta.title}">Próximos a vencer</span>
+                                    <span class="alert-desc" th:text="${alerta.description}">
+                                        8 lotes de Insulina Glargina vencen en menos de 15 días.
+                                    </span>
+                                    <a th:href="${alerta.actionHref}" class="alert-action" th:text="${alerta.actionText}">
+                                        Gestionar devoluciones
+                                    </a>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="opt-card">
+                        <i class="fa-solid fa-chart-pie opt-pattern"></i>
+                        <div class="opt-title">Optimización de inventario</div>
+                        <div class="opt-desc" th:text="${dashboard.coberturaInventarioMensaje}">
+                            Cobertura actual del inventario: 85% de los SKU mantienen stock suficiente.
+                        </div>
+                        <div class="opt-footer">
+                            <span class="opt-percentage" th:text="${dashboard.coberturaInventarioPorcentaje + '%'}">85%</span>
+                            <button type="button" class="opt-btn">Ver análisis detallado</button>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+</body>
+</html>
