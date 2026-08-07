@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,39 +19,23 @@ public class Usuarios {
     @Column(name = "id_usuario")
     private Long id_usuario;
 
-    @NotBlank(message = "El nombre es obligatorio")
-    @Column(name = "nombre")
-    private String nombre;
-
-    @NotBlank(message = "El tipo de identificación es obligatorio")
-    @Column(name = "tipo_identificacion")
-    private String tipo_identificacion;
-
-    @NotBlank(message = "El número de identificación es obligatorio")
-    @Column(name = "num_identificacion")
-    private String num_identificacion;
-
-    @NotBlank(message = "El correo es obligatorio")
-    @Column(name = "correo")
-    private String correo;
-
-    @NotBlank(message = "El teléfono es obligatorio")
-    @Column(name = "telefono")
-    private String telefono;
+    @NotBlank(message = "El nombre de usuario es obligatorio")
+    @Column(name = "username", nullable = false, length = 50)
+    private String username;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Column(name = "password")
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @NotBlank(message = "El estado es obligatorio")
+    @NotNull(message = "El estado es obligatorio")
     @Column(name = "estado")
-    private String estado;
+    private Boolean estado;
 
     @NotNull(message = "El rol es obligatorio")
     @Column(name = "id_rol")
     private Long id_rol;
 
-    @NotNull(message = "La dependencia es obligatoria")
-    @Column(name = "id_dependencia")
-    private Long id_dependencia;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol", insertable = false, updatable = false)
+    private Rol rol;
 }

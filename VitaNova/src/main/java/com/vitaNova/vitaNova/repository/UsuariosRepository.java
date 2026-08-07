@@ -9,9 +9,8 @@ import java.util.List;
 
 public interface UsuariosRepository extends JpaRepository<Usuarios, Long> {
 
-    @Query("SELECT u FROM Usuarios u " +
-           "WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "OR LOWER(u.correo) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "OR LOWER(u.num_identificacion) LIKE LOWER(CONCAT('%', :query, '%'))")
+    @Query("SELECT u FROM Usuarios u LEFT JOIN u.rol r " +
+           "WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(r.nombre) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Usuarios> search(@Param("query") String query);
 }

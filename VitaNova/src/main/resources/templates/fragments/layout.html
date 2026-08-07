@@ -1,240 +1,110 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:fragment="head(title)">
     <meta charset="UTF-8">
-    <title>VitaNova - Sistema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | VitaNova'">VitaNova</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          referrerpolicy="no-referrer">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<!-- ===================== SIDEBAR ===================== -->
-<div th:fragment="sidebar(activeMenu)"
-     id="main-sidebar"
-     class="sidebar">
-
-    <!-- LOGO -->
+<!-- Sidebar VitaNova -->
+<aside th:fragment="sidebar" class="sidebar">
     <div class="sidebar-brand">
-        <div class="sidebar-brand-content">
-            <div class="brand-mark">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
-                </svg>
-            </div>
-            <div class="brand-copy">
-                <span class="brand-name">VitaNova</span>
-                <span class="brand-tag">Sistema</span>
-            </div>
+        <div class="brand-mark">
+            <i class="fa-solid fa-briefcase-medical"></i>
+        </div>
+        <div class="brand-copy">
+            <span class="brand-name">VitaNova</span>
+            <span class="brand-tag">PHARMA ERP</span>
         </div>
     </div>
 
-    <!-- MENU DE NAVEGACIÓN -->
-    <nav class="sidebar-nav">
-
-        <!-- INICIO -->
-        <a th:href="@{/view/dashboard}"
-           th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''"
-           class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-            <span>Panel de Inicio</span>
+    <nav class="sidebar-nav" aria-label="Navegación principal">
+        <a th:href="@{/view/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+            <i class="fa-solid fa-table-cells-large"></i>
+            <span>Dashboard</span>
         </a>
-
-        <!-- DESPLEGABLE: CONTROL DE ACCESO (USUARIOS Y ROLES) -->
-        <div class="dropdown-container">
-            <button onclick="toggleDropdown('dropdown-usuarios')"
-                    type="button"
-                    class="dropdown-toggle">
-                <div class="topbar-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                    </svg>
-                    <span>Control de Acceso</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="dropdown-arrow" id="arrow-dropdown-usuarios">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-            </button>
-
-            <div id="dropdown-usuarios" class="dropdown-list hidden">
-                <a th:href="@{/view/usuarios}"
-                   th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''"
-                   class="dropdown-item">
-                    Gestión de Usuarios
-                </a>
-                <a th:href="@{/view/roles}"
-                   th:classappend="${activeMenu == 'roles'} ? ' active' : ''"
-                   class="dropdown-item">
-                    Roles y Permisos
-                </a>
-            </div>
-        </div>
-
-        <!-- DEPENDENCIAS -->
-        <a th:href="@{/view/dependencias}"
-           th:classappend="${activeMenu == 'dependencias'} ? ' active' : ''"
-           class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v14.25M21.621 15.75H18.75m-.75-12h2.25m-.75 3h1.5m-1.5 3h1.5m-1.5 3H18.75M13.5 3.75h.008v.008H13.5V3.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM13.5 7.5h.008v.008H13.5V7.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21V5.25A2.25 2.25 0 0 0 8.25 3H4.5A2.25 2.25 0 0 0 2.25 5.25V21h8.25ZM10.5 21h7.5V10.5a2.25 2.25 0 0 0-2.25-2.25h-5.25V21Z" />
-            </svg>
-            <span>Dependencias</span>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-users"></i>
+            <span>Clientes</span>
         </a>
-
-        <!-- RADICACIÓN -->
-        <a th:href="@{/view/radicados}"
-           th:classappend="${activeMenu == 'radicacion_Documental'} ? ' active' : ''"
-           class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-            </svg>
-            <span>Radicación de Documentos</span>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-capsules"></i>
+            <span>Productos</span>
         </a>
-
-        <!-- DESPLEGABLE: GESTIÓN DOCUMENTAL (SERIES, SUBSERIES Y CONSULTA) -->
-        <div class="dropdown-container">
-            <button onclick="toggleDropdown('dropdown-consulta')"
-                    type="button"
-                    class="dropdown-toggle">
-                <div class="topbar-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                    <span>Gestión Documental</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="dropdown-arrow" id="arrow-dropdown-consulta">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-            </button>
-
-            <div id="dropdown-consulta" class="dropdown-list hidden">
-                <a th:href="@{/view/estados}"
-                   th:classappend="${activeMenu == 'consulta'} ? ' active' : ''"
-                   class="dropdown-item">
-                    Consulta y Seguimiento
-                </a>
-                <a th:href="@{/view/series}"
-                   th:classappend="${activeMenu == 'series'} ? ' active' : ''"
-                   class="dropdown-item">
-                    Series Documentales
-                </a>
-                <a th:href="@{/view/subseries}"
-                   th:classappend="${activeMenu == 'subseries'} ? ' active' : ''"
-                   class="dropdown-item">
-                    Subseries Documentales
-                </a>
-            </div>
-        </div>
-
-        <!-- TRÁMITES -->
-        <a th:href="@{/view/tramites}"
-           th:classappend="${activeMenu == 'tramites'} ? ' active' : ''"
-           class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.827m11.379-8.16 1.15-.827M8.14 21.27l.707-1.03m7.45-.808.707-1.03M12 3v1.5m0 15V21m-4.743-10 1.41-.513m11.379 8.16-1.15-.827m-9.33 1.03-.707-1.03" />
-            </svg>
-            <span>Gestión de Trámites</span>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventario</span>
         </a>
-
-        <!-- REPORTES -->
-        <a href="#"
-           class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="sidebar-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.625c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 3 18.75v-5.625ZM13.5 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v10.125c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 13.5 18.75V8.625ZM8.25 4.125C8.25 3.504 8.754 3 9.375 3h2.25c.621 0 1.125.504 1.125 1.125v14.625c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 8.25 18.75V4.125Z" />
-            </svg>
-            <span>Reportes y Estadísticas</span>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-cash-register"></i>
+            <span>Ventas</span>
         </a>
-
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Compras</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-truck"></i>
+            <span>Proveedores</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-id-card"></i>
+            <span>Empleados</span>
+        </a>
+        <a th:href="@{/view/usuarios}" class="nav-link" th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Usuarios</span>
+        </a>
+        <a href="#" class="nav-link" th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+            <i class="fa-solid fa-sitemap"></i>
+            <span>Roles</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Reportes</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class="fa-solid fa-gear"></i>
+            <span>Configuración</span>
+        </a>
     </nav>
 
-    <!-- PROCESAMIENTO JAVASCRIPT DEL COMPONENTE -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('main-sidebar');
-            const overlay = document.getElementById('overlay');
-            if (sidebar) sidebar.classList.toggle('sidebar-hidden');
-            if (overlay) overlay.classList.toggle('hidden');
-        }
+    <div class="sidebar-footer">
+        <a href="#" class="logout-link">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Cerrar sesión</span>
+        </a>
+    </div>
+</aside>
 
-        function toggleDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            const arrow = document.getElementById('arrow-' + dropdownId);
-
-            if (dropdown) {
-                const isHidden = dropdown.classList.contains('hidden');
-                if (isHidden) {
-                    dropdown.classList.remove('hidden');
-                    if (arrow) arrow.style.transform = "rotate(180deg)";
-                } else {
-                    dropdown.classList.add('hidden');
-                    if (arrow) arrow.style.transform = "rotate(0deg)";
-                }
-            }
-        }
-
-        function initMenuState() {
-            const currentPath = window.location.pathname;
-
-            if (currentPath.includes('/usuarios') || currentPath.includes('/roles')) {
-                const dp = document.getElementById('dropdown-usuarios');
-                const ar = document.getElementById('arrow-dropdown-usuarios');
-                if (dp) dp.classList.remove('hidden');
-                if (ar) ar.style.transform = "rotate(180deg)";
-            }
-            else if (currentPath.includes('/estados') || currentPath.includes('/series') || currentPath.includes('/subseries')) {
-                const dp = document.getElementById('dropdown-consulta');
-                const ar = document.getElementById('arrow-dropdown-consulta');
-                if (dp) dp.classList.remove('hidden');
-                if (ar) ar.style.transform = "rotate(180deg)";
-            }
-
-            const activeItem = document.querySelector('.active');
-            if (activeItem) {
-                const parentDropdown = activeItem.closest('[id^="dropdown-"]');
-                if (parentDropdown) {
-                    parentDropdown.classList.remove('hidden');
-                    const arrow = document.getElementById('arrow-' + parentDropdown.id);
-                    if (arrow) arrow.style.transform = "rotate(180deg)";
-                }
-            }
-        }
-
-        initMenuState();
-        document.addEventListener("DOMContentLoaded", initMenuState);
-    </script>
-</div>
-
-
-<!-- ===================== TOPBAR ===================== -->
-<div th:fragment="topbar(title)"
-     class="dashboard-header">
-
-    <div class="topbar-left">
-        <button onclick="toggleSidebar()" class="topbar-menu-button icon-button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="topbar-menu-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-        </button>
-        <span class="topbar-title" th:text="${title}">VitaNova</span>
+<!-- Topbar VitaNova -->
+<header th:fragment="topbar" class="dashboard-header">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" class="search-input" placeholder="Buscar medicamento, cliente o factura...">
     </div>
 
-    <div class="topbar-right">
-        <button class="icon-button notification-button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-            </svg>
-            <span class="notification-dot"></span>
+    <div class="header-user">
+        <button type="button" class="icon-button" aria-label="Notificaciones">
+            <i class="fa-regular fa-bell"></i>
         </button>
 
         <div class="user-profile">
-            <div class="user-avatar">
-                U
+            <div class="user-meta">
+                <span class="user-name" th:text="${userName}">Administrador</span>
+                <span class="user-role" th:text="${userRole}">Farmacia Central</span>
             </div>
+            <div class="user-avatar">AD</div>
         </div>
     </div>
-
-</div>
+</header>
 
 </body>
 </html>
-
