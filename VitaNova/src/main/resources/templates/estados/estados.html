@@ -5,21 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta y Seguimiento</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="stylesheet" th:href="@{/css/global.css}">
-    <link rel="stylesheet" th:href="@{/css/styleguide.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
-<body class="bg-[#f5f6f8]">
+<body>
 
 <div class="min-h-screen flex">
 
     <!-- SIDEBAR -->
     <div th:replace="fragments/layout :: sidebar('consulta')"></div>
 
-    <div id="overlay" class="fixed inset-0 bg-black/40 z-20 hidden"></div>
+    <div id="overlay" class="overlay hidden"></div>
 
     <!-- CONTENIDO -->
     <div class="flex-1 min-w-0">
@@ -449,3 +445,5 @@
 
 </body>
 </html>
+
+

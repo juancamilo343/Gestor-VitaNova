@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios | VitaNova</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">
+                <i class="fa-solid fa-briefcase-medical"></i>
+            </div>
+            <div class="brand-copy">
+                <span class="brand-name">VitaNova</span>
+                <span class="brand-tag">PHARMA ERP</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+            <a th:href="@{/view/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+                <i class="fa-solid fa-table-cells-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/view/usuarios}" class="nav-link" th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+                <i class="fa-solid fa-users"></i>
+                <span>Usuarios</span>
+            </a>
+            <a th:href="@{/view/roles}" class="nav-link" th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Roles</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="logout-link">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="dashboard-header">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="search-input" placeholder="Buscar en VitaNova...">
+            </div>
+            <div class="header-user">
+                <button type="button" class="icon-button" aria-label="Notificaciones">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="user-meta">
+                        <span class="user-name">Administrador</span>
+                        <span class="user-role">Farmacia Central</span>
+                    </div>
+                    <div class="user-avatar">VN</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <section class="page-header">
+                <div class="page-title">
+                    <h1>Gestión de Usuarios</h1>
+                    <p>Administre los usuarios registrados y controle su acceso al sistema.</p>
+                </div>
+                <div class="page-actions">
+                    <a th:href="@{/view/usuarios/form}" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Nuevo usuario</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="table-card surface">
+                <div class="table-header">
+                    <span class="card-title">Usuarios registrados</span>
+                    <form method="get" action="@{/view/usuarios}" class="search-form">
+                        <input name="search" type="search" th:value="${search}" placeholder="Buscar usuario, identificación o correo" class="search-input search-field">
+                        <button type="submit" class="btn btn-white nowrap">Buscar</button>
+                    </form>
+                </div>
+
+                <div th:if="${success}" class="card-content">
+                    <div class="alert-item alert-success" th:text="${success}"></div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Dependencia</th>
+                                <th>Identificación</th>
+                                <th>Correo</th>
+                                <th>Estado</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="usuario : ${usuarios}">
+                                <td>
+                                    <div class="med-cell">
+                                        <div class="med-icon"><i class="fa-solid fa-user"></i></div>
+                                        <span class="med-name" th:text="${usuario.nombre}">Nombre usuario</span>
+                                    </div>
+                                    <span class="text-muted text-small" th:text="'ID: ' + ${usuario.id_usuario}"></span>
+                                </td>
+                                <td th:text="${usuario.id_rol}"></td>
+                                <td th:text="${usuario.id_dependencia}"></td>
+                                <td>
+                                    <span class="table-strong" th:text="${usuario.num_identificacion}"></span>
+                                    <div class="text-xs text-slate-400" th:text="${usuario.tipo_identificacion}"></div>
+                                </td>
+                                <td th:text="${usuario.correo}"></td>
+                                <td>
+                                    <span th:if="${usuario.estado == 'Activo'}" class="status-pill" th:text="${usuario.estado}"></span>
+                                    <span th:unless="${usuario.estado == 'Activo'}" class="status-pill warning" th:text="${usuario.estado}"></span>
+                                </td>
+                                <td th:text="${usuario.telefono}"></td>
+                                <td class="user-table-actions">
+                                    <div class="table-actions-row">
+                                        <a th:href="@{'/view/usuarios/edit/' + ${usuario.id_usuario}}" class="btn btn-white">Editar</a>
+                                        <form method="post" th:action="@{'/view/usuarios/delete/' + ${usuario.id_usuario}}" class="action-form">
+                                            <button type="submit" onclick="return confirm('¿Eliminar usuario?')" class="btn btn-white">Eliminar</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(usuarios)}">
+                                <td colspan="8" class="table-empty">No existen usuarios registrados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="px-5 py-4 border-t text-xs text-slate-500">
+                    Total usuarios: <span th:text="${#lists.size(usuarios)}"></span>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>
+

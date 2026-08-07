@@ -16,39 +16,35 @@ public class DocumentosView {
     private DocumentosRepository documentosRepository;
 
     @GetMapping("/view/documentos")
-    public String lista(Model model)
-    {
+    public String lista(Model model) {
         model.addAttribute("documentos", documentosRepository.findAll());
-        return "usuarios/usuarios";
-
+        return "documentos/documentos";
     }
 
     @GetMapping("/view/documentos/form")
     public String form(Model model) {
-        model.addAttribute("documentos", new DocumentosView());
-        return "documentostosForm";
+        model.addAttribute("documentos", new com.vitaNova.vitaNova.model.Documentos());
+        return "documentos/documentosForm";
     }
 
     @PostMapping("/view/documentos/save")
-    public String save(@ModelAttribute DocumentosView documentosView, RedirectAttributes ra) {
+    public String save(@ModelAttribute com.vitaNova.vitaNova.model.Documentos documentos, RedirectAttributes ra) {
+        documentosRepository.save(documentos);
         ra.addFlashAttribute("mensaje", "documentos registrado exitosamente");
         return "redirect:/view/documentos";
     }
 
-    @GetMapping("/view/docuemntos/edit/{id}")
-    public <Documentos> String edit(@PathVariable Long id, Model model) {
-        Documentos documentos = (Documentos) documentosRepository.findById(id).orElse(null);
+    @GetMapping("/view/documentos/edit/{id}")
+    public String edit(@PathVariable Long id, Model model) {
+        com.vitaNova.vitaNova.model.Documentos documentos = documentosRepository.findById(id).orElse(null);
         model.addAttribute("documentos", documentos);
-        return "documentosForm";
+        return "documentos/documentosForm";
     }
 
     @PostMapping("/view/documentos/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        DocumentosView.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Documentos deletado exitosamente");
+        documentosRepository.deleteById(id);
+        ra.addFlashAttribute("mensaje", "Documentos eliminado exitosamente");
         return "redirect:/view/documentos";
-    }
-
-    private static void deleteById(Long id) {
     }
 }

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Usuario | VitaNova</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">
+                <i class="fa-solid fa-briefcase-medical"></i>
+            </div>
+            <div class="brand-copy">
+                <span class="brand-name">VitaNova</span>
+                <span class="brand-tag">PHARMA ERP</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+            <a th:href="@{/view/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+                <i class="fa-solid fa-table-cells-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/view/usuarios}" class="nav-link" th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+                <i class="fa-solid fa-users"></i>
+                <span>Usuarios</span>
+            </a>
+            <a th:href="@{/view/roles}" class="nav-link" th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Roles</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="logout-link">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="dashboard-header">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="search-input" placeholder="Buscar en VitaNova...">
+            </div>
+
+            <div class="header-user">
+                <button type="button" class="icon-button" aria-label="Notificaciones">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="user-meta">
+                        <span class="user-name">Administrador</span>
+                        <span class="user-role">Farmacia Central</span>
+                    </div>
+                    <div class="user-avatar">VN</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <section class="page-header">
+                <div class="page-title">
+                    <h1>Registro de usuario</h1>
+                    <p>Captura los datos de usuario respetando el estilo del dashboard.</p>
+                </div>
+                <div class="page-actions">
+                    <a th:href="@{/view/usuarios}" class="btn btn-white">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Volver</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="form-box">
+                <div class="form-box-header">
+                    <h2 class="card-title">Información del usuario</h2>
+                </div>
+                <div class="form-box-content">
+                    <form th:action="@{/view/usuarios/save}" th:object="${usuarios}" method="post" novalidate>
+                        <input type="hidden" th:field="*{id_usuario}" />
+
+                        <div class="form-grid">
+                            <div class="field-group wide">
+                                <label>Nombre completo</label>
+                                <input type="text" th:field="*{nombre}" required placeholder="Nombre completo">
+                            </div>
+
+                            <div class="field-group">
+                                <label>Rol</label>
+                                <input type="number" th:field="*{id_rol}" required placeholder="ID rol">
+                            </div>
+                            <div class="field-group">
+                                <label>Dependencia</label>
+                                <input type="number" th:field="*{id_dependencia}" required placeholder="ID dependencia">
+                            </div>
+                            <div class="field-group">
+                                <label>Tipo de identificación</label>
+                                <select th:field="*{tipo_identificacion}" required>
+                                    <option value="">Seleccione</option>
+                                    <option value="CC">CC</option>
+                                    <option value="CE">CE</option>
+                                    <option value="NIT">NIT</option>
+                                    <option value="TI">TI</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Número de identificación</label>
+                                <input type="text" th:field="*{num_identificacion}" required placeholder="Número de identificación">
+                            </div>
+                            <div class="field-group">
+                                <label>Correo electrónico</label>
+                                <input type="email" th:field="*{correo}" required placeholder="correo@ejemplo.com">
+                            </div>
+                            <div class="field-group">
+                                <label>Contraseña</label>
+                                <input type="password" th:field="*{password}" required placeholder="Contraseña">
+                            </div>
+                            <div class="field-group">
+                                <label>Estado</label>
+                                <select th:field="*{estado}" required>
+                                    <option value="">Seleccione</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Teléfono</label>
+                                <input type="text" th:field="*{telefono}" required placeholder="Teléfono">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a th:href="@{/view/usuarios}" class="btn btn-white">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

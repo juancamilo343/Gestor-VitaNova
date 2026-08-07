@@ -5,25 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de documentos</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
-</head>
+    </head>
 
-<body class="bg-[#f5f6f8] text-slate-800">
+<body>
 
 <div class="min-h-screen flex">
 
     <!-- SIDEBAR -->
     <div th:replace="fragments/layout :: sidebar('documentos')"></div>
 
-    <div id="overlay" class="fixed inset-0 bg-black/40 z-20 hidden"></div>
+    <div id="overlay" class="overlay hidden"></div>
 
     <!-- CONTENIDO -->
     <div class="flex-1 min-w-0">
@@ -248,3 +242,5 @@
 
 </body>
 </html>
+
+
