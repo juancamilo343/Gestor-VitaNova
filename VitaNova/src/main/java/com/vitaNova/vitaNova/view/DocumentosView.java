@@ -1,50 +1,18 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.model.Documentos;
 import com.vitaNova.vitaNova.repository.DocumentosRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class DocumentosView {
-    @Autowired
-    private DocumentosRepository documentosRepository;
+@RequestMapping("/view/documentos")
+public class DocumentosView extends AbstractCrudViewController<Documentos> {
 
-    @GetMapping("/view/documentos")
-    public String lista(Model model) {
-        model.addAttribute("documentos", documentosRepository.findAll());
-        return "documentos/documentos";
-    }
-
-    @GetMapping("/view/documentos/form")
-    public String form(Model model) {
-        model.addAttribute("documentos", new com.vitaNova.vitaNova.model.Documentos());
-        return "documentos/documentosForm";
-    }
-
-    @PostMapping("/view/documentos/save")
-    public String save(@ModelAttribute com.vitaNova.vitaNova.model.Documentos documentos, RedirectAttributes ra) {
-        documentosRepository.save(documentos);
-        ra.addFlashAttribute("mensaje", "documentos registrado exitosamente");
-        return "redirect:/view/documentos";
-    }
-
-    @GetMapping("/view/documentos/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        com.vitaNova.vitaNova.model.Documentos documentos = documentosRepository.findById(id).orElse(null);
-        model.addAttribute("documentos", documentos);
-        return "documentos/documentosForm";
-    }
-
-    @PostMapping("/view/documentos/delete/{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        documentosRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Documentos eliminado exitosamente");
-        return "redirect:/view/documentos";
+    public DocumentosView(DocumentosRepository repository) {
+        super(repository, Documentos::new, Documentos::getId_documento,
+                new CrudViewDescriptor("/view/documentos", "documentos/documentos", "documentos/documentosForm", "documentos", "Documento", false));
     }
 }

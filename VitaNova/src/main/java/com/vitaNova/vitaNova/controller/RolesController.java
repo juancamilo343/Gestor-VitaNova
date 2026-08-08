@@ -1,46 +1,16 @@
 package com.vitaNova.vitaNova.controller;
 
+import com.vitaNova.vitaNova.controller.support.AbstractCrudRestController;
 import com.vitaNova.vitaNova.model.Roles;
 import com.vitaNova.vitaNova.repository.RolesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/roles")
-public class RolesController
-{
-    @Autowired
-    private RolesRepository rolesRepository;
+public class RolesController extends AbstractCrudRestController<Roles> {
 
-    @GetMapping
-    public List<Roles> getAll()
-    {
-        return rolesRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Roles getById(@PathVariable Long id) {
-        return rolesRepository.findById(id).orElse(null);
-    }
-
-    @PostMapping
-    public Roles create(@RequestBody Roles roles)
-    {
-        return rolesRepository.save(roles);
-    }
-
-    @PutMapping("/{id}")
-    public Roles update(@PathVariable long id, @RequestBody Roles roles)
-    {
-        roles.setId_rol(id);
-        return rolesRepository.save(roles);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id)
-    {
-        rolesRepository.deleteById(id);
+    public RolesController(RolesRepository repository) {
+        super(repository, Roles::setId_rol);
     }
 }

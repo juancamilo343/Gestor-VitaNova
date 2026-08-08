@@ -2,72 +2,17 @@ package com.vitaNova.vitaNova.view;
 
 import com.vitaNova.vitaNova.model.Plantilla;
 import com.vitaNova.vitaNova.repository.PlantillaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class PlantillaView
-{
-    @Autowired
-    private PlantillaRepository plantillaRepository;
+@RequestMapping("/view/plantilla")
+public class PlantillaView extends AbstractCrudViewController<Plantilla> {
 
-    // LISTA
-    @GetMapping("/view/plantilla")
-    public String lista(Model model)
-    {
-        model.addAttribute("plantilla", plantillaRepository.findAll());
-
-        return "Plantilla/Plantilla";
-    }
-
-    // FORMULARIO
-    @GetMapping("/view/bitacoras/form")
-    public String form(Model model)
-    {
-        model.addAttribute("plantilla", new Plantilla());
-
-        return "Plantilla/PlantillaForm";
-    }
-
-    // GUARDAR
-    @PostMapping("/view/bitacoras/save")
-    public String save(@ModelAttribute Plantilla bitacora,
-                       RedirectAttributes ra)
-    {
-        plantillaRepository.save(bitacora);
-
-        ra.addFlashAttribute("mensaje",
-                "Plantilla registrada con éxito");
-
-        return "redirect:/view/bitacoras";
-    }
-
-    // EDITAR
-    @GetMapping("/view/bitacoras/edit/{id}")
-    public String edit(@PathVariable Long id,
-                       Model model)
-    {
-        Plantilla bitacora =
-                plantillaRepository.findById(id).orElse(null);
-
-        model.addAttribute("bitacora", bitacora);
-
-        return "Plantilla/BitacorasForm";
-    }
-
-    // ELIMINAR
-    @PostMapping("/view/bitacoras/delete/{id}")
-    public String delete(@PathVariable Long id,
-                         RedirectAttributes ra)
-    {
-        plantillaRepository.deleteById(id);
-
-        ra.addFlashAttribute("mensaje",
-                "Bitácora eliminada con éxito");
-
-        return "redirect:/view/bitacoras";
+    public PlantillaView(PlantillaRepository repository) {
+        super(repository, Plantilla::new, Plantilla::getId_evento,
+                new CrudViewDescriptor("/view/plantilla", "Plantilla/Plantilla", "Plantilla/PlantillaForm", "plantilla", "Plantilla", true));
     }
 }

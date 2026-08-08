@@ -1,42 +1,16 @@
 package com.vitaNova.vitaNova.controller;
 
+import com.vitaNova.vitaNova.controller.support.AbstractCrudRestController;
 import com.vitaNova.vitaNova.model.Reasignaciones;
 import com.vitaNova.vitaNova.repository.ReasignacionesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/reasignaciones")
-public class ReasignacionesController {
+public class ReasignacionesController extends AbstractCrudRestController<Reasignaciones> {
 
-    @Autowired
-    private ReasignacionesRepository reasignacionesRepository;
-
-    @GetMapping
-    public List<Reasignaciones> getAll() {
-        return reasignacionesRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Reasignaciones getById(@PathVariable Long id) {
-        return reasignacionesRepository.findById(id).orElse(null);
-    }
-
-    @PostMapping
-    public Reasignaciones create(@RequestBody Reasignaciones reasignaciones) {
-        return reasignacionesRepository.save(reasignaciones);
-    }
-
-    @PutMapping("/{id}")
-    public Reasignaciones update(@PathVariable Long id, @RequestBody Reasignaciones reasignaciones) {
-        reasignaciones.setId_reasignacion(id);
-        return reasignacionesRepository.save(reasignaciones);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        reasignacionesRepository.deleteById(id);
+    public ReasignacionesController(ReasignacionesRepository repository) {
+        super(repository, Reasignaciones::setId_reasignacion);
     }
 }

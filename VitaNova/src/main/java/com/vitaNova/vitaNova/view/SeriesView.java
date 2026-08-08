@@ -3,67 +3,33 @@ package com.vitaNova.vitaNova.view;
 import com.vitaNova.vitaNova.model.Series;
 import com.vitaNova.vitaNova.repository.CcdUnidadRepository;
 import com.vitaNova.vitaNova.repository.SeriesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-public class SeriesView
-{
-    @Autowired
-    private SeriesRepository repository;
+@RequestMapping("/view/series")
+public class SeriesView extends AbstractCrudViewController<Series> {
 
-    @Autowired
-    private CcdUnidadRepository unidadesRepository;
+    private final CcdUnidadRepository unidadesRepository;
 
-    @GetMapping("/view/series")
-    public String lista(Model model)
-    {
-        model.addAttribute("series", repository.findAll());
-        return "series/series";
+    public SeriesView(SeriesRepository repository, CcdUnidadRepository unidadesRepository) {
+        super(repository, Series::new, Series::getId_serie,
+                new CrudViewDescriptor("/view/series", "series/series", "series/seriesForm", "series", "Serie", true));
+        this.unidadesRepository = unidadesRepository;
     }
 
-    @GetMapping("/view/series/form")
-    public String form(Model model)
-    {
-        model.addAttribute("series", new Series());
+    @Override
+    protected void populateFormModel(Model model) {
         model.addAttribute("unidadesList", unidadesRepository.findAll());
-        return "series/seriesForm";
     }
 
-    @PostMapping("/view/series/save")
-    public String save(@ModelAttribute Series series, RedirectAttributes ra)
-    {
-        boolean isUpdate = series.getId_serie() != null;
-        Series savedSeries = repository.save(series);
-        Series loadedSeries = repository.findById(savedSeries.getId_serie()).orElse(savedSeries);
-
-        ra.addFlashAttribute("success", isUpdate ? "Serie actualizada con exito" : "Serie registrada con exito");
-        ra.addFlashAttribute("savedSeries", loadedSeries);
-        return "redirect:/view/series";
+    @Override
+    protected void afterSave(Series saved, RedirectAttributes ra) {
+        // El listado muestra el detalle del registro con la unidad ya resuelta.
+        ra.addFlashAttribute("savedSeries", repository().findById(saved.getId_serie()).orElse(saved));
     }
-
-    @GetMapping("/view/series/edit/{id}")
-    public String edit(@PathVariable Long id, Model model)
-    {
-        Series series = repository.findById(id).orElse(new Series());
-        model.addAttribute("series", series);
-        model.addAttribute("unidadesList", unidadesRepository.findAll());
-        return "series/seriesForm";
-    }
-
-    @PostMapping("/view/series/delete/{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes ra)
-    {
-        repository.deleteById(id);
-        ra.addFlashAttribute("success", "Serie eliminada con exito");
-        return "redirect:/view/series";
-    }
-
-
 }

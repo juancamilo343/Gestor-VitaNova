@@ -1,47 +1,16 @@
 package com.vitaNova.vitaNova.controller;
 
+import com.vitaNova.vitaNova.controller.support.AbstractCrudRestController;
 import com.vitaNova.vitaNova.model.Series;
 import com.vitaNova.vitaNova.repository.SeriesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/series")
-public class SeriesController
-{
-    @Autowired
-    private SeriesRepository repository;
+public class SeriesController extends AbstractCrudRestController<Series> {
 
-    @GetMapping
-    public List<Series> getAll()
-    {
-        return repository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Series getById(@PathVariable Long id)
-    {
-        return repository.findById(id).orElse(null);
-    }
-
-    @PostMapping
-    public Series create(@RequestBody Series series)
-    {
-        return repository.save(series);
-    }
-
-    @PutMapping("/{id}")
-    public Series update(@PathVariable Long id, @RequestBody Series series)
-    {
-        series.setId_serie(id);
-        return repository.save(series);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id)
-    {
-        repository.deleteById(id);
+    public SeriesController(SeriesRepository repository) {
+        super(repository, Series::setId_serie);
     }
 }

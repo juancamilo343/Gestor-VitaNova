@@ -2,57 +2,17 @@ package com.vitaNova.vitaNova.view;
 
 import com.vitaNova.vitaNova.model.Dependencias;
 import com.vitaNova.vitaNova.repository.DependenciasRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 @Controller
-public class Dependenciasview
-{
-    @Autowired
-    private DependenciasRepository dependenciasRepository;
+@RequestMapping("/view/dependencias")
+public class Dependenciasview extends AbstractCrudViewController<Dependencias> {
 
-    @GetMapping("/view/dependencias")
-    public String lista(Model model)
-    {
-        model.addAttribute("dependencias", dependenciasRepository.findAll());
-        return "dependencias/dependencias";
+    public Dependenciasview(DependenciasRepository repository) {
+        super(repository, Dependencias::new, Dependencias::getId_dependencia,
+                new CrudViewDescriptor("/view/dependencias", "dependencias/dependencias", "dependencias/dependenciasForm", "dependencias", "Dependencia", true));
     }
-
-    @GetMapping("/view/dependencias/form")
-    public String form(Model model)
-    {
-        model.addAttribute("dependencias", new Dependencias());
-        return "dependencias/dependenciasForm";
-    }
-
-    @PostMapping("/view/dependencias/save")
-    public String save(@ModelAttribute Dependencias dependencias, RedirectAttributes ra)
-    {
-        dependenciasRepository.save(dependencias);
-        ra.addFlashAttribute("mensaje", "Dependencia registrado exitosamente");
-        return "redirect:/view/dependencias";
-    }
-
-    @GetMapping("/view/dependencias/edit/{id}")
-    public String edit(@PathVariable long id, Model model)
-    {
-        Dependencias dependencias = dependenciasRepository.findById(id).orElse(null);
-        model.addAttribute("dependencias", dependencias);
-        return "dependencias/dependenciasForm";
-    }
-
-    @PostMapping("/view/dependencias/delete/{id}")
-    public String delete(@PathVariable long id, RedirectAttributes ra)
-    {
-        dependenciasRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "dependencia eliminado exitosamente");
-        return "redirect:/view/dependencias";
-    }
-
-
 }

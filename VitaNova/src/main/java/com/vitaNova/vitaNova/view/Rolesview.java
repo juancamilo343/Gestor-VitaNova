@@ -2,58 +2,17 @@ package com.vitaNova.vitaNova.view;
 
 import com.vitaNova.vitaNova.model.Roles;
 import com.vitaNova.vitaNova.repository.RolesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class Rolesview
-{
-    @Autowired
-    private RolesRepository rolesRepository;
+@RequestMapping("/view/roles")
+public class Rolesview extends AbstractCrudViewController<Roles> {
 
-    @GetMapping("/view/roles")
-    public String lista(Model model)
-    {
-        model.addAttribute("roles", rolesRepository.findAll());
-        return "roles/roles";
+    public Rolesview(RolesRepository repository) {
+        super(repository, Roles::new, Roles::getId_rol,
+                new CrudViewDescriptor("/view/roles", "roles/roles", "roles/rolesForm", "roles", "Rol", false));
     }
-
-    @GetMapping("/view/roles/form")
-    public String form(Model model)
-    {
-        model.addAttribute("roles", new Roles());
-        return "roles/rolesForm";
-    }
-
-    @PostMapping("/view/roles/save")
-    public String save(@ModelAttribute Roles roles, RedirectAttributes ra)
-    {
-        rolesRepository.save(roles);
-        ra.addFlashAttribute("mensaje", "rol registrado exitosamente");
-        return "redirect:/view/roles";
-    }
-
-    @GetMapping("/view/roles/edit/{id}")
-    public String edit(@PathVariable long id, Model model)
-    {
-        Roles roles = rolesRepository.findById(id).orElse(null);
-        model.addAttribute("roles", roles);
-        return "roles/rolesForm";
-    }
-
-    @PostMapping("/view/roles/delete/{id}")
-    public String delete(@PathVariable long id, RedirectAttributes ra)
-    {
-        rolesRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "rol eliminado exitosamente");
-        return "redirect:/view/roles";
-    }
-
-
 }

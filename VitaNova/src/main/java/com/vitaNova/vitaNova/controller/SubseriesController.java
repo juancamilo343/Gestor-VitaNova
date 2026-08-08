@@ -1,47 +1,16 @@
 package com.vitaNova.vitaNova.controller;
 
+import com.vitaNova.vitaNova.controller.support.AbstractCrudRestController;
 import com.vitaNova.vitaNova.model.Subseries;
 import com.vitaNova.vitaNova.repository.SubseriesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/subseries")
-public class SubseriesController
-{
-    @Autowired
-    private SubseriesRepository repository;
+public class SubseriesController extends AbstractCrudRestController<Subseries> {
 
-    @GetMapping
-    public List<Subseries> getAll()
-    {
-        return repository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Subseries getById(@PathVariable Long id)
-    {
-        return repository.findById(id).orElse(null);
-    }
-
-    @PostMapping
-    public Subseries create(@RequestBody Subseries subseries)
-    {
-        return repository.save(subseries);
-    }
-
-    @PutMapping("/{id}")
-    public Subseries update(@PathVariable Long id, @RequestBody Subseries subseries)
-    {
-        subseries.setId_subserie(id);
-        return repository.save(subseries);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id)
-    {
-        repository.deleteById(id);
+    public SubseriesController(SubseriesRepository repository) {
+        super(repository, Subseries::setId_subserie);
     }
 }

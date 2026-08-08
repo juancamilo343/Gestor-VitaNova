@@ -1,96 +1,57 @@
 package com.vitaNova.vitaNova.view;
 
 import com.vitaNova.vitaNova.model.Tramites;
-import com.vitaNova.vitaNova.model.Radicados;
-import com.vitaNova.vitaNova.model.Estados;
-import com.vitaNova.vitaNova.model.Dependencias;
-import com.vitaNova.vitaNova.repository.TramitesRepository;
-import com.vitaNova.vitaNova.repository.RadicadosRepository;
-import com.vitaNova.vitaNova.repository.EstadosRepository;
 import com.vitaNova.vitaNova.repository.DependenciasRepository;
+import com.vitaNova.vitaNova.repository.EstadosRepository;
+import com.vitaNova.vitaNova.repository.RadicadosRepository;
+import com.vitaNova.vitaNova.repository.TramitesRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vitaNova.vitaNova.view.support.AbstractCrudViewController;
+import com.vitaNova.vitaNova.view.support.CrudViewDescriptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/view/tramites")
-public class TramitesView {
+public class TramitesView extends AbstractCrudViewController<Tramites> {
 
-    @Autowired
-    private TramitesRepository tramitesRepository;
+    private final RadicadosRepository radicadosRepository;
+    private final EstadosRepository estadosRepository;
+    private final DependenciasRepository dependenciasRepository;
+    private final UsuariosRepository usuariosRepository;
 
-    @Autowired
-    private RadicadosRepository radicadosRepository;
+    public TramitesView(TramitesRepository repository,
+                        RadicadosRepository radicadosRepository,
+                        EstadosRepository estadosRepository,
+                        DependenciasRepository dependenciasRepository,
+                        UsuariosRepository usuariosRepository) {
+        super(repository, Tramites::new, Tramites::getIdTramite,
+                new CrudViewDescriptor("/view/tramites", "tramites/tramites", "tramites/tramitesForm",
+                        "tramites", "Tramite", false));
+        this.radicadosRepository = radicadosRepository;
+        this.estadosRepository = estadosRepository;
+        this.dependenciasRepository = dependenciasRepository;
+        this.usuariosRepository = usuariosRepository;
+    }
 
-    @Autowired
-    private EstadosRepository estadosRepository;
-
-    @Autowired
-    private DependenciasRepository dependenciasRepository;
-
-    @Autowired
-    private UsuariosRepository usuariosRepository;
-
-    // LISTA - Vista: tramites/tramites.html
-    @GetMapping
-    public String lista(Model model) {
-        // Datos para la tabla de radicados
+    @Override
+    protected void populateListModel(Model model) {
         model.addAttribute("radicados", radicadosRepository.findAll());
-
-        // Catálogos para filtros
-        model.addAttribute("tramites", tramitesRepository.findAll());
         model.addAttribute("estados", estadosRepository.findAll());
         model.addAttribute("dependencias", dependenciasRepository.findAll());
         model.addAttribute("usuarios", usuariosRepository.findAll());
 
-        // Estadísticas (KPIs)
-        model.addAttribute("totalTramites", tramitesRepository.count());
+        model.addAttribute("totalTramites", repository().count());
         model.addAttribute("pendientes", radicadosRepository.countPendientes());
         model.addAttribute("enProceso", radicadosRepository.countEnTramite());
         model.addAttribute("finalizados", radicadosRepository.countFinalizados());
         model.addAttribute("vencidos", radicadosRepository.countVencidos());
-
-        return "tramites/tramites";
     }
 
-    // FORMULARIO NUEVO
-    @GetMapping("/form")
-    public String form(Model model) {
-        model.addAttribute("tramites", new Tramites());
+    @Override
+    protected void populateFormModel(Model model) {
         model.addAttribute("estados", estadosRepository.findAll());
         model.addAttribute("dependencias", dependenciasRepository.findAll());
-        return "tramites/tramitesForm";
-    }
-
-    // EDITAR
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Tramites tramite = tramitesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trámite no encontrado"));
-        model.addAttribute("tramites", tramite);
-        model.addAttribute("estados", estadosRepository.findAll());
-        model.addAttribute("dependencias", dependenciasRepository.findAll());
-        return "tramites/tramitesForm";
-    }
-
-    // GUARDAR
-    @PostMapping("/save")
-    public String save(@ModelAttribute Tramites tramites, RedirectAttributes ra) {
-        tramitesRepository.save(tramites);
-        ra.addFlashAttribute("mensaje", "Trámite registrado con éxito");
-        return "redirect:/view/tramites";
-    }
-
-    // ELIMINAR
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        tramitesRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Trámite eliminado con éxito");
-        return "redirect:/view/tramites";
     }
 }
