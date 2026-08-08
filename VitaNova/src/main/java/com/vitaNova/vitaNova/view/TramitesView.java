@@ -1,5 +1,6 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.model.Tramites;
 import com.vitaNova.vitaNova.model.Radicados;
 import com.vitaNova.vitaNova.model.Estados;
@@ -71,7 +72,7 @@ public class TramitesView {
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
         Tramites tramite = tramitesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trámite no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Tramite", id));
         model.addAttribute("tramites", tramite);
         model.addAttribute("estados", estadosRepository.findAll());
         model.addAttribute("dependencias", dependenciasRepository.findAll());
@@ -82,15 +83,20 @@ public class TramitesView {
     @PostMapping("/save")
     public String save(@ModelAttribute Tramites tramites, RedirectAttributes ra) {
         tramitesRepository.save(tramites);
-        ra.addFlashAttribute("mensaje", "Trámite registrado con éxito");
+        ra.addFlashAttribute("success", "Trámite registrado con éxito");
         return "redirect:/view/tramites";
     }
 
     // ELIMINAR
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
+        if (!tramitesRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "El tramite con id " + id + " no existe");
+            return "redirect:/view/tramites";
+        }
+
         tramitesRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Trámite eliminado con éxito");
+        ra.addFlashAttribute("success", "Trámite eliminado con éxito");
         return "redirect:/view/tramites";
     }
 }

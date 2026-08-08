@@ -49,9 +49,13 @@ public class SeriesView
     }
 
     @GetMapping("/view/series/edit/{id}")
-    public String edit(@PathVariable Long id, Model model)
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra)
     {
-        Series series = repository.findById(id).orElse(new Series());
+        Series series = repository.findById(id).orElse(null);
+        if (series == null) {
+            ra.addFlashAttribute("error", "La serie con id " + id + " no existe");
+            return "redirect:/view/series";
+        }
         model.addAttribute("series", series);
         model.addAttribute("unidadesList", unidadesRepository.findAll());
         return "series/seriesForm";
@@ -60,6 +64,11 @@ public class SeriesView
     @PostMapping("/view/series/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra)
     {
+        if (!repository.existsById(id)) {
+            ra.addFlashAttribute("error", "La serie con id " + id + " no existe");
+            return "redirect:/view/series";
+        }
+
         repository.deleteById(id);
         ra.addFlashAttribute("success", "Serie eliminada con exito");
         return "redirect:/view/series";

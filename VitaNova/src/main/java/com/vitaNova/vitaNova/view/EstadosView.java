@@ -39,25 +39,34 @@ public class EstadosView
     public String save(@ModelAttribute Estados estados, RedirectAttributes ra)
     {
         estadosRepository.save(estados);
-        ra.addFlashAttribute("mensaje", "Estado registrado con exito");
+        ra.addFlashAttribute("success", "Estado registrado con exito");
         return "redirect:/view/estados";
     }
 
     //editar estados
     @GetMapping("/view/estados/edit/{id}")
-    public String edit(@PathVariable Long id, Model model)
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra)
     {
         Estados estados = estadosRepository.findById(id).orElse(null);
+        if (estados == null) {
+            ra.addFlashAttribute("error", "El estado con id " + id + " no existe");
+            return "redirect:/view/estados";
+        }
         model.addAttribute("estados", estados);
-        return "estadosForm";
+        return "estados/estadosForm";
     }
 
     //borrar estados
     @PostMapping("/view/estados/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra)
     {
+        if (!estadosRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "El estado con id " + id + " no existe");
+            return "redirect:/view/estados";
+        }
+
         estadosRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Estado eliminado con exito");
+        ra.addFlashAttribute("success", "Estado eliminado con exito");
         return "redirect:/view/estados";
     }
 }

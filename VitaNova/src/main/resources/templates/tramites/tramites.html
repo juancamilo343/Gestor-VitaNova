@@ -42,6 +42,8 @@
                 </div>
             </header>
 
+            <div th:replace="fragments/layout :: alerts"></div>
+
             <!-- KPIS DINÁMICOS -->
             <section class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm text-center">
@@ -431,10 +433,12 @@
         if (radicado) {
             actualizarDetalle(radicado);
         } else {
-            fetch('/api/radicados/' + idRadicado)
-                .then(response => response.json())
+            obtenerJson('/api/radicados/' + idRadicado)
                 .then(data => actualizarDetalle(data))
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error al cargar el detalle del radicado', error);
+                    alert('No fue posible cargar el detalle del radicado: ' + error.message);
+                });
         }
 
         cargarTrazabilidad(idRadicado);
@@ -459,12 +463,31 @@
     }
 
     // ============================================================
+    // UTILIDADES DE ACCESO A LA API
+    // ============================================================
+    // Verifica el codigo HTTP antes de interpretar la respuesta: sin esta
+    // comprobacion un 404 o un 500 se intentaba leer como JSON y el error real
+    // quedaba oculto tras un mensaje generico.
+    function obtenerJson(url) {
+        return fetch(url).then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status + ' al consultar ' + url);
+            }
+            return response.json();
+        });
+    }
+
+    function mostrarError(container, mensaje, error) {
+        console.error(mensaje, error);
+        container.innerHTML = '<p class="text-sm text-red-600">' + mensaje + '</p>';
+    }
+
+    // ============================================================
     // FUNCIONES DE CARGA DE DATOS RELACIONADOS
     // ============================================================
     function cargarTrazabilidad(idRadicado) {
         const container = document.getElementById('timelineContainer');
-        fetch('/api/historial/radicado/' + idRadicado)
-            .then(response => response.json())
+        obtenerJson('/api/historial/radicado/' + idRadicado)
             .then(data => {
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-sm text-slate-500">Sin trazabilidad registrada</p>';
@@ -481,13 +504,12 @@
                     </div>
                 `).join('');
             })
-            .catch(() => container.innerHTML = '<p class="text-sm text-slate-500">Error al cargar trazabilidad</p>');
+            .catch(error => mostrarError(container, 'Error al cargar trazabilidad', error));
     }
 
     function cargarDocumentos(idRadicado) {
         const container = document.getElementById('tablaDocumentos');
-        fetch('/api/documentos/radicado/' + idRadicado)
-            .then(response => response.json())
+        obtenerJson('/api/documentos/radicado/' + idRadicado)
             .then(data => {
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-sm text-slate-500">No hay documentos asociados</p>';
@@ -500,13 +522,12 @@
                     </div>
                 `).join('');
             })
-            .catch(() => container.innerHTML = '<p class="text-sm text-slate-500">Error al cargar documentos</p>');
+            .catch(error => mostrarError(container, 'Error al cargar documentos', error));
     }
 
     function cargarObservaciones(idRadicado) {
         const container = document.getElementById('listaObservaciones');
-        fetch('/api/observaciones/radicado/' + idRadicado)
-            .then(response => response.json())
+        obtenerJson('/api/observaciones/radicado/' + idRadicado)
             .then(data => {
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-sm text-slate-500">Sin observaciones</p>';
@@ -519,13 +540,12 @@
                     </div>
                 `).join('');
             })
-            .catch(() => container.innerHTML = '<p class="text-sm text-slate-500">Error al cargar observaciones</p>');
+            .catch(error => mostrarError(container, 'Error al cargar observaciones', error));
     }
 
     function cargarReasignaciones(idRadicado) {
         const container = document.getElementById('historialReasignaciones');
-        fetch('/api/reasignaciones/radicado/' + idRadicado)
-            .then(response => response.json())
+        obtenerJson('/api/reasignaciones/radicado/' + idRadicado)
             .then(data => {
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-sm text-slate-500">Sin reasignaciones</p>';
@@ -539,7 +559,7 @@
                     </div>
                 `).join('');
             })
-            .catch(() => container.innerHTML = '<p class="text-sm text-slate-500">Error al cargar reasignaciones</p>');
+            .catch(error => mostrarError(container, 'Error al cargar reasignaciones', error));
     }
 
     // ============================================================
@@ -570,14 +590,17 @@
             })
         })
         .then(response => {
-            if (!response.ok) throw new Error('Error al guardar');
+            if (!response.ok) throw new Error('HTTP ' + response.status);
             return response.json();
         })
         .then(() => {
             document.getElementById('nuevaObservacion').value = '';
             cargarObservaciones(id);
         })
-        .catch(error => alert('Error al guardar observación: ' + error.message));
+        .catch(error => {
+            console.error('Error al guardar observación', error);
+            alert('Error al guardar observación: ' + error.message);
+        });
     }
 </script>
 

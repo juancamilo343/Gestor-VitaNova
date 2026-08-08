@@ -23,6 +23,7 @@
             </section>
 
             <div th:if="${success}" class="alert-banner success" th:text="${success}"></div>
+            <div th:replace="fragments/layout :: errorAlert"></div>
 
             <section class="table-card surface">
                 <div class="table-header">

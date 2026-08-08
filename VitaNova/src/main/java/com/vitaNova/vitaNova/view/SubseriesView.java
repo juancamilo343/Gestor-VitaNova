@@ -49,9 +49,13 @@ public class SubseriesView
     }
 
     @GetMapping("/view/subseries/edit/{id}")
-    public String edit(@PathVariable Long id, Model model)
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra)
     {
-        Subseries subseries = repository.findById(id).orElse(new Subseries());
+        Subseries subseries = repository.findById(id).orElse(null);
+        if (subseries == null) {
+            ra.addFlashAttribute("error", "La subserie con id " + id + " no existe");
+            return "redirect:/view/subseries";
+        }
         model.addAttribute("subseries", subseries);
         model.addAttribute("seriesList", seriesRepository.findAll());
         return "subseries/subseriesForm";
@@ -60,6 +64,11 @@ public class SubseriesView
     @PostMapping("/view/subseries/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra)
     {
+        if (!repository.existsById(id)) {
+            ra.addFlashAttribute("error", "La subserie con id " + id + " no existe");
+            return "redirect:/view/subseries";
+        }
+
         repository.deleteById(id);
         ra.addFlashAttribute("success", "Subserie eliminada con exito");
         return "redirect:/view/subseries";

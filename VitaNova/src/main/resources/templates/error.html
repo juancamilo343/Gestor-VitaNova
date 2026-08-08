@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | VitaNova</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="error-page">
+    <div class="error-card">
+        <p class="error-status" th:text="${status} ?: 'Error'">500</p>
+        <h1 class="error-title" th:text="${error} ?: 'Ocurrio un error inesperado'">Error</h1>
+        <p class="error-message" th:if="${message}" th:text="${message}"></p>
+        <p class="error-path" th:if="${path}" th:text="${path}"></p>
+        <a class="error-link" th:href="@{/view/dashboard}">Volver al inicio</a>
+    </div>
+</main>
+</body>
+</html>

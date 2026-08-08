@@ -1,6 +1,7 @@
 package com.vitaNova.vitaNova.controller;
 
 import com.vitaNova.vitaNova.model.Estados;
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.repository.EstadosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,8 @@ public class EstadosController
     @GetMapping("/{id}")
     public Estados getById(@PathVariable Long id)
     {
-        return estadosRepository.findById(id).orElse(null);
+        return estadosRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Estado", id));
     }
     @PostMapping
     public Estados create(@RequestBody Estados estados)
@@ -35,6 +37,9 @@ public class EstadosController
     @PutMapping("/{id}")
     public Estados update(@PathVariable long id, @RequestBody Estados estados)
     {
+        if (!estadosRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Estado", id);
+        }
         estados.setId_estado(id);
         return estadosRepository.save(estados);
     }
@@ -42,6 +47,9 @@ public class EstadosController
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id)
     {
+        if (!estadosRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Estado", id);
+        }
         estadosRepository.deleteById(id);
     }
 }

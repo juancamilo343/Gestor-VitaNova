@@ -1,6 +1,7 @@
 package com.vitaNova.vitaNova.controller;
 
 import com.vitaNova.vitaNova.model.Plantilla;
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.repository.PlantillaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,8 @@ public class PlantillaController
     @GetMapping("/{id}")
     public Plantilla getById(@PathVariable Long id)  // <-- @PathVariable añadido
     {
-        return plantillaRepository.findById(id).orElse(null);
+        return plantillaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Plantilla", id));
     }
 
     @PostMapping
@@ -35,6 +37,9 @@ public class PlantillaController
     @PutMapping("/{id}")
     public Plantilla update(@PathVariable Long id, @RequestBody Plantilla plantilla)
     {
+        if (!plantillaRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Plantilla", id);
+        }
         plantilla.setId_evento(id);
         return plantillaRepository.save(plantilla);
     }
@@ -42,6 +47,9 @@ public class PlantillaController
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id)
     {
+        if (!plantillaRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Plantilla", id);
+        }
         plantillaRepository.deleteById(id);
     }
 }

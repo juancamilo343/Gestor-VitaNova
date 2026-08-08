@@ -1,6 +1,7 @@
 package com.vitaNova.vitaNova.controller;
 
 import com.vitaNova.vitaNova.model.Roles;
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,8 @@ public class RolesController
 
     @GetMapping("/{id}")
     public Roles getById(@PathVariable Long id) {
-        return rolesRepository.findById(id).orElse(null);
+        return rolesRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Rol", id));
     }
 
     @PostMapping
@@ -34,6 +36,9 @@ public class RolesController
     @PutMapping("/{id}")
     public Roles update(@PathVariable long id, @RequestBody Roles roles)
     {
+        if (!rolesRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Rol", id);
+        }
         roles.setId_rol(id);
         return rolesRepository.save(roles);
     }
@@ -41,6 +46,9 @@ public class RolesController
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id)
     {
+        if (!rolesRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Rol", id);
+        }
         rolesRepository.deleteById(id);
     }
 }

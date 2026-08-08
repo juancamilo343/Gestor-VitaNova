@@ -1,5 +1,6 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.exception.AlmacenamientoArchivoException;
 import com.vitaNova.vitaNova.model.Dependencias;
 import com.vitaNova.vitaNova.model.Documentos;
 import com.vitaNova.vitaNova.model.Radicados;
@@ -12,6 +13,8 @@ import com.vitaNova.vitaNova.repository.SubseriesRepository;
 import com.vitaNova.vitaNova.repository.TramitesRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -34,6 +37,8 @@ import java.util.UUID;
 
 @Controller
 public class RadicadosView {
+
+    private static final Logger log = LoggerFactory.getLogger(RadicadosView.class);
 
     @Autowired
     private RadicadosRepository radicadosRepository;
@@ -100,12 +105,22 @@ public class RadicadosView {
 
         Radicados savedRadicado = radicadosRepository.save(radicado);
 
-        int archivosGuardados = guardarArchivos(savedRadicado, radicado.getArchivos());
+        int archivosGuardados;
+        try {
+            archivosGuardados = guardarArchivos(savedRadicado, radicado.getArchivos());
+        } catch (AlmacenamientoArchivoException ex) {
+            // El radicado ya quedo guardado: se informa el fallo parcial en lugar de
+            // devolver una pagina de error que oculta ese hecho.
+            log.error("Fallo al guardar los adjuntos del radicado {}", savedRadicado.getId_radicado(), ex);
+            ra.addFlashAttribute("savedRadicado", savedRadicado);
+            ra.addFlashAttribute("error", "La radicacion se guardo, pero no fue posible almacenar los archivos adjuntos: "
+                    + ex.getMessage());
+            return "redirect:" + obtenerDestinoFormulario(request.getRequestURI());
+        }
 
         String mensaje = construirMensajeGuardado(isUpdate, request.getRequestURI(), savedRadicado);
 
         ra.addFlashAttribute("success", mensaje);
-        ra.addFlashAttribute("mensaje", mensaje);
         ra.addFlashAttribute("savedRadicado", savedRadicado);
         ra.addFlashAttribute("archivos", archivosGuardados);
 
@@ -113,8 +128,12 @@ public class RadicadosView {
     }
 
     @GetMapping("/view/radicados/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Radicados radicado = radicadosRepository.findById(id).orElse(new Radicados());
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra) {
+        Radicados radicado = radicadosRepository.findById(id).orElse(null);
+        if (radicado == null) {
+            ra.addFlashAttribute("error", "La radicacion con id " + id + " no existe");
+            return "redirect:/view/radicados/documental";
+        }
         model.addAttribute("radicado", radicado);
         cargarCatalogos(model);
         return "radicados/radicacion_Documental";
@@ -122,9 +141,13 @@ public class RadicadosView {
 
     @PostMapping("/view/radicados/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
+        if (!radicadosRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "La radicacion con id " + id + " no existe");
+            return "redirect:/view/radicados/documental";
+        }
+
         radicadosRepository.deleteById(id);
         ra.addFlashAttribute("success", "Radicacion eliminada con exito");
-        ra.addFlashAttribute("mensaje", "Radicacion eliminada con exito");
         return "redirect:/view/radicados/documental";
     }
 
@@ -192,6 +215,9 @@ public class RadicadosView {
         // 2. Buscamos el objeto Dependencias real en la base de datos con ese ID
         // NOTA: Cambia "setDependencia" o "setDependencias" según cómo se llame el setter exacto de tu Objeto en la clase Radicados
         Dependencias depBaseDatos = dependenciasRepository.findById(Long.valueOf(idDepElegido)).orElse(null);
+        if (depBaseDatos == null) {
+            log.warn("La dependencia {} no existe; el radicado quedara sin dependencia asociada", idDepElegido);
+        }
         radicado.setDependencias(depBaseDatos);
 
         // Usuario
@@ -251,7 +277,7 @@ public class RadicadosView {
                 guardados++;
             }
         } catch (IOException e) {
-            throw new RuntimeException("No se pudieron guardar los archivos adjuntos: " + e.getMessage(), e);
+            throw new AlmacenamientoArchivoException(e.getMessage(), e);
         }
 
         return guardados;
@@ -300,6 +326,7 @@ public class RadicadosView {
         try {
             return Integer.parseInt(texto.trim());
         } catch (NumberFormatException e) {
+            log.warn("Valor no numerico recibido en el formulario de radicacion: '{}'", texto);
             return null;
         }
     }

@@ -5,6 +5,8 @@ import com.vitaNova.vitaNova.dto.DashboardProductoTop;
 import com.vitaNova.vitaNova.dto.DashboardResumen;
 import com.vitaNova.vitaNova.dto.DashboardVentaMensual;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
+
+    private static final Logger log = LoggerFactory.getLogger(DashboardService.class);
 
     private static final String[] MONTH_LABELS = {
             "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
@@ -127,6 +131,7 @@ public class DashboardService {
                     }
             );
         } catch (DataAccessException ex) {
+            log.error("No fue posible consultar las ventas mensuales; el grafico se mostrara en cero", ex);
             totales.clear();
         }
 
@@ -203,6 +208,7 @@ public class DashboardService {
                 return producto;
             });
         } catch (DataAccessException ex) {
+            log.error("No fue posible consultar los productos mas vendidos; se mostrara una lista vacia", ex);
             return Collections.emptyList();
         }
     }
@@ -301,6 +307,7 @@ public class DashboardService {
             Long value = jdbcTemplate.queryForObject(sql, Long.class, args);
             return value != null ? value : 0L;
         } catch (DataAccessException ex) {
+            log.error("Consulta del dashboard fallida, se devuelve 0. SQL: {}", sql, ex);
             return 0L;
         }
     }
@@ -310,6 +317,7 @@ public class DashboardService {
             BigDecimal value = jdbcTemplate.queryForObject(sql, BigDecimal.class, args);
             return value != null ? value : BigDecimal.ZERO;
         } catch (DataAccessException ex) {
+            log.error("Consulta del dashboard fallida, se devuelve 0. SQL: {}", sql, ex);
             return BigDecimal.ZERO;
         }
     }

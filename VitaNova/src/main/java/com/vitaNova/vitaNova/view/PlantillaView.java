@@ -1,5 +1,6 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.model.Plantilla;
 import com.vitaNova.vitaNova.repository.PlantillaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,10 @@ public class PlantillaView
     {
         plantillaRepository.save(bitacora);
 
-        ra.addFlashAttribute("mensaje",
+        ra.addFlashAttribute("success",
                 "Plantilla registrada con éxito");
 
-        return "redirect:/view/bitacoras";
+        return "redirect:/view/plantilla";
     }
 
     // EDITAR
@@ -50,12 +51,12 @@ public class PlantillaView
     public String edit(@PathVariable Long id,
                        Model model)
     {
-        Plantilla bitacora =
-                plantillaRepository.findById(id).orElse(null);
+        Plantilla bitacora = plantillaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Plantilla", id));
 
-        model.addAttribute("bitacora", bitacora);
+        model.addAttribute("plantilla", bitacora);
 
-        return "Plantilla/BitacorasForm";
+        return "Plantilla/PlantillaForm";
     }
 
     // ELIMINAR
@@ -63,11 +64,16 @@ public class PlantillaView
     public String delete(@PathVariable Long id,
                          RedirectAttributes ra)
     {
+        if (!plantillaRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "La plantilla con id " + id + " no existe");
+            return "redirect:/view/plantilla";
+        }
+
         plantillaRepository.deleteById(id);
 
-        ra.addFlashAttribute("mensaje",
-                "Bitácora eliminada con éxito");
+        ra.addFlashAttribute("success",
+                "Plantilla eliminada con éxito");
 
-        return "redirect:/view/bitacoras";
+        return "redirect:/view/plantilla";
     }
 }

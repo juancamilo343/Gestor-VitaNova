@@ -30,21 +30,30 @@ public class DocumentosView {
     @PostMapping("/view/documentos/save")
     public String save(@ModelAttribute com.vitaNova.vitaNova.model.Documentos documentos, RedirectAttributes ra) {
         documentosRepository.save(documentos);
-        ra.addFlashAttribute("mensaje", "documentos registrado exitosamente");
+        ra.addFlashAttribute("success", "documentos registrado exitosamente");
         return "redirect:/view/documentos";
     }
 
     @GetMapping("/view/documentos/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra) {
         com.vitaNova.vitaNova.model.Documentos documentos = documentosRepository.findById(id).orElse(null);
+        if (documentos == null) {
+            ra.addFlashAttribute("error", "El documento con id " + id + " no existe");
+            return "redirect:/view/documentos";
+        }
         model.addAttribute("documentos", documentos);
         return "documentos/documentosForm";
     }
 
     @PostMapping("/view/documentos/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
+        if (!documentosRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "El documento con id " + id + " no existe");
+            return "redirect:/view/documentos";
+        }
+
         documentosRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Documentos eliminado exitosamente");
+        ra.addFlashAttribute("success", "Documentos eliminado exitosamente");
         return "redirect:/view/documentos";
     }
 }

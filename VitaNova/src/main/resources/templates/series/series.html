@@ -48,6 +48,7 @@
                      th:text="${success}">
                 </div>
             </div>
+            <div th:replace="fragments/layout :: errorAlert"></div>
 
             <section th:if="${savedSeries != null}"
                      class="mb-5 rounded-xl border border-green-200 bg-white shadow-sm overflow-hidden">

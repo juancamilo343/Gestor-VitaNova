@@ -43,6 +43,7 @@
                 <div class="rounded-lg border border-green-200 bg-green-50 px-5 py-3 text-sm text-green-800 shadow-sm"
                      th:text="${success}"></div>
             </div>
+            <div th:replace="fragments/layout :: errorAlert"></div>
 
             <!-- Buscador -->
             <section class="mb-5">

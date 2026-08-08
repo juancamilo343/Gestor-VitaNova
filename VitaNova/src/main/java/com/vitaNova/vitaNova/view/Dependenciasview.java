@@ -34,14 +34,18 @@ public class Dependenciasview
     public String save(@ModelAttribute Dependencias dependencias, RedirectAttributes ra)
     {
         dependenciasRepository.save(dependencias);
-        ra.addFlashAttribute("mensaje", "Dependencia registrado exitosamente");
+        ra.addFlashAttribute("success", "Dependencia registrado exitosamente");
         return "redirect:/view/dependencias";
     }
 
     @GetMapping("/view/dependencias/edit/{id}")
-    public String edit(@PathVariable long id, Model model)
+    public String edit(@PathVariable long id, Model model, RedirectAttributes ra)
     {
         Dependencias dependencias = dependenciasRepository.findById(id).orElse(null);
+        if (dependencias == null) {
+            ra.addFlashAttribute("error", "La dependencia con id " + id + " no existe");
+            return "redirect:/view/dependencias";
+        }
         model.addAttribute("dependencias", dependencias);
         return "dependencias/dependenciasForm";
     }
@@ -49,8 +53,13 @@ public class Dependenciasview
     @PostMapping("/view/dependencias/delete/{id}")
     public String delete(@PathVariable long id, RedirectAttributes ra)
     {
+        if (!dependenciasRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "La dependencia con id " + id + " no existe");
+            return "redirect:/view/dependencias";
+        }
+
         dependenciasRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "dependencia eliminado exitosamente");
+        ra.addFlashAttribute("success", "dependencia eliminado exitosamente");
         return "redirect:/view/dependencias";
     }
 

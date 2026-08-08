@@ -35,14 +35,18 @@ public class Rolesview
     public String save(@ModelAttribute Roles roles, RedirectAttributes ra)
     {
         rolesRepository.save(roles);
-        ra.addFlashAttribute("mensaje", "rol registrado exitosamente");
+        ra.addFlashAttribute("success", "rol registrado exitosamente");
         return "redirect:/view/roles";
     }
 
     @GetMapping("/view/roles/edit/{id}")
-    public String edit(@PathVariable long id, Model model)
+    public String edit(@PathVariable long id, Model model, RedirectAttributes ra)
     {
         Roles roles = rolesRepository.findById(id).orElse(null);
+        if (roles == null) {
+            ra.addFlashAttribute("error", "El rol con id " + id + " no existe");
+            return "redirect:/view/roles";
+        }
         model.addAttribute("roles", roles);
         return "roles/rolesForm";
     }
@@ -50,8 +54,13 @@ public class Rolesview
     @PostMapping("/view/roles/delete/{id}")
     public String delete(@PathVariable long id, RedirectAttributes ra)
     {
+        if (!rolesRepository.existsById(id)) {
+            ra.addFlashAttribute("error", "El rol con id " + id + " no existe");
+            return "redirect:/view/roles";
+        }
+
         rolesRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "rol eliminado exitosamente");
+        ra.addFlashAttribute("success", "rol eliminado exitosamente");
         return "redirect:/view/roles";
     }
 

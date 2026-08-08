@@ -49,6 +49,7 @@
                          class="mb-5 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-green-700">
                         <span th:text="${success}"></span>
                     </div>
+                    <div th:replace="fragments/layout :: errorAlert"></div>
 
                     <!-- FORMULARIO -->
                     <form th:action="@{/view/radicados/documental/save}" th:object="${radicado}" method="post"

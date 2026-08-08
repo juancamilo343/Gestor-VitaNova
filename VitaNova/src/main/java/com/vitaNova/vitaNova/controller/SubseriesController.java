@@ -1,6 +1,7 @@
 package com.vitaNova.vitaNova.controller;
 
 import com.vitaNova.vitaNova.model.Subseries;
+import com.vitaNova.vitaNova.exception.RecursoNoEncontradoException;
 import com.vitaNova.vitaNova.repository.SubseriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,8 @@ public class SubseriesController
     @GetMapping("/{id}")
     public Subseries getById(@PathVariable Long id)
     {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Subserie", id));
     }
 
     @PostMapping
@@ -35,6 +37,9 @@ public class SubseriesController
     @PutMapping("/{id}")
     public Subseries update(@PathVariable Long id, @RequestBody Subseries subseries)
     {
+        if (!repository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Subserie", id);
+        }
         subseries.setId_subserie(id);
         return repository.save(subseries);
     }
@@ -42,6 +47,9 @@ public class SubseriesController
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id)
     {
+        if (!repository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Subserie", id);
+        }
         repository.deleteById(id);
     }
 }
