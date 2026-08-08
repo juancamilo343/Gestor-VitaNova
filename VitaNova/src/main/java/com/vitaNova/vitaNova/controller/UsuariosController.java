@@ -4,6 +4,7 @@ import com.vitaNova.vitaNova.model.Usuarios;
 import com.vitaNova.vitaNova.repository.RolRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -24,6 +25,9 @@ public class UsuariosController {
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @ModelAttribute
     public void addLayoutAttributes(Model model) {
@@ -75,6 +79,23 @@ public class UsuariosController {
             usuario.setEstado(true);
         }
 
+        if (nuevo) {
+            if (!StringUtils.hasText(usuario.getPassword())) {
+                ra.addFlashAttribute("success", "La contrase\u00f1a es obligatoria");
+                return "redirect:/view/usuarios/form";
+            }
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        } else {
+            Usuarios actual = usuariosRepository.findById(usuario.getId_usuario()).orElse(null);
+            if (actual == null) {
+                ra.addFlashAttribute("success", "Usuario no encontrado");
+                return "redirect:/view/usuarios";
+            }
+            usuario.setPassword(StringUtils.hasText(usuario.getPassword())
+                    ? passwordEncoder.encode(usuario.getPassword())
+                    : actual.getPassword());
+        }
+
         usuariosRepository.save(usuario);
 
         ra.addFlashAttribute(
@@ -98,6 +119,7 @@ public class UsuariosController {
             return "redirect:/view/usuarios";
         }
 
+        usuario.setPassword(null);
         model.addAttribute("usuario", usuario);
         model.addAttribute("roles", rolRepository.findAll());
         model.addAttribute("pageTitle", "Editar Usuario");

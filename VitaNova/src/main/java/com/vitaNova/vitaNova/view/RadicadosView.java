@@ -30,6 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -62,6 +64,27 @@ public class RadicadosView {
     // Carpeta donde se guardan fisicamente los archivos adjuntos (configurable en application.properties).
     @Value("${app.upload-dir:uploads}")
     private String uploadDir;
+
+    // Solo se aceptan adjuntos documentales; nada ejecutable ni interpretable por el navegador.
+    private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of(
+            "pdf", "doc", "docx", "xls", "xlsx", "odt", "ods", "txt", "csv", "jpg", "jpeg", "png", "tif", "tiff");
+
+    private static final Set<String> CONTENT_TYPES_PERMITIDOS = Set.of(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "text/plain",
+            "text/csv",
+            "image/jpeg",
+            "image/png",
+            "image/tiff",
+            "application/octet-stream");
+
+    private static final long TAMANO_MAXIMO_BYTES = 20L * 1024 * 1024;
 
     @GetMapping("/view/radicados")
     public String inicio(Model model) {
@@ -231,11 +254,18 @@ public class RadicadosView {
                     continue;
                 }
 
-                String nombreOriginal = StringUtils.cleanPath(
-                        archivo.getOriginalFilename() == null ? "archivo" : archivo.getOriginalFilename());
-                String nombreAlmacenado = radicado.getId_radicado() + "_" + UUID.randomUUID() + "_" + nombreOriginal;
+                String nombreOriginal = nombreSeguro(archivo.getOriginalFilename());
+                String extension = extensionDe(nombreOriginal);
 
-                Path destino = dir.resolve(nombreAlmacenado);
+                validarAdjunto(archivo, extension);
+
+                String nombreAlmacenado = radicado.getId_radicado() + "_" + UUID.randomUUID()
+                        + (extension.isEmpty() ? "" : "." + extension);
+
+                Path destino = dir.resolve(nombreAlmacenado).normalize();
+                if (!destino.startsWith(dir)) {
+                    throw new IllegalArgumentException("Ruta de adjunto no valida");
+                }
                 archivo.transferTo(destino);
 
                 Documentos documento = new Documentos();
@@ -255,6 +285,46 @@ public class RadicadosView {
         }
 
         return guardados;
+    }
+
+    /**
+     * Valida tamano, extension y content-type del adjunto antes de escribirlo en disco.
+     */
+    private void validarAdjunto(MultipartFile archivo, String extension) {
+        if (archivo.getSize() > TAMANO_MAXIMO_BYTES) {
+            throw new IllegalArgumentException("El adjunto supera el tamano maximo permitido (20MB)");
+        }
+        if (!EXTENSIONES_PERMITIDAS.contains(extension)) {
+            throw new IllegalArgumentException("Tipo de adjunto no permitido: " + extension);
+        }
+        String contentType = archivo.getContentType();
+        if (contentType != null
+                && !CONTENT_TYPES_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT).split(";")[0].trim())) {
+            throw new IllegalArgumentException("Contenido de adjunto no permitido: " + contentType);
+        }
+    }
+
+    /**
+     * Descarta cualquier informacion de ruta enviada por el cliente y deja solo
+     * el nombre base saneado del archivo.
+     */
+    private String nombreSeguro(String nombreOriginal) {
+        String limpio = StringUtils.cleanPath(nombreOriginal == null ? "archivo" : nombreOriginal);
+        limpio = limpio.replace('\\', '/');
+        int barra = limpio.lastIndexOf('/');
+        if (barra >= 0) {
+            limpio = limpio.substring(barra + 1);
+        }
+        limpio = limpio.replaceAll("[^A-Za-z0-9._-]", "_");
+        while (limpio.startsWith(".")) {
+            limpio = limpio.substring(1);
+        }
+        return limpio.isEmpty() ? "archivo" : limpio;
+    }
+
+    private String extensionDe(String nombre) {
+        int punto = nombre.lastIndexOf('.');
+        return punto >= 0 ? nombre.substring(punto + 1).toLowerCase(Locale.ROOT) : "";
     }
 
     /**
