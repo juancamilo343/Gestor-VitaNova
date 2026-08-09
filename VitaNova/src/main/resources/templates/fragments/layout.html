@@ -1,110 +1,262 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head(title)">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} + ' | VitaNova'">VitaNova</title>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(pageTitle)">
+
+    <title th:text="${pageTitle != null ? pageTitle + ' | VitaNova' : 'VitaNova | Pharma ERP'}">
+        VitaNova | Pharma ERP
+    </title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           referrerpolicy="no-referrer">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
 </head>
+
+
 <body>
 
-<!-- Sidebar VitaNova -->
-<aside th:fragment="sidebar" class="sidebar">
+
+<!-- =========================================================
+     SIDEBAR
+     ========================================================= -->
+
+<aside th:fragment="sidebar(activeMenu)"
+       class="sidebar">
+
     <div class="sidebar-brand">
+
         <div class="brand-mark">
             <i class="fa-solid fa-briefcase-medical"></i>
         </div>
+
         <div class="brand-copy">
             <span class="brand-name">VitaNova</span>
             <span class="brand-tag">PHARMA ERP</span>
         </div>
+
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegación principal">
-        <a th:href="@{/view/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+
+    <nav class="sidebar-nav"
+         aria-label="Navegación principal">
+
+
+        <!-- DASHBOARD -->
+        <a th:href="@{/view/dashboard}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+
             <i class="fa-solid fa-table-cells-large"></i>
             <span>Dashboard</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- CLIENTES -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-users"></i>
             <span>Clientes</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- PRODUCTOS -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-capsules"></i>
             <span>Productos</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- INVENTARIO -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-boxes-stacked"></i>
             <span>Inventario</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- VENTAS -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-cash-register"></i>
             <span>Ventas</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- COMPRAS -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-cart-shopping"></i>
             <span>Compras</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- PROVEEDORES -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-truck"></i>
             <span>Proveedores</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- EMPLEADOS -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-id-card"></i>
             <span>Empleados</span>
+
         </a>
-        <a th:href="@{/view/usuarios}" class="nav-link" th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+
+
+        <!-- USUARIOS -->
+        <a th:href="@{/view/usuarios}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+
             <i class="fa-solid fa-user-gear"></i>
             <span>Usuarios</span>
+
         </a>
-        <a href="#" class="nav-link" th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+
+
+        <!-- ROLES -->
+        <a th:href="@{/view/rol}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+
             <i class="fa-solid fa-sitemap"></i>
+
             <span>Roles</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- REPORTES -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-chart-simple"></i>
             <span>Reportes</span>
+
         </a>
-        <a href="#" class="nav-link">
+
+
+        <!-- CONFIGURACIÓN -->
+        <a href="#"
+           class="nav-link">
+
             <i class="fa-solid fa-gear"></i>
             <span>Configuración</span>
+
         </a>
+
     </nav>
 
+
+    <!-- CERRAR SESIÓN -->
     <div class="sidebar-footer">
-        <a href="#" class="logout-link">
+
+        <a href="#"
+           class="logout-link">
+
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span>Cerrar sesión</span>
+
         </a>
+
     </div>
+
 </aside>
 
-<!-- Topbar VitaNova -->
-<header th:fragment="topbar" class="dashboard-header">
+
+
+<!-- =========================================================
+     TOPBAR
+     ========================================================= -->
+
+<header th:fragment="topbar"
+        class="topbar">
+
     <div class="search-box">
+
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="search" class="search-input" placeholder="Buscar medicamento, cliente o factura...">
+
+        <input type="search"
+               class="search-input"
+               placeholder="Buscar medicamento, cliente o factura...">
+
     </div>
+
 
     <div class="header-user">
-        <button type="button" class="icon-button" aria-label="Notificaciones">
+
+        <button type="button"
+                class="icon-button"
+                aria-label="Notificaciones">
+
             <i class="fa-regular fa-bell"></i>
+
         </button>
 
+
         <div class="user-profile">
+
             <div class="user-meta">
-                <span class="user-name" th:text="${userName}">Administrador</span>
-                <span class="user-role" th:text="${userRole}">Farmacia Central</span>
+
+                <span class="user-name"
+                      th:text="${userName != null ? userName : 'Administrador'}">
+
+                    Administrador
+
+                </span>
+
+
+                <span class="user-role"
+                      th:text="${userRole != null ? userRole : 'Farmacia Central'}">
+
+                    Farmacia Central
+
+                </span>
+
             </div>
-            <div class="user-avatar">AD</div>
+
+
+            <div class="user-avatar">
+                AD
+            </div>
+
         </div>
+
     </div>
+
 </header>
 
+
 </body>
+
 </html>

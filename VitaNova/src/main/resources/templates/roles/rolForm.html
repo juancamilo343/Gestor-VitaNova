@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside th:replace="~{fragments/layout :: sidebar('roles')}">
+</aside>
+
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <header th:replace="~{fragments/layout :: topbar}">
+    </header>
+
+
+    <main class="dashboard-content">
+
+        <!-- ENCABEZADO -->
+        <section class="page-header">
+
+            <div class="page-title">
+
+                <h1 th:text="${pageTitle}">
+                    Nuevo Rol
+                </h1>
+
+                <p th:text="${pageSubtitle}">
+                    Configure la información del rol del sistema.
+                </p>
+
+            </div>
+
+
+            <div class="page-actions">
+
+                <a th:href="@{/view/rol}"
+                   class="btn btn-white">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Volver
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- FORMULARIO -->
+        <section class="form-box">
+
+            <form th:action="@{/view/rol/save}"
+                  th:object="${roles}"
+                  method="post">
+
+
+                <!-- ID -->
+                <input type="hidden"
+                       th:field="*{id_rol}">
+
+
+                <!-- INFORMACIÓN -->
+                <div class="form-section">
+
+                    <h2 class="form-section-title">
+                        Información del rol
+                    </h2>
+
+                    <div class="form-section-divider">
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- NOMBRE -->
+                        <div class="field-group wide">
+
+                            <label for="nombre">
+                                Nombre del rol
+                            </label>
+
+                            <input id="nombre"
+                                   type="text"
+                                   th:field="*{nombre}"
+                                   placeholder="Ej: Administrador"
+                                   required>
+
+                        </div>
+
+
+                        <!-- DESCRIPCIÓN -->
+                        <div class="field-group wide">
+
+                            <label for="descripcion">
+                                Descripción
+                            </label>
+
+                            <textarea id="descripcion"
+                                      th:field="*{descripcion}"
+                                      placeholder="Descripción del rol..."
+                                      rows="4"></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTONES -->
+                <div class="form-actions">
+
+                    <a th:href="@{/view/rol}"
+                       class="btn btn-white">
+
+                        Cancelar
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="fa-solid fa-save"></i>
+
+                        Guardar rol
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

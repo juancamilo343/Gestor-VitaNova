@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside th:replace="~{fragments/layout :: sidebar('roles')}">
+</aside>
+
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <header th:replace="~{fragments/layout :: topbar}">
+    </header>
+
+
+    <main class="dashboard-content">
+
+        <!-- ENCABEZADO -->
+        <section class="page-header">
+
+            <div class="page-title">
+
+                <h1 th:text="${pageTitle}">
+                    Gestión de Roles
+                </h1>
+
+                <p th:text="${pageSubtitle}">
+                    Administre los roles y permisos de acceso del sistema.
+                </p>
+
+            </div>
+
+
+            <div class="page-actions">
+
+                <a th:href="@{/view/rol/form}"
+                   class="btn btn-primary">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    <span>
+                        Nuevo rol
+                    </span>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- MENSAJE -->
+        <div th:if="${success}"
+             class="alert-banner success"
+             th:text="${success}">
+        </div>
+
+
+        <!-- TABLA -->
+        <section class="table-card surface">
+
+            <div class="table-header">
+
+                <div>
+
+                    <span class="card-title">
+                        Roles registrados
+                    </span>
+
+                    <p class="chart-subtitle">
+                        Lista de roles disponibles en VitaNova.
+                    </p>
+
+                </div>
+
+
+                <span class="status-pill">
+
+                    <span th:text="${#lists.size(roles)}">
+                        0
+                    </span>
+
+                    roles
+
+                </span>
+
+            </div>
+
+
+            <div class="overflow-x-auto">
+
+                <table class="custom-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Nombre</th>
+
+                        <th>Descripción</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <!-- ROLES -->
+                    <tr th:each="rol : ${roles}">
+
+                        <td>
+
+                            <span class="table-strong"
+                                  th:text="${rol.id_rol}">
+                                1
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="med-cell">
+
+                                <div class="med-icon">
+
+                                    <i class="fa-solid fa-user-shield"></i>
+
+                                </div>
+
+                                <span class="med-name"
+                                      th:text="${rol.nombre}">
+                                    Administrador
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span th:text="${rol.descripcion != null and !#strings.isEmpty(rol.descripcion)
+                                ? rol.descripcion
+                                : 'Sin descripción'}">
+
+                                Sin descripción
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="table-actions-row">
+
+                                <!-- EDITAR -->
+                                <a th:href="@{'/view/rol/edit/' + ${rol.id_rol}}"
+                                   class="btn btn-white">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                    Editar
+
+                                </a>
+
+
+                                <!-- ELIMINAR -->
+                                <form th:action="@{'/view/rol/delete/' + ${rol.id_rol}}"
+                                      method="post"
+                                      class="action-form">
+
+                                    <button type="submit"
+                                            class="btn btn-white"
+                                            onclick="return confirm('¿Está seguro de eliminar este rol?');">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                        Eliminar
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- SIN ROLES -->
+                    <tr th:if="${#lists.isEmpty(roles)}">
+
+                        <td colspan="4"
+                            class="table-empty">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                            No hay roles registrados actualmente.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- PIE -->
+            <div class="table-footer">
+
+                Total de roles:
+
+                <strong th:text="${#lists.size(roles)}">
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
