@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside th:replace="~{fragments/layout :: sidebar('productos')}">
+  </aside>
+
+
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <header th:replace="~{fragments/layout :: topbar}">
+    </header>
+
+
+    <main class="dashboard-content">
+
+      <section class="page-header">
+
+        <div class="page-title">
+
+          <h1 th:text="${pageTitle}">
+            Nuevo Producto
+          </h1>
+
+          <p th:text="${pageSubtitle}">
+            Registre un nuevo producto dentro del sistema VitaNova.
+          </p>
+
+        </div>
+
+
+        <div class="page-actions">
+
+          <a th:href="@{/view/productos}"
+             class="btn btn-white">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            <span>
+                            Volver
+                        </span>
+
+          </a>
+
+        </div>
+
+      </section>
+
+
+      <section class="form-box">
+
+        <form th:action="@{/view/productos/save}"
+              th:object="${producto}"
+              method="post"
+              novalidate>
+
+          <input type="hidden"
+                 th:field="*{id_producto}">
+
+
+          <!-- INFORMACIÓN GENERAL -->
+          <div class="form-section">
+
+            <h2 class="form-section-title">
+              Información general
+            </h2>
+
+            <div class="form-section-divider">
+            </div>
+
+
+            <div class="form-grid">
+
+              <div class="field-group wide">
+
+                <label for="nombre">
+                  Nombre del producto
+                </label>
+
+                <input id="nombre"
+                       type="text"
+                       th:field="*{nombre}"
+                       required
+                       placeholder="Ej: Acetaminofén 500 mg">
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="codigo_interno">
+                  Código interno
+                </label>
+
+                <input id="codigo_interno"
+                       type="text"
+                       th:field="*{codigo_interno}"
+                       placeholder="Ej: MED-001">
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="codigo_barras">
+                  Código de barras
+                </label>
+
+                <input id="codigo_barras"
+                       type="text"
+                       th:field="*{codigo_barras}"
+                       placeholder="Código de barras">
+
+              </div>
+
+
+              <div class="field-group wide">
+
+                <label for="descripcion">
+                  Descripción
+                </label>
+
+                <textarea id="descripcion"
+                          th:field="*{descripcion}"
+                          rows="4"
+                          placeholder="Descripción del producto"></textarea>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PRECIOS -->
+          <div class="form-section">
+
+            <h2 class="form-section-title">
+              Información comercial
+            </h2>
+
+            <div class="form-section-divider">
+            </div>
+
+
+            <div class="form-grid">
+
+              <div class="field-group">
+
+                <label for="precio_compra">
+                  Precio de compra
+                </label>
+
+                <input id="precio_compra"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       th:field="*{precio_compra}"
+                       placeholder="0.00">
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="precio_venta">
+                  Precio de venta
+                </label>
+
+                <input id="precio_venta"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       th:field="*{precio_venta}"
+                       placeholder="0.00">
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="ubicacion">
+                  Ubicación
+                </label>
+
+                <input id="ubicacion"
+                       type="text"
+                       th:field="*{ubicacion}"
+                       placeholder="Ej: Estante A-01">
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- CLASIFICACIÓN -->
+          <div class="form-section">
+
+            <h2 class="form-section-title">
+              Clasificación y proveedor
+            </h2>
+
+            <div class="form-section-divider">
+            </div>
+
+
+            <div class="form-grid">
+
+              <div class="field-group">
+
+                <label for="id_categoria">
+                  Categoría
+                </label>
+
+                <select id="id_categoria"
+                        th:field="*{id_categoria}"
+                        required>
+
+                  <option value="">
+                    Seleccione
+                  </option>
+
+                  <option th:each="categoria : ${categorias}"
+                          th:value="${categoria.id_categoria}"
+                          th:text="${categoria.nombre}">
+                    Categoría
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="id_proveedor">
+                  Proveedor
+                </label>
+
+                <select id="id_proveedor"
+                        th:field="*{id_proveedor}"
+                        required>
+
+                  <option value="">
+                    Seleccione
+                  </option>
+
+                  <option th:each="proveedor : ${proveedores}"
+                          th:value="${proveedor.id_proveedor}"
+                          th:text="${proveedor.nombre}">
+                    Proveedor
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="field-group">
+
+                <label for="estado">
+                  Estado
+                </label>
+
+                <select id="estado"
+                        th:field="*{estado}"
+                        required>
+
+                  <option value="ACTIVO">
+                    Activo
+                  </option>
+
+                  <option value="INACTIVO">
+                    Inactivo
+                  </option>
+
+                  <option value="AGOTADO">
+                    Agotado
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ACCIONES -->
+          <div class="form-actions">
+
+            <a th:href="@{/view/productos}"
+               class="btn btn-white">
+
+              Cancelar
+
+            </a>
+
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+              Guardar producto
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>
+
+</body>
+</html>

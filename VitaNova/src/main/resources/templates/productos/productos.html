@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside th:replace="~{fragments/layout :: sidebar('productos')}">
+  </aside>
+
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <header th:replace="~{fragments/layout :: topbar}">
+    </header>
+
+
+    <main class="dashboard-content">
+
+      <!-- ENCABEZADO -->
+      <section class="page-header">
+
+        <div class="page-title">
+
+          <h1 th:text="${pageTitle}">
+            Gestión de Productos
+          </h1>
+
+          <p th:text="${pageSubtitle}">
+            Consulta y seguimiento de productos de la farmacia.
+          </p>
+
+        </div>
+
+
+        <div class="page-actions">
+
+          <a th:href="@{/view/productos/form}"
+             class="btn btn-primary">
+
+            <i class="fa-solid fa-box"></i>
+
+            <span>
+                            Nuevo producto
+                        </span>
+
+          </a>
+
+        </div>
+
+      </section>
+
+
+      <!-- MENSAJE -->
+      <div th:if="${success}"
+           class="alert-banner success"
+           th:text="${success}">
+      </div>
+
+
+      <!-- TABLA -->
+      <section class="table-card surface">
+
+        <div class="table-header">
+
+                    <span class="card-title">
+                        Consulta y Seguimiento
+                    </span>
+
+
+          <form method="get"
+                th:action="@{/view/productos}"
+                class="search-form">
+
+            <input name="search"
+                   type="search"
+                   th:value="${search}"
+                   placeholder="Buscar por nombre o código"
+                   class="search-input search-field">
+
+            <button type="submit"
+                    class="btn btn-white nowrap">
+
+              Buscar
+
+            </button>
+
+          </form>
+
+        </div>
+
+
+        <div class="overflow-x-auto">
+
+          <table class="custom-table">
+
+            <thead>
+
+            <tr>
+
+              <th>
+                Producto
+              </th>
+
+              <th>
+                Código
+              </th>
+
+              <th>
+                Precio venta
+              </th>
+
+              <th>
+                Estado
+              </th>
+
+              <th>
+                Acciones
+              </th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            <tr th:each="producto : ${productos}">
+
+              <td>
+
+                <div class="med-cell">
+
+                  <div class="med-icon">
+
+                    <i class="fa-solid fa-box"></i>
+
+                  </div>
+
+                  <span class="med-name"
+                        th:text="${producto.nombre}">
+                                        Producto
+                                    </span>
+
+                </div>
+
+                <span class="text-muted text-small"
+                      th:text="'ID: ' + ${producto.id_producto}">
+                                    ID: 1
+                                </span>
+
+              </td>
+
+
+              <td>
+
+                                <span th:text="${producto.codigo_interno != null ? producto.codigo_interno : '—'}">
+                                    PROD-001
+                                </span>
+
+              </td>
+
+
+              <td>
+
+                                <span th:text="'$ ' + ${producto.precio_venta}">
+                                    $ 0.00
+                                </span>
+
+              </td>
+
+
+              <td>
+
+                                <span th:if="${producto.estado == 'ACTIVO'}"
+                                      class="status-pill success">
+                                    Activo
+                                </span>
+
+                <span th:if="${producto.estado == 'INACTIVO'}"
+                      class="status-pill warning">
+                                    Inactivo
+                                </span>
+
+                <span th:if="${producto.estado == 'AGOTADO'}"
+                      class="status-pill warning">
+                                    Agotado
+                                </span>
+
+              </td>
+
+
+              <td class="user-table-actions">
+
+                <div class="table-actions-row">
+
+                  <a th:href="@{'/view/productos/edit/' + ${producto.id_producto}}"
+                     class="btn btn-white">
+
+                    Editar
+
+                  </a>
+
+
+                  <form method="post"
+                        th:action="@{'/view/productos/delete/' + ${producto.id_producto}}"
+                        class="action-form">
+
+                    <button type="submit"
+                            class="btn btn-white"
+                            onclick="return confirm('¿Eliminar este producto?')">
+
+                      Eliminar
+
+                    </button>
+
+                  </form>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+
+            <tr th:if="${#lists.isEmpty(productos)}">
+
+              <td colspan="5"
+                  class="table-empty">
+
+                No existen productos registrados.
+
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        <div class="table-footer">
+
+          Total productos:
+
+          <span th:text="${#lists.size(productos)}">
+                        0
+                    </span>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>
+
+</body>
+</html>

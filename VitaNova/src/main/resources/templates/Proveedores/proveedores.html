@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <aside th:replace="~{fragments/layout :: sidebar('proveedores')}">
+  </aside>
+
+  <div class="main-wrapper">
+
+    <header th:replace="~{fragments/layout :: topbar}">
+    </header>
+
+    <main class="dashboard-content">
+
+      <section class="page-header">
+
+        <div class="page-title">
+
+          <h1 th:text="${pageTitle}">
+            Gestión de Proveedores
+          </h1>
+
+          <p th:text="${pageSubtitle}">
+            Consulta y seguimiento de los proveedores de la farmacia.
+          </p>
+
+        </div>
+
+        <div class="page-actions">
+
+          <a th:href="@{/view/proveedores/form}"
+             class="btn btn-primary">
+
+            <i class="fa-solid fa-truck-field"></i>
+
+            <span>
+                            Nuevo proveedor
+                        </span>
+
+          </a>
+
+        </div>
+
+      </section>
+
+
+      <div th:if="${success}"
+           class="alert-banner success"
+           th:text="${success}">
+      </div>
+
+
+      <section class="table-card surface">
+
+        <div class="table-header">
+
+                    <span class="card-title">
+                        Consulta y Seguimiento
+                    </span>
+
+          <form method="get"
+                th:action="@{/view/proveedores}"
+                class="search-form">
+
+            <input name="search"
+                   type="search"
+                   th:value="${search}"
+                   placeholder="Buscar por proveedor o NIT"
+                   class="search-input search-field">
+
+            <button type="submit"
+                    class="btn btn-white nowrap">
+
+              Buscar
+
+            </button>
+
+          </form>
+
+        </div>
+
+
+        <div class="overflow-x-auto">
+
+          <table class="custom-table">
+
+            <thead>
+
+            <tr>
+
+              <th>
+                Proveedor
+              </th>
+
+              <th>
+                NIT
+              </th>
+
+              <th>
+                Contacto
+              </th>
+
+              <th>
+                Teléfono
+              </th>
+
+              <th>
+                Estado
+              </th>
+
+              <th>
+                Acciones
+              </th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            <tr th:each="proveedor : ${proveedores}">
+
+              <td>
+
+                <div class="med-cell">
+
+                  <div class="med-icon">
+
+                    <i class="fa-solid fa-truck"></i>
+
+                  </div>
+
+                  <span class="med-name"
+                        th:text="${proveedor.nombre}">
+                                        Proveedor
+                                    </span>
+
+                </div>
+
+                <span class="text-muted text-small"
+                      th:text="'ID: ' + ${proveedor.id_proveedor}">
+                                    ID: 1
+                                </span>
+
+              </td>
+
+
+              <td th:text="${proveedor.nit != null ? proveedor.nit : '—'}">
+                900123456-1
+              </td>
+
+
+              <td th:text="${proveedor.nombre_contacto != null ? proveedor.nombre_contacto : '—'}">
+                Juan Pérez
+              </td>
+
+
+              <td th:text="${proveedor.telefono != null ? proveedor.telefono : '—'}">
+                3001234567
+              </td>
+
+
+              <td>
+
+                                <span th:if="${proveedor.estado == 'ACTIVO'}"
+                                      class="status-pill success">
+                                    Activo
+                                </span>
+
+                <span th:if="${proveedor.estado == 'INACTIVO'}"
+                      class="status-pill warning">
+                                    Inactivo
+                                </span>
+
+              </td>
+
+
+              <td class="user-table-actions">
+
+                <div class="table-actions-row">
+
+                  <a th:href="@{'/view/proveedores/edit/' + ${proveedor.id_proveedor}}"
+                     class="btn btn-white">
+
+                    Editar
+
+                  </a>
+
+
+                  <form method="post"
+                        th:action="@{'/view/proveedores/delete/' + ${proveedor.id_proveedor}}"
+                        class="action-form">
+
+                    <button type="submit"
+                            class="btn btn-white"
+                            onclick="return confirm('¿Eliminar este proveedor?')">
+
+                      Eliminar
+
+                    </button>
+
+                  </form>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+
+            <tr th:if="${#lists.isEmpty(proveedores)}">
+
+              <td colspan="6"
+                  class="table-empty">
+
+                No existen proveedores registrados.
+
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        <div class="table-footer">
+
+          Total proveedores:
+
+          <span th:text="${#lists.size(proveedores)}">
+                        0
+                    </span>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>
+
+</body>
+</html>

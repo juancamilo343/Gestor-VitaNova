@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('categorias')}">
+    </aside>
+
+
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Nueva Categoría
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Registre una nueva categoría para clasificar los productos de VitaNova.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/categorias}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        <span>
+                            Volver
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="form-box">
+
+                <form th:action="@{/view/categorias/save}"
+                      th:object="${categoria}"
+                      method="post"
+                      novalidate>
+
+                    <input type="hidden"
+                           th:field="*{id_categoria}">
+
+
+                    <!-- INFORMACIÓN DE LA CATEGORÍA -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información de la categoría
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="field-group wide">
+
+                                <label for="nombre">
+                                    Nombre de la categoría
+                                </label>
+
+                                <input id="nombre"
+                                       type="text"
+                                       th:field="*{nombre}"
+                                       required
+                                       placeholder="Ej: Medicamentos">
+
+                            </div>
+
+
+                            <div class="field-group wide">
+
+                                <label for="descripcion">
+                                    Descripción
+                                </label>
+
+                                <textarea id="descripcion"
+                                          th:field="*{descripcion}"
+                                          rows="5"
+                                          placeholder="Descripción de la categoría"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCIONES -->
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/categorias}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Guardar categoría
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>
