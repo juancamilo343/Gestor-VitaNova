@@ -52,7 +52,10 @@
          aria-label="Navegación principal">
 
 
-        <!-- DASHBOARD -->
+        <!-- =================================================
+             DASHBOARD
+             ================================================= -->
+
         <a th:href="@{/view/dashboard}"
            class="nav-link"
            th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
@@ -63,9 +66,13 @@
         </a>
 
 
-        <!-- CLIENTES -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             CLIENTES
+             ================================================= -->
+
+        <a th:href="@{/view/clientes}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'clientes'} ? ' active' : ''">
 
             <i class="fa-solid fa-users"></i>
             <span>Clientes</span>
@@ -73,19 +80,39 @@
         </a>
 
 
-        <!-- PRODUCTOS -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             PRODUCTOS
+             ================================================= -->
+
+        <a th:href="@{/view/productos}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'productos'} ? ' active' : ''">
 
             <i class="fa-solid fa-capsules"></i>
             <span>Productos</span>
 
         </a>
+        <!-- =================================================
+     CATEGORÍAS
+     ================================================= -->
+
+        <a th:href="@{/view/categorias}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'categorias'} ? ' active' : ''">
+
+            <i class="fa-solid fa-tags"></i>
+            <span>Categorías</span>
+
+        </a>
 
 
-        <!-- INVENTARIO -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             INVENTARIO
+             ================================================= -->
+
+        <a th:href="@{/view/inventario}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'inventario'} ? ' active' : ''">
 
             <i class="fa-solid fa-boxes-stacked"></i>
             <span>Inventario</span>
@@ -93,9 +120,13 @@
         </a>
 
 
-        <!-- VENTAS -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             VENTAS
+             ================================================= -->
+
+        <a th:href="@{/view/ventas}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'ventas'} ? ' active' : ''">
 
             <i class="fa-solid fa-cash-register"></i>
             <span>Ventas</span>
@@ -103,9 +134,13 @@
         </a>
 
 
-        <!-- COMPRAS -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             COMPRAS
+             ================================================= -->
+
+        <a th:href="@{/view/compras}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'compras'} ? ' active' : ''">
 
             <i class="fa-solid fa-cart-shopping"></i>
             <span>Compras</span>
@@ -113,9 +148,13 @@
         </a>
 
 
-        <!-- PROVEEDORES -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             PROVEEDORES
+             ================================================= -->
+
+        <a th:href="@{/view/proveedores}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'proveedores'} ? ' active' : ''">
 
             <i class="fa-solid fa-truck"></i>
             <span>Proveedores</span>
@@ -123,9 +162,13 @@
         </a>
 
 
-        <!-- EMPLEADOS -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             EMPLEADOS
+             ================================================= -->
+
+        <a th:href="@{/view/empleados}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'empleados'} ? ' active' : ''">
 
             <i class="fa-solid fa-id-card"></i>
             <span>Empleados</span>
@@ -133,7 +176,10 @@
         </a>
 
 
-        <!-- USUARIOS -->
+        <!-- =================================================
+             USUARIOS
+             ================================================= -->
+
         <a th:href="@{/view/usuarios}"
            class="nav-link"
            th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
@@ -144,21 +190,27 @@
         </a>
 
 
-        <!-- ROLES -->
+        <!-- =================================================
+             ROLES
+             ================================================= -->
+
         <a th:href="@{/view/rol}"
            class="nav-link"
            th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
 
             <i class="fa-solid fa-sitemap"></i>
-
             <span>Roles</span>
 
         </a>
 
 
-        <!-- REPORTES -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             REPORTES
+             ================================================= -->
+
+        <a th:href="@{/view/reportes}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'reportes'} ? ' active' : ''">
 
             <i class="fa-solid fa-chart-simple"></i>
             <span>Reportes</span>
@@ -166,9 +218,13 @@
         </a>
 
 
-        <!-- CONFIGURACIÓN -->
-        <a href="#"
-           class="nav-link">
+        <!-- =================================================
+             CONFIGURACIÓN
+             ================================================= -->
+
+        <a th:href="@{/view/configuracion}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'configuracion'} ? ' active' : ''">
 
             <i class="fa-solid fa-gear"></i>
             <span>Configuración</span>
@@ -178,7 +234,10 @@
     </nav>
 
 
-    <!-- CERRAR SESIÓN -->
+    <!-- =====================================================
+         CERRAR SESIÓN
+         ===================================================== -->
+
     <div class="sidebar-footer">
 
         <a href="#"

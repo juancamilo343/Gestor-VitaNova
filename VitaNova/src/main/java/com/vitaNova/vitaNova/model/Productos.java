@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "producto")
 @Getter
@@ -30,10 +32,10 @@ public class Productos {
     private String descripcion;
 
     @Column(name = "precio_compra", precision = 10, scale = 2)
-    private Double precio_compra;
+    private BigDecimal precio_compra;
 
     @Column(name = "precio_venta", precision = 10, scale = 2)
-    private Double precio_venta;
+    private BigDecimal precio_venta;
 
     @Column(name = "codigo_barras", length = 50)
     private String codigo_barras;

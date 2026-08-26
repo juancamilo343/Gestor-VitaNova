@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+
 @Controller
 @RequestMapping("/view/productos")
 public class ProductosView {
@@ -72,8 +74,8 @@ public class ProductosView {
         Productos producto = new Productos();
 
         producto.setEstado("ACTIVO");
-        producto.setPrecio_compra(0.0);
-        producto.setPrecio_venta(0.0);
+        producto.setPrecio_compra(BigDecimal.ZERO);
+        producto.setPrecio_venta(BigDecimal.ZERO);
 
         model.addAttribute(
                 "producto",

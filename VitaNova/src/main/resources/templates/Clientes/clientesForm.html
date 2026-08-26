@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('clientes')}">
+    </aside>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- ENCABEZADO -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Nuevo Cliente
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Registre un nuevo cliente dentro del sistema VitaNova.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/clientes}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        <span>
+                            Volver
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- FORMULARIO -->
+            <section class="form-box">
+
+                <form th:action="@{/view/clientes/save}"
+                      th:object="${cliente}"
+                      method="post"
+                      novalidate>
+
+
+                    <!-- ID -->
+                    <input type="hidden"
+                           th:field="*{id_cliente}">
+
+
+                    <!-- INFORMACIÓN PERSONAL -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información personal
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- NOMBRES -->
+                            <div class="field-group">
+
+                                <label for="nombres">
+                                    Nombres
+                                </label>
+
+                                <input id="nombres"
+                                       type="text"
+                                       th:field="*{nombres}"
+                                       required
+                                       maxlength="100"
+                                       placeholder="Ej: Juan Carlos">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('nombres')}"
+                                     th:errors="*{nombres}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- APELLIDOS -->
+                            <div class="field-group">
+
+                                <label for="apellidos">
+                                    Apellidos
+                                </label>
+
+                                <input id="apellidos"
+                                       type="text"
+                                       th:field="*{apellidos}"
+                                       maxlength="100"
+                                       placeholder="Ej: Pérez Gómez">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('apellidos')}"
+                                     th:errors="*{apellidos}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- DOCUMENTO -->
+                            <div class="field-group">
+
+                                <label for="documento">
+                                    Número de documento
+                                </label>
+
+                                <input id="documento"
+                                       type="text"
+                                       th:field="*{documento}"
+                                       required
+                                       maxlength="20"
+                                       placeholder="Ej: 1234567890">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('documento')}"
+                                     th:errors="*{documento}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- FECHA NACIMIENTO -->
+                            <div class="field-group">
+
+                                <label for="fecha_nacimiento">
+                                    Fecha de nacimiento
+                                </label>
+
+                                <input id="fecha_nacimiento"
+                                       type="date"
+                                       th:field="*{fecha_nacimiento}"
+                                       required>
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('fecha_nacimiento')}"
+                                     th:errors="*{fecha_nacimiento}">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFORMACIÓN CONTACTO -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información de contacto
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- TELÉFONO -->
+                            <div class="field-group">
+
+                                <label for="telefono">
+                                    Teléfono
+                                </label>
+
+                                <input id="telefono"
+                                       type="text"
+                                       th:field="*{telefono}"
+                                       maxlength="20"
+                                       placeholder="Ej: 3001234567">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('telefono')}"
+                                     th:errors="*{telefono}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- CORREO -->
+                            <div class="field-group">
+
+                                <label for="correo">
+                                    Correo electrónico
+                                </label>
+
+                                <input id="correo"
+                                       type="email"
+                                       th:field="*{correo}"
+                                       maxlength="100"
+                                       placeholder="Ej: cliente@gmail.com">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('correo')}"
+                                     th:errors="*{correo}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- DIRECCIÓN -->
+                            <div class="field-group wide">
+
+                                <label for="direccion">
+                                    Dirección
+                                </label>
+
+                                <input id="direccion"
+                                       type="text"
+                                       th:field="*{direccion}"
+                                       maxlength="150"
+                                       placeholder="Ej: Calle 10 # 20-30">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('direccion')}"
+                                     th:errors="*{direccion}">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFORMACIÓN MÉDICA -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información médica
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- EPS -->
+                            <div class="field-group wide">
+
+                                <label for="eps">
+
+                                    EPS
+
+                                    <span class="text-muted">
+                                        (Opcional)
+                                    </span>
+
+                                </label>
+
+                                <input id="eps"
+                                       type="text"
+                                       th:field="*{eps}"
+                                       maxlength="100"
+                                       placeholder="Ej: SURA">
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('eps')}"
+                                     th:errors="*{eps}">
+                                </div>
+
+                            </div>
+
+
+                            <!-- ALERGIAS -->
+                            <div class="field-group wide">
+
+                                <label for="alergias">
+
+                                    Alergias conocidas
+
+                                    <span class="text-muted">
+                                        (Opcional)
+                                    </span>
+
+                                </label>
+
+                                <textarea id="alergias"
+                                          th:field="*{alergias}"
+                                          rows="4"
+                                          placeholder="Ej: Penicilina, ibuprofeno..."></textarea>
+
+                                <div class="field-error"
+                                     th:if="${#fields.hasErrors('alergias')}"
+                                     th:errors="*{alergias}">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCIONES -->
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/clientes}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            <span th:if="${editMode}">
+                                Actualizar cliente
+                            </span>
+
+                            <span th:unless="${editMode}">
+                                Guardar cliente
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>
