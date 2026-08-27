@@ -10,7 +10,7 @@
 <div class="app-shell">
 
     <!-- SIDEBAR -->
-    <aside th:replace="~{fragments/layout :: sidebar('usuarios')}">
+    <aside th:replace="~{fragments/layout :: sidebar('empleados')}">
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
@@ -27,12 +27,12 @@
 
                 <div class="page-title">
 
-                    <h1 th:text="${pageTitle != null ? pageTitle : 'Gestión de Usuarios'}">
-                        Gestión de Usuarios
+                    <h1 th:text="${pageTitle}">
+                        Gestión de Empleados
                     </h1>
 
-                    <p th:text="${pageSubtitle != null ? pageSubtitle : 'Consulta y seguimiento de usuarios del sistema.'}">
-                        Consulta y seguimiento de usuarios del sistema.
+                    <p th:text="${pageSubtitle}">
+                        Consulta y seguimiento de los empleados de la farmacia.
                     </p>
 
                 </div>
@@ -45,7 +45,7 @@
                         <i class="fa-solid fa-user-plus"></i>
 
                         <span>
-                            Nuevo usuario
+                            Nuevo empleado
                         </span>
 
                     </a>
@@ -70,13 +70,13 @@
                     </span>
 
                     <form method="get"
-                          th:action="@{/view/usuarios}"
+                          th:action="@{/view/empleados}"
                           class="search-form">
 
                         <input name="search"
                                type="search"
                                th:value="${search}"
-                               placeholder="Buscar por usuario o rol"
+                               placeholder="Buscar por nombre o documento"
                                class="search-input search-field">
 
                         <button type="submit"
@@ -99,11 +99,19 @@
                         <tr>
 
                             <th>
-                                Usuario
+                                Empleado
                             </th>
 
                             <th>
-                                Rol
+                                Documento
+                            </th>
+
+                            <th>
+                                Teléfono
+                            </th>
+
+                            <th>
+                                Correo
                             </th>
 
                             <th>
@@ -120,53 +128,59 @@
 
                         <tbody>
 
-                        <tr th:each="usuario : ${usuarios}">
+                        <tr th:each="empleado : ${empleados}">
 
-                            <!-- USUARIO -->
+                            <!-- EMPLEADO -->
                             <td>
 
                                 <div class="med-cell">
 
                                     <div class="med-icon">
 
-                                        <i class="fa-solid fa-user"></i>
+                                        <i class="fa-solid fa-user-tie"></i>
 
                                     </div>
 
                                     <span class="med-name"
-                                          th:text="${usuario.username}">
-                                        admin
+                                          th:text="${empleado.nombres + ' ' + (empleado.apellidos != null ? empleado.apellidos : '')}">
+                                        Juan Pérez
                                     </span>
 
                                 </div>
 
                                 <span class="text-muted text-small"
-                                      th:text="'ID: ' + ${usuario.id_usuario}">
+                                      th:text="'ID: ' + ${empleado.id_empleado}">
                                     ID: 1
                                 </span>
 
                             </td>
 
-                            <!-- ROL -->
-                            <td th:text="${usuario.rol != null ? usuario.rol.nombre : '—'}">
-                                Administrador
+                            <!-- DOCUMENTO -->
+                            <td th:text="${empleado.documento}">
+                                123456789
+                            </td>
+
+                            <!-- TELÉFONO -->
+                            <td th:text="${empleado.telefono != null && !empleado.telefono.isEmpty() ? empleado.telefono : '—'}">
+                                3001234567
+                            </td>
+
+                            <!-- CORREO -->
+                            <td th:text="${empleado.correo != null && !empleado.correo.isEmpty() ? empleado.correo : '—'}">
+                                empleado@gmail.com
                             </td>
 
                             <!-- ESTADO -->
                             <td>
 
-                                <span th:if="${usuario.estado}"
+                                <span th:if="${empleado.estado != null && empleado.estado.name() == 'ACTIVO'}"
                                       class="status-pill success">
-
                                     Activo
-
                                 </span>
 
-                                <span th:unless="${usuario.estado}"
+                                <span th:if="${empleado.estado != null && empleado.estado.name() == 'INACTIVO'}"
                                       class="status-pill warning">
-
                                     Inactivo
-
                                 </span>
 
                             </td>
@@ -176,24 +190,20 @@
 
                                 <div class="table-actions-row">
 
-                                    <a th:href="@{/view/usuarios/edit/{id}(id=${usuario.id_usuario})}"
+                                    <a th:href="@{'/view/empleados/edit/' + ${empleado.id_empleado}}"
                                        class="btn btn-white">
-
-                                        <i class="fa-solid fa-pen"></i>
 
                                         Editar
 
                                     </a>
 
                                     <form method="post"
-                                          th:action="@{/view/usuarios/delete/{id}(id=${usuario.id_usuario})}"
+                                          th:action="@{'/view/empleados/delete/' + ${empleado.id_empleado}}"
                                           class="action-form">
 
                                         <button type="submit"
                                                 class="btn btn-white"
-                                                onclick="return confirm('¿Eliminar este usuario?')">
-
-                                            <i class="fa-solid fa-trash"></i>
+                                                onclick="return confirm('¿Eliminar este empleado?')">
 
                                             Eliminar
 
@@ -207,13 +217,13 @@
 
                         </tr>
 
-                        <!-- SIN USUARIOS -->
-                        <tr th:if="${#lists.isEmpty(usuarios)}">
+                        <!-- SIN EMPLEADOS -->
+                        <tr th:if="${#lists.isEmpty(empleados)}">
 
-                            <td colspan="4"
+                            <td colspan="6"
                                 class="table-empty">
 
-                                No existen usuarios registrados.
+                                No existen empleados registrados.
 
                             </td>
 
@@ -228,9 +238,9 @@
                 <!-- FOOTER -->
                 <div class="table-footer">
 
-                    Total usuarios:
+                    Total empleados:
 
-                    <span th:text="${#lists.size(usuarios)}">
+                    <span th:text="${#lists.size(empleados)}">
                         0
                     </span>
 

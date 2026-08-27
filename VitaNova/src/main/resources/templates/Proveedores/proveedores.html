@@ -9,16 +9,20 @@
 
 <div class="app-shell">
 
+  <!-- SIDEBAR -->
   <aside th:replace="~{fragments/layout :: sidebar('proveedores')}">
   </aside>
 
+  <!-- CONTENIDO PRINCIPAL -->
   <div class="main-wrapper">
 
+    <!-- TOPBAR -->
     <header th:replace="~{fragments/layout :: topbar}">
     </header>
 
     <main class="dashboard-content">
 
+      <!-- ENCABEZADO -->
       <section class="page-header">
 
         <div class="page-title">
@@ -35,7 +39,7 @@
 
         <div class="page-actions">
 
-          <a th:href="@{/view/proveedores/form}"
+          <a th:href="@{/view/usuarios/form}"
              class="btn btn-primary">
 
             <i class="fa-solid fa-truck-field"></i>
@@ -50,13 +54,13 @@
 
       </section>
 
-
+      <!-- MENSAJE -->
       <div th:if="${success}"
            class="alert-banner success"
            th:text="${success}">
       </div>
 
-
+      <!-- TABLA -->
       <section class="table-card surface">
 
         <div class="table-header">
@@ -85,7 +89,6 @@
           </form>
 
         </div>
-
 
         <div class="overflow-x-auto">
 
@@ -123,11 +126,11 @@
 
             </thead>
 
-
             <tbody>
 
             <tr th:each="proveedor : ${proveedores}">
 
+              <!-- PROVEEDOR -->
               <td>
 
                 <div class="med-cell">
@@ -152,22 +155,22 @@
 
               </td>
 
-
+              <!-- NIT -->
               <td th:text="${proveedor.nit != null ? proveedor.nit : '—'}">
                 900123456-1
               </td>
 
-
+              <!-- CONTACTO -->
               <td th:text="${proveedor.nombre_contacto != null ? proveedor.nombre_contacto : '—'}">
                 Juan Pérez
               </td>
 
-
+              <!-- TELÉFONO -->
               <td th:text="${proveedor.telefono != null ? proveedor.telefono : '—'}">
                 3001234567
               </td>
 
-
+              <!-- ESTADO -->
               <td>
 
                                 <span th:if="${proveedor.estado == 'ACTIVO'}"
@@ -182,7 +185,7 @@
 
               </td>
 
-
+              <!-- ACCIONES -->
               <td class="user-table-actions">
 
                 <div class="table-actions-row">
@@ -193,7 +196,6 @@
                     Editar
 
                   </a>
-
 
                   <form method="post"
                         th:action="@{'/view/proveedores/delete/' + ${proveedor.id_proveedor}}"
@@ -215,7 +217,7 @@
 
             </tr>
 
-
+            <!-- SIN PROVEEDORES -->
             <tr th:if="${#lists.isEmpty(proveedores)}">
 
               <td colspan="6"
@@ -233,7 +235,7 @@
 
         </div>
 
-
+        <!-- FOOTER -->
         <div class="table-footer">
 
           Total proveedores:

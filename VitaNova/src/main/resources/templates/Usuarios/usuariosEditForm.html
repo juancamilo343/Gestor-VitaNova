@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Editar Usuario')}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('usuarios')}">
+    </aside>
+
+
+    <!-- CONTENIDO -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- ENCABEZADO -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1>
+                        Editar usuario
+                    </h1>
+
+                    <p>
+                        Modifica la información del usuario y del empleado.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/usuarios}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        <span>
+                            Volver
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- FORMULARIO -->
+
+            <section class="form-box">
+
+                <form th:action="@{/view/usuarios/edit/save}"
+                      method="post"
+                      th:object="${empleado}">
+
+
+                    <!-- ID USUARIO -->
+
+                    <input type="hidden"
+                           name="id_usuario"
+                           th:value="${usuario.id_usuario}">
+
+
+                    <!-- ================================================= -->
+                    <!-- CUENTA -->
+                    <!-- ================================================= -->
+
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información de la cuenta
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <!-- USERNAME -->
+
+                            <div class="field-group">
+
+                                <label for="username">
+                                    Nombre de usuario
+                                </label>
+
+                                <input id="username"
+                                       type="text"
+                                       name="username"
+                                       maxlength="50"
+                                       th:value="${usuario.username}"
+                                       required
+                                       placeholder="Nombre de usuario">
+
+                            </div>
+
+
+                            <!-- PASSWORD -->
+
+                            <div class="field-group">
+
+                                <label for="password">
+                                    Nueva contraseña
+                                </label>
+
+                                <input id="password"
+                                       type="password"
+                                       name="password"
+                                       placeholder="Dejar vacío para conservar la actual">
+
+                            </div>
+
+
+                            <!-- ROL -->
+
+                            <div class="field-group">
+
+                                <label for="id_rol">
+                                    Rol
+                                </label>
+
+                                <select id="id_rol"
+                                        name="id_rol"
+                                        required>
+
+                                    <option th:each="rol : ${roles}"
+                                            th:value="${rol.id_rol}"
+                                            th:text="${rol.nombre}"
+                                            th:selected="${usuario.id_rol == rol.id_rol}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- ESTADO -->
+
+                            <div class="field-group">
+
+                                <label for="estadoUsuario">
+                                    Estado de la cuenta
+                                </label>
+
+                                <select id="estadoUsuario"
+                                        name="estadoUsuario"
+                                        required>
+
+                                    <option value="true"
+                                            th:selected="${usuario.estado}">
+                                        Activa
+                                    </option>
+
+                                    <option value="false"
+                                            th:selected="${!usuario.estado}">
+                                        Inactiva
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- EMPLEADO -->
+                    <!-- ================================================= -->
+
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información del empleado
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div th:if="${empleado != null}">
+
+                            <div class="form-grid">
+
+
+                                <!-- NOMBRES -->
+
+                                <div class="field-group">
+
+                                    <label for="nombres">
+                                        Nombres
+                                    </label>
+
+                                    <input id="nombres"
+                                           type="text"
+                                           name="nombres"
+                                           th:value="${empleado.nombres}"
+                                           required
+                                           placeholder="Nombres">
+
+                                </div>
+
+
+                                <!-- APELLIDOS -->
+
+                                <div class="field-group">
+
+                                    <label for="apellidos">
+                                        Apellidos
+                                    </label>
+
+                                    <input id="apellidos"
+                                           type="text"
+                                           name="apellidos"
+                                           th:value="${empleado.apellidos}"
+                                           required
+                                           placeholder="Apellidos">
+
+                                </div>
+
+
+                                <!-- DOCUMENTO -->
+
+                                <div class="field-group">
+
+                                    <label for="documento">
+                                        Documento
+                                    </label>
+
+                                    <input id="documento"
+                                           type="text"
+                                           name="documento"
+                                           th:value="${empleado.documento}"
+                                           required
+                                           placeholder="Documento">
+
+                                </div>
+
+
+                                <!-- TELÉFONO -->
+
+                                <div class="field-group">
+
+                                    <label for="telefono">
+                                        Teléfono
+                                    </label>
+
+                                    <input id="telefono"
+                                           type="text"
+                                           name="telefono"
+                                           th:value="${empleado.telefono}"
+                                           placeholder="Teléfono">
+
+                                </div>
+
+
+                                <!-- CORREO -->
+
+                                <div class="field-group">
+
+                                    <label for="correo">
+                                        Correo electrónico
+                                    </label>
+
+                                    <input id="correo"
+                                           type="email"
+                                           name="correo"
+                                           th:value="${empleado.correo}"
+                                           placeholder="correo@ejemplo.com">
+
+                                </div>
+
+
+                                <!-- DIRECCIÓN -->
+
+                                <div class="field-group">
+
+                                    <label for="direccion">
+                                        Dirección
+                                    </label>
+
+                                    <input id="direccion"
+                                           type="text"
+                                           name="direccion"
+                                           th:value="${empleado.direccion}"
+                                           placeholder="Dirección">
+
+                                </div>
+
+
+                                <!-- SALARIO -->
+
+                                <div class="field-group">
+
+                                    <label for="salario">
+                                        Salario
+                                    </label>
+
+                                    <input id="salario"
+                                           type="number"
+                                           name="salario"
+                                           min="0"
+                                           step="0.01"
+                                           th:value="${empleado.salario}"
+                                           placeholder="0.00">
+
+                                </div>
+
+
+                                <!-- FECHA INGRESO -->
+
+                                <div class="field-group">
+
+                                    <label for="fecha_ingreso">
+                                        Fecha de ingreso
+                                    </label>
+
+                                    <input id="fecha_ingreso"
+                                           type="date"
+                                           name="fecha_ingreso"
+                                           th:value="${empleado.fecha_ingreso}">
+
+                                </div>
+
+
+                                <!-- ESTADO -->
+
+                                <div class="field-group">
+
+                                    <label for="estadoEmpleado">
+                                        Estado del empleado
+                                    </label>
+
+                                    <select id="estadoEmpleado"
+                                            name="estadoEmpleado"
+                                            required>
+
+                                        <option value="ACTIVO"
+                                                th:selected="${empleado.estado != null
+                                                && empleado.estado.name() == 'ACTIVO'}">
+                                            Activo
+                                        </option>
+
+                                        <option value="INACTIVO"
+                                                th:selected="${empleado.estado != null
+                                                && empleado.estado.name() == 'INACTIVO'}">
+                                            Inactivo
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SIN EMPLEADO -->
+
+                        <div th:if="${empleado == null}"
+                             class="alert-banner warning">
+
+                            Este usuario no tiene un empleado relacionado.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- BOTONES -->
+                    <!-- ================================================= -->
+
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/usuarios}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Guardar cambios
+
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

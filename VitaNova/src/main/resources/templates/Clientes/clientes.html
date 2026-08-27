@@ -13,14 +13,12 @@
     <aside th:replace="~{fragments/layout :: sidebar('clientes')}">
     </aside>
 
-
     <!-- CONTENIDO PRINCIPAL -->
     <div class="main-wrapper">
 
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
-
 
         <main class="dashboard-content">
 
@@ -39,10 +37,9 @@
 
                 </div>
 
-
                 <div class="page-actions">
 
-                    <a th:href="@{/view/clientes/form}"
+                    <a th:href="@{/view/usuarios/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-user-plus"></i>
@@ -57,13 +54,11 @@
 
             </section>
 
-
             <!-- MENSAJE -->
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
             </div>
-
 
             <!-- TABLA -->
             <section class="table-card surface">
@@ -74,8 +69,6 @@
                         Consulta y Seguimiento
                     </span>
 
-
-                    <!-- BUSCADOR -->
                     <form method="get"
                           th:action="@{/view/clientes}"
                           class="search-form">
@@ -96,7 +89,6 @@
                     </form>
 
                 </div>
-
 
                 <div class="overflow-x-auto">
 
@@ -134,10 +126,8 @@
 
                         </thead>
 
-
                         <tbody>
 
-                        <!-- CLIENTES -->
                         <tr th:each="cliente : ${clientes}">
 
                             <!-- CLIENTE -->
@@ -151,65 +141,45 @@
 
                                     </div>
 
-
                                     <span class="med-name"
                                           th:text="${cliente.nombres + ' ' + (cliente.apellidos != null ? cliente.apellidos : '')}">
-
                                         Juan Pérez
-
                                     </span>
 
                                 </div>
 
-
                                 <span class="text-muted text-small"
                                       th:text="'ID: ' + ${cliente.id_cliente}">
-
                                     ID: 1
-
                                 </span>
 
                             </td>
 
-
                             <!-- DOCUMENTO -->
                             <td th:text="${cliente.documento}">
-
                                 123456789
-
                             </td>
-
 
                             <!-- TELÉFONO -->
                             <td th:text="${cliente.telefono != null && !cliente.telefono.isEmpty() ? cliente.telefono : '—'}">
-
                                 3001234567
-
                             </td>
-
 
                             <!-- CORREO -->
                             <td th:text="${cliente.correo != null && !cliente.correo.isEmpty() ? cliente.correo : '—'}">
-
                                 cliente@gmail.com
-
                             </td>
-
 
                             <!-- EPS -->
                             <td th:text="${cliente.eps != null && !cliente.eps.isEmpty() ? cliente.eps : '—'}">
-
                                 SURA
-
                             </td>
-
 
                             <!-- ACCIONES -->
                             <td class="user-table-actions">
 
                                 <div class="table-actions-row">
 
-                                    <!-- EDITAR -->
                                     <a th:href="@{'/view/clientes/edit/' + ${cliente.id_cliente}}"
                                        class="btn btn-white">
 
@@ -217,8 +187,6 @@
 
                                     </a>
 
-
-                                    <!-- ELIMINAR -->
                                     <form method="post"
                                           th:action="@{'/view/clientes/delete/' + ${cliente.id_cliente}}"
                                           class="action-form">
@@ -239,7 +207,6 @@
 
                         </tr>
 
-
                         <!-- SIN CLIENTES -->
                         <tr th:if="${#lists.isEmpty(clientes)}">
 
@@ -258,16 +225,13 @@
 
                 </div>
 
-
-                <!-- TOTAL -->
+                <!-- FOOTER -->
                 <div class="table-footer">
 
                     Total clientes:
 
                     <span th:text="${#lists.size(clientes)}">
-
                         0
-
                     </span>
 
                 </div>

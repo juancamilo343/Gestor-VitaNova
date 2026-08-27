@@ -9,18 +9,22 @@
 
 <div class="app-shell">
 
+  <!-- SIDEBAR -->
   <aside th:replace="~{fragments/layout :: sidebar('proveedores')}">
   </aside>
 
 
+  <!-- CONTENIDO -->
   <div class="main-wrapper">
 
+    <!-- TOPBAR -->
     <header th:replace="~{fragments/layout :: topbar}">
     </header>
 
 
     <main class="dashboard-content">
 
+      <!-- ENCABEZADO -->
       <section class="page-header">
 
         <div class="page-title">
@@ -35,211 +39,170 @@
 
         </div>
 
-
-        <div class="page-actions">
-
-          <a th:href="@{/view/proveedores}"
-             class="btn btn-white">
-
-            <i class="fa-solid fa-arrow-left"></i>
-
-            <span>
-                            Volver
-                        </span>
-
-          </a>
-
-        </div>
-
       </section>
 
 
-      <section class="form-box">
+      <!-- FORMULARIO -->
+      <section class="table-card surface form-card">
 
         <form th:action="@{/view/proveedores/save}"
               th:object="${proveedor}"
-              method="post"
-              novalidate>
+              method="post">
 
+          <!-- ID -->
           <input type="hidden"
                  th:field="*{id_proveedor}">
 
 
-          <!-- INFORMACIÓN GENERAL -->
-          <div class="form-section">
-
-            <h2 class="form-section-title">
-              Información del proveedor
-            </h2>
-
-            <div class="form-section-divider">
-            </div>
+          <h3 class="mb-3">
+            Información del proveedor
+          </h3>
 
 
-            <div class="form-grid">
+          <div class="row">
 
-              <div class="field-group wide">
+            <!-- NOMBRE -->
+            <div class="col-md-6 mb-3">
 
-                <label for="nombre">
-                  Nombre del proveedor
-                </label>
+              <label class="form-label">
+                Nombre del proveedor
+              </label>
 
-                <input id="nombre"
-                       type="text"
-                       th:field="*{nombre}"
-                       required
-                       placeholder="Ej: Laboratorios XYZ">
-
-              </div>
-
-
-              <div class="field-group">
-
-                <label for="nit">
-                  NIT
-                </label>
-
-                <input id="nit"
-                       type="text"
-                       th:field="*{nit}"
-                       placeholder="Ej: 900123456-1">
-
-              </div>
-
-
-              <div class="field-group">
-
-                <label for="nombre_contacto">
-                  Nombre de contacto
-                </label>
-
-                <input id="nombre_contacto"
-                       type="text"
-                       th:field="*{nombre_contacto}"
-                       placeholder="Nombre del contacto">
-
-              </div>
+              <input type="text"
+                     th:field="*{nombre}"
+                     class="form-control"
+                     maxlength="100"
+                     required>
 
             </div>
 
-          </div>
 
+            <!-- CONTACTO -->
+            <div class="col-md-6 mb-3">
 
-          <!-- CONTACTO -->
-          <div class="form-section">
+              <label class="form-label">
+                Nombre de contacto
+              </label>
 
-            <h2 class="form-section-title">
-              Información de contacto
-            </h2>
-
-            <div class="form-section-divider">
-            </div>
-
-
-            <div class="form-grid">
-
-              <div class="field-group">
-
-                <label for="telefono">
-                  Teléfono
-                </label>
-
-                <input id="telefono"
-                       type="text"
-                       th:field="*{telefono}"
-                       placeholder="Número de teléfono">
-
-              </div>
-
-
-              <div class="field-group">
-
-                <label for="correo">
-                  Correo electrónico
-                </label>
-
-                <input id="correo"
-                       type="email"
-                       th:field="*{correo}"
-                       placeholder="correo@ejemplo.com">
-
-              </div>
-
-
-              <div class="field-group wide">
-
-                <label for="direccion">
-                  Dirección
-                </label>
-
-                <input id="direccion"
-                       type="text"
-                       th:field="*{direccion}"
-                       placeholder="Dirección del proveedor">
-
-              </div>
+              <input type="text"
+                     th:field="*{nombre_contacto}"
+                     class="form-control"
+                     maxlength="100">
 
             </div>
 
-          </div>
 
+            <!-- NIT -->
+            <div class="col-md-6 mb-3">
 
-          <!-- PRODUCTOS Y ESTADO -->
-          <div class="form-section">
+              <label class="form-label">
+                NIT
+              </label>
 
-            <h2 class="form-section-title">
-              Productos y estado
-            </h2>
+              <input type="text"
+                     th:field="*{nit}"
+                     class="form-control"
+                     maxlength="20">
 
-            <div class="form-section-divider">
             </div>
 
 
-            <div class="form-grid">
+            <!-- TELÉFONO -->
+            <div class="col-md-6 mb-3">
 
-              <div class="field-group wide">
+              <label class="form-label">
+                Teléfono
+              </label>
 
-                <label for="tipo_productos_suministrados">
-                  Tipo de productos suministrados
-                </label>
+              <input type="text"
+                     th:field="*{telefono}"
+                     class="form-control"
+                     maxlength="20">
 
-                <input id="tipo_productos_suministrados"
-                       type="text"
-                       th:field="*{tipo_productos_suministrados}"
-                       placeholder="Ej: Medicamentos, vitaminas y productos de aseo">
-
-              </div>
+            </div>
 
 
-              <div class="field-group">
+            <!-- CORREO -->
+            <div class="col-md-6 mb-3">
 
-                <label for="estado">
-                  Estado
-                </label>
+              <label class="form-label">
+                Correo electrónico
+              </label>
 
-                <select id="estado"
-                        th:field="*{estado}"
-                        required>
+              <input type="email"
+                     th:field="*{correo}"
+                     class="form-control"
+                     maxlength="100">
 
-                  <option value="ACTIVO">
-                    Activo
-                  </option>
+            </div>
 
-                  <option value="INACTIVO">
-                    Inactivo
-                  </option>
 
-                </select>
+            <!-- DIRECCIÓN -->
+            <div class="col-md-6 mb-3">
 
-              </div>
+              <label class="form-label">
+                Dirección
+              </label>
+
+              <input type="text"
+                     th:field="*{direccion}"
+                     class="form-control"
+                     maxlength="150">
+
+            </div>
+
+
+            <!-- TIPO PRODUCTOS -->
+            <div class="col-12 mb-3">
+
+              <label class="form-label">
+                Tipo de productos suministrados
+              </label>
+
+              <input type="text"
+                     th:field="*{tipo_productos_suministrados}"
+                     class="form-control"
+                     maxlength="200">
+
+            </div>
+
+
+            <!-- ESTADO -->
+            <div class="col-md-6 mb-3">
+
+              <label class="form-label">
+                Estado
+              </label>
+
+              <select th:field="*{estado}"
+                      class="form-select">
+
+                <option value="ACTIVO">
+                  Activo
+                </option>
+
+                <option value="INACTIVO">
+                  Inactivo
+                </option>
+
+              </select>
 
             </div>
 
           </div>
 
 
-          <!-- ACCIONES -->
-          <div class="form-actions">
+          <div class="mt-3">
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                            <span th:text="${editMode ? 'Actualizar proveedor' : 'Guardar proveedor'}">
+                                Guardar proveedor
+                            </span>
+
+            </button>
+
 
             <a th:href="@{/view/proveedores}"
                class="btn btn-white">
@@ -247,14 +210,6 @@
               Cancelar
 
             </a>
-
-
-            <button type="submit"
-                    class="btn btn-primary">
-
-              Guardar proveedor
-
-            </button>
 
           </div>
 

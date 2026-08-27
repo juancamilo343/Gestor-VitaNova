@@ -37,7 +37,7 @@ public class RolView {
 
         model.addAttribute(
                 "pageSubtitle",
-                "Administre los roles y permisos de acceso del sistema."
+                "Administre los roles, cargos y salarios de acceso del sistema."
         );
 
         model.addAttribute(
@@ -68,7 +68,7 @@ public class RolView {
 
         model.addAttribute(
                 "pageSubtitle",
-                "Configure la información del nuevo rol."
+                "Configure la información, cargo y salario del nuevo rol."
         );
 
         model.addAttribute(
@@ -129,7 +129,7 @@ public class RolView {
 
         model.addAttribute(
                 "pageSubtitle",
-                "Configure la información del rol."
+                "Configure la información, cargo y salario del rol."
         );
 
         model.addAttribute(

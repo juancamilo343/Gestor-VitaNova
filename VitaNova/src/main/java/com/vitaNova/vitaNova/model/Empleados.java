@@ -1,21 +1,22 @@
 package com.vitaNova.vitaNova.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(
-        name = "cliente",
+        name = "empleado",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_cliente_documento",
+                        name = "uk_empleado_documento",
                         columnNames = "documento"
                 )
         }
@@ -25,12 +26,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Clientes {
+public class Empleados {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_cliente")
-    private Long id_cliente;
+    @Column(name = "id_empleado")
+    private Long id_empleado;
 
 
     // =========================================================
@@ -50,12 +51,14 @@ public class Clientes {
     private String nombres;
 
 
+    @NotBlank(message = "Los apellidos son obligatorios")
     @Size(
             max = 100,
             message = "Los apellidos no pueden superar los 100 caracteres"
     )
     @Column(
             name = "apellidos",
+            nullable = false,
             length = 100
     )
     private String apellidos;
@@ -76,7 +79,7 @@ public class Clientes {
 
 
     // =========================================================
-    // CONTACTO
+    // INFORMACIÓN DE CONTACTO
     // =========================================================
 
     @Size(
@@ -95,7 +98,7 @@ public class Clientes {
     )
     @Size(
             max = 100,
-            message = "El correo electrónico no puede superar los 100 caracteres"
+            message = "El correo no puede superar los 100 caracteres"
     )
     @Column(
             name = "correo",
@@ -116,44 +119,54 @@ public class Clientes {
 
 
     // =========================================================
-    // INFORMACIÓN PERSONAL
+    // INFORMACIÓN LABORAL
     // =========================================================
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
-    @Past(
-            message = "La fecha de nacimiento debe ser anterior a la fecha actual"
-    )
-    @Column(name = "fecha_nacimiento")
-    private LocalDate fecha_nacimiento;
-
-
-    // =========================================================
-    // INFORMACIÓN MÉDICA
-    // =========================================================
-
-    @Size(
-            max = 100,
-            message = "La EPS no puede superar los 100 caracteres"
+    @DecimalMin(
+            value = "0.0",
+            inclusive = true,
+            message = "El salario no puede ser negativo"
     )
     @Column(
-            name = "eps",
-            length = 100
+            name = "salario",
+            precision = 10,
+            scale = 2
     )
-    private String eps;
+    private BigDecimal salario;
 
 
+    @PastOrPresent(
+            message = "La fecha de ingreso no puede ser futura"
+    )
+    @Column(name = "fecha_ingreso")
+    private LocalDate fecha_ingreso;
+
+
+    @Enumerated(EnumType.STRING)
     @Column(
-            name = "alergias",
-            columnDefinition = "TEXT"
+            name = "estado",
+            columnDefinition = "ENUM('ACTIVO','INACTIVO')"
     )
-    private String alergias;
+    @Builder.Default
+    private EstadoEmpleado estado = EstadoEmpleado.ACTIVO;
 
 
     // =========================================================
-    // REGISTRO
+    // RELACIÓN CON USUARIO
     // =========================================================
 
-    @Column(name = "fecha_registro")
-    private LocalDate fecha_registro;
+    @Column(name = "id_usuario")
+    private Long id_usuario;
 
+
+    // =========================================================
+    // ESTADO DEL EMPLEADO
+    // =========================================================
+
+    public enum EstadoEmpleado {
+
+        ACTIVO,
+        INACTIVO
+
+    }
 }

@@ -15,10 +15,10 @@ public class ProveedorView {
     @Autowired
     private ProveedorRepository proveedorRepository;
 
-    // =========================
-    // LISTA
-    // Vista: proveedores/proveedores.html
-    // =========================
+    // =========================================================
+    // LISTA DE PROVEEDORES
+    // =========================================================
+
     @GetMapping
     public String lista(Model model) {
 
@@ -55,42 +55,27 @@ public class ProveedorView {
         return "proveedores/proveedores";
     }
 
-    // =========================
-    // FORMULARIO NUEVO PROVEEDOR
-    // =========================
+    // =========================================================
+    // NUEVO PROVEEDOR
+    // =========================================================
+    // Los proveedores nuevos se registran desde Usuarios.
+    // =========================================================
+
     @GetMapping("/form")
-    public String form(Model model) {
+    public String form(RedirectAttributes ra) {
 
-        Proveedor proveedor = new Proveedor();
-
-        proveedor.setEstado("ACTIVO");
-
-        model.addAttribute(
-                "proveedor",
-                proveedor
+        ra.addFlashAttribute(
+                "success",
+                "Los proveedores nuevos deben registrarse desde el módulo de Usuarios."
         );
 
-        model.addAttribute(
-                "pageTitle",
-                "Nuevo Proveedor"
-        );
-
-        model.addAttribute(
-                "pageSubtitle",
-                "Registre un nuevo proveedor dentro del sistema VitaNova."
-        );
-
-        model.addAttribute(
-                "editMode",
-                false
-        );
-
-        return "proveedores/proveedoresForm";
+        return "redirect:/view/usuarios/form";
     }
 
-    // =========================
+    // =========================================================
     // EDITAR PROVEEDOR
-    // =========================
+    // =========================================================
+
     @GetMapping("/edit/{id}")
     public String edit(
             @PathVariable Long id,
@@ -134,15 +119,36 @@ public class ProveedorView {
         return "proveedores/proveedoresForm";
     }
 
-    // =========================
+    // =========================================================
     // GUARDAR / ACTUALIZAR
-    // =========================
+    // =========================================================
+
     @PostMapping("/save")
     public String save(
             @ModelAttribute Proveedor proveedor,
             RedirectAttributes ra) {
 
-        boolean nuevo = proveedor.getId_proveedor() == null;
+        // Los proveedores nuevos deben registrarse desde Usuarios.
+        if (proveedor.getId_proveedor() == null) {
+
+            ra.addFlashAttribute(
+                    "success",
+                    "Los proveedores nuevos deben registrarse desde el módulo de Usuarios."
+            );
+
+            return "redirect:/view/usuarios/form";
+        }
+
+        if (!proveedorRepository.existsById(
+                proveedor.getId_proveedor())) {
+
+            ra.addFlashAttribute(
+                    "success",
+                    "Proveedor no encontrado"
+            );
+
+            return "redirect:/view/proveedores";
+        }
 
         if (proveedor.getEstado() == null ||
                 proveedor.getEstado().isBlank()) {
@@ -152,27 +158,18 @@ public class ProveedorView {
 
         proveedorRepository.save(proveedor);
 
-        if (nuevo) {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Proveedor registrado con éxito"
-            );
-
-        } else {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Proveedor actualizado con éxito"
-            );
-        }
+        ra.addFlashAttribute(
+                "success",
+                "Proveedor actualizado con éxito"
+        );
 
         return "redirect:/view/proveedores";
     }
 
-    // =========================
+    // =========================================================
     // ELIMINAR PROVEEDOR
-    // =========================
+    // =========================================================
+
     @PostMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id,

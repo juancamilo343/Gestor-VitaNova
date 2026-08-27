@@ -1,7 +1,7 @@
 package com.vitaNova.vitaNova.view;
 
-import com.vitaNova.vitaNova.model.Clientes;
-import com.vitaNova.vitaNova.repository.ClientesRepository;
+import com.vitaNova.vitaNova.model.Empleados;
+import com.vitaNova.vitaNova.repository.EmpleadosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,28 +9,27 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/view/clientes")
-public class ClientesView {
+@RequestMapping("/view/empleados")
+public class EmpleadosView {
 
     @Autowired
-    private ClientesRepository clientesRepository;
-
+    private EmpleadosRepository empleadosRepository;
 
     // =========================================================
-    // LISTA DE CLIENTES
+    // LISTA DE EMPLEADOS
     // =========================================================
 
     @GetMapping
     public String lista(Model model) {
 
         model.addAttribute(
-                "clientes",
-                clientesRepository.findAll()
+                "empleados",
+                empleadosRepository.findAll()
         );
 
         model.addAttribute(
                 "activeMenu",
-                "clientes"
+                "empleados"
         );
 
         model.addAttribute(
@@ -45,20 +44,19 @@ public class ClientesView {
 
         model.addAttribute(
                 "pageTitle",
-                "Gestión de Clientes"
+                "Gestión de Empleados"
         );
 
         model.addAttribute(
                 "pageSubtitle",
-                "Consulta y seguimiento de los clientes de la farmacia."
+                "Consulta y administración de los empleados de la farmacia."
         );
 
-        return "clientes/clientes";
+        return "empleados/empleados";
     }
 
-
     // =========================================================
-    // EDITAR CLIENTE
+    // EDITAR EMPLEADO
     // =========================================================
 
     @GetMapping("/edit/{id}")
@@ -67,33 +65,33 @@ public class ClientesView {
             Model model,
             RedirectAttributes ra) {
 
-        Clientes cliente = clientesRepository
+        Empleados empleado = empleadosRepository
                 .findById(id)
                 .orElse(null);
 
-        if (cliente == null) {
+        if (empleado == null) {
 
             ra.addFlashAttribute(
                     "success",
-                    "Cliente no encontrado"
+                    "Empleado no encontrado"
             );
 
-            return "redirect:/view/clientes";
+            return "redirect:/view/empleados";
         }
 
         model.addAttribute(
-                "cliente",
-                cliente
+                "empleado",
+                empleado
         );
 
         model.addAttribute(
                 "pageTitle",
-                "Editar Cliente"
+                "Editar Empleado"
         );
 
         model.addAttribute(
                 "pageSubtitle",
-                "Actualice la información del cliente seleccionado."
+                "Actualice la información del empleado seleccionado."
         );
 
         model.addAttribute(
@@ -101,57 +99,51 @@ public class ClientesView {
                 true
         );
 
-        return "clientes/clientesForm";
+        return "empleados/empleadosForm";
     }
 
-
     // =========================================================
-    // GUARDAR / ACTUALIZAR CLIENTE
+    // ACTUALIZAR EMPLEADO
     // =========================================================
 
     @PostMapping("/save")
     public String save(
-            @ModelAttribute Clientes cliente,
+            @ModelAttribute Empleados empleado,
             RedirectAttributes ra) {
 
-        // Los clientes nuevos se registran desde Usuarios.
-        if (cliente.getId_cliente() == null) {
+        if (empleado.getId_empleado() == null) {
 
             ra.addFlashAttribute(
                     "success",
-                    "Los clientes deben registrarse desde el módulo de Usuarios."
+                    "Los empleados deben registrarse desde el módulo de Usuarios."
             );
 
-            return "redirect:/view/clientes";
+            return "redirect:/view/empleados";
         }
 
-
-        // Verificar que el cliente exista
-        if (!clientesRepository.existsById(
-                cliente.getId_cliente())) {
+        if (!empleadosRepository.existsById(
+                empleado.getId_empleado())) {
 
             ra.addFlashAttribute(
                     "success",
-                    "Cliente no encontrado"
+                    "Empleado no encontrado"
             );
 
-            return "redirect:/view/clientes";
+            return "redirect:/view/empleados";
         }
 
-
-        clientesRepository.save(cliente);
+        empleadosRepository.save(empleado);
 
         ra.addFlashAttribute(
                 "success",
-                "Cliente actualizado con éxito"
+                "Empleado actualizado con éxito"
         );
 
-        return "redirect:/view/clientes";
+        return "redirect:/view/empleados";
     }
 
-
     // =========================================================
-    // ELIMINAR CLIENTE
+    // ELIMINAR EMPLEADO
     // =========================================================
 
     @PostMapping("/delete/{id}")
@@ -159,23 +151,23 @@ public class ClientesView {
             @PathVariable Long id,
             RedirectAttributes ra) {
 
-        if (clientesRepository.existsById(id)) {
+        if (empleadosRepository.existsById(id)) {
 
-            clientesRepository.deleteById(id);
+            empleadosRepository.deleteById(id);
 
             ra.addFlashAttribute(
                     "success",
-                    "Cliente eliminado con éxito"
+                    "Empleado eliminado con éxito"
             );
 
         } else {
 
             ra.addFlashAttribute(
                     "success",
-                    "Cliente no encontrado"
+                    "Empleado no encontrado"
             );
         }
 
-        return "redirect:/view/clientes";
+        return "redirect:/view/empleados";
     }
 }

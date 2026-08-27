@@ -20,11 +20,19 @@ public class Usuarios {
     private Long id_usuario;
 
     @NotBlank(message = "El nombre de usuario es obligatorio")
-    @Column(name = "username", nullable = false, length = 50)
+    @Column(
+            name = "username",
+            nullable = false,
+            length = 50
+    )
     private String username;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(
+            name = "password",
+            nullable = false,
+            length = 255
+    )
     private String password;
 
     @NotNull(message = "El estado es obligatorio")
@@ -36,6 +44,10 @@ public class Usuarios {
     private Long id_rol;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_rol", insertable = false, updatable = false)
+    @JoinColumn(
+            name = "id_rol",
+            insertable = false,
+            updatable = false
+    )
     private Rol rol;
 }

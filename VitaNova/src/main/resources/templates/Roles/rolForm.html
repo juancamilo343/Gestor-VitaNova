@@ -81,7 +81,7 @@
                     <div class="form-grid">
 
                         <!-- NOMBRE -->
-                        <div class="field-group wide">
+                        <div class="field-group">
 
                             <label for="nombre">
                                 Nombre del rol
@@ -90,8 +90,35 @@
                             <input id="nombre"
                                    type="text"
                                    th:field="*{nombre}"
-                                   placeholder="Ej: Administrador"
+                                   placeholder="Ej: Farmacéutico"
+                                   maxlength="50"
                                    required>
+
+                        </div>
+
+
+                        <!-- SALARIO -->
+                        <div class="field-group">
+
+                            <label for="salario">
+                                Salario
+
+                                <span class="text-muted">
+                                    (Opcional)
+                                </span>
+
+                            </label>
+
+                            <input id="salario"
+                                   type="number"
+                                   th:field="*{salario}"
+                                   min="0"
+                                   step="0.01"
+                                   placeholder="Ej: 2500000">
+
+                            <span class="text-muted text-small">
+                                Déjelo vacío si este rol no tiene salario.
+                            </span>
 
                         </div>
 
@@ -106,7 +133,8 @@
                             <textarea id="descripcion"
                                       th:field="*{descripcion}"
                                       placeholder="Descripción del rol..."
-                                      rows="4"></textarea>
+                                      rows="4"
+                                      maxlength="150"></textarea>
 
                         </div>
 

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+    <aside th:replace="~{fragments/layout :: sidebar('empleados')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- =================================================
+                 ENCABEZADO
+            ================================================== -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Nuevo Empleado
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Registre un nuevo empleado dentro del sistema VitaNova.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/empleados}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        <span>
+                            Volver
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MENSAJE DE ERROR
+            ================================================== -->
+            <div th:if="${error}"
+                 class="alert-banner"
+                 th:text="${error}">
+            </div>
+
+
+            <!-- =================================================
+                 FORMULARIO
+            ================================================== -->
+            <section class="form-box">
+
+                <form th:action="@{/view/empleados/save}"
+                      th:object="${empleado}"
+                      method="post"
+                      novalidate>
+
+
+                    <!-- ID DEL EMPLEADO -->
+                    <input type="hidden"
+                           th:field="*{id_empleado}">
+
+
+                    <!-- =================================================
+                         INFORMACIÓN PERSONAL
+                    ================================================== -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información personal
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- NOMBRES -->
+                            <div class="field-group">
+
+                                <label for="nombres">
+                                    Nombres
+                                </label>
+
+                                <input id="nombres"
+                                       type="text"
+                                       th:field="*{nombres}"
+                                       required
+                                       maxlength="100"
+                                       placeholder="Ej: Juan Carlos">
+
+                            </div>
+
+
+                            <!-- APELLIDOS -->
+                            <div class="field-group">
+
+                                <label for="apellidos">
+                                    Apellidos
+                                </label>
+
+                                <input id="apellidos"
+                                       type="text"
+                                       th:field="*{apellidos}"
+                                       required
+                                       maxlength="100"
+                                       placeholder="Ej: Pérez Gómez">
+
+                            </div>
+
+
+                            <!-- DOCUMENTO -->
+                            <div class="field-group">
+
+                                <label for="documento">
+                                    Número de documento
+                                </label>
+
+                                <input id="documento"
+                                       type="text"
+                                       th:field="*{documento}"
+                                       required
+                                       maxlength="20"
+                                       placeholder="Ej: 1234567890">
+
+                            </div>
+
+
+                            <!-- TELÉFONO -->
+                            <div class="field-group">
+
+                                <label for="telefono">
+                                    Teléfono
+                                </label>
+
+                                <input id="telefono"
+                                       type="text"
+                                       th:field="*{telefono}"
+                                       maxlength="20"
+                                       placeholder="Ej: 3001234567">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         INFORMACIÓN DE CONTACTO
+                    ================================================== -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información de contacto
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- CORREO -->
+                            <div class="field-group">
+
+                                <label for="correo">
+                                    Correo electrónico
+                                </label>
+
+                                <input id="correo"
+                                       type="email"
+                                       th:field="*{correo}"
+                                       maxlength="100"
+                                       placeholder="Ej: empleado@gmail.com">
+
+                            </div>
+
+
+                            <!-- DIRECCIÓN -->
+                            <div class="field-group wide">
+
+                                <label for="direccion">
+                                    Dirección
+                                </label>
+
+                                <input id="direccion"
+                                       type="text"
+                                       th:field="*{direccion}"
+                                       maxlength="150"
+                                       placeholder="Ej: Calle 10 # 20-30">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         INFORMACIÓN LABORAL
+                    ================================================== -->
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información laboral
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- SALARIO -->
+                            <div class="field-group">
+
+                                <label for="salario">
+                                    Salario
+                                </label>
+
+                                <input id="salario"
+                                       type="number"
+                                       th:field="*{salario}"
+                                       min="0"
+                                       step="0.01"
+                                       placeholder="Ej: 1500000">
+
+                                <span class="text-muted text-small">
+                                    No aplica para usuarios con rol de Administrador.
+                                </span>
+
+                            </div>
+
+
+                            <!-- FECHA DE INGRESO -->
+                            <div class="field-group">
+
+                                <label for="fecha_ingreso">
+                                    Fecha de ingreso
+                                </label>
+
+                                <input id="fecha_ingreso"
+                                       type="date"
+                                       th:field="*{fecha_ingreso}">
+
+                            </div>
+
+
+                            <!-- ESTADO -->
+                            <div class="field-group">
+
+                                <label for="estado">
+                                    Estado laboral
+                                </label>
+
+                                <select id="estado"
+                                        th:field="*{estado}">
+
+                                    <option value="ACTIVO">
+                                        Activo
+                                    </option>
+
+                                    <option value="INACTIVO">
+                                        Inactivo
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         ACCIONES
+                    ================================================== -->
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/empleados}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            <i class="fa-solid fa-save"></i>
+
+                            <span th:if="${editMode}">
+                                Actualizar empleado
+                            </span>
+
+                            <span th:unless="${editMode}">
+                                Guardar empleado
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

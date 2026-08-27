@@ -1,133 +1,842 @@
 <!DOCTYPE html>
 <html lang="es"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+
+<head th:replace="~{fragments/layout :: head(${modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario'})}">
 </head>
+
 <body>
+
 <div class="app-shell">
+
     <!-- SIDEBAR -->
     <aside th:replace="~{fragments/layout :: sidebar('usuarios')}">
     </aside>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="main-wrapper">
+
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
+
+
         <main class="dashboard-content">
+
+            <!-- ENCABEZADO -->
             <section class="page-header">
+
                 <div class="page-title">
-                    <h1 th:text="${pageTitle}">
-                        Nuevo Usuario
+
+                    <h1 th:text="${modoEdicion ? 'Editar usuario' : 'Nuevo usuario'}">
+                        Nuevo usuario
                     </h1>
-                    <p th:text="${pageSubtitle}">
-                        Registre y configure un nuevo usuario dentro del sistema VitaNova.
+
+                    <p th:text="${modoEdicion
+                        ? 'Modifica la información del usuario y del empleado.'
+                        : 'Registra un nuevo usuario dentro del sistema VitaNova.'}">
+                        Registra un nuevo usuario dentro del sistema VitaNova.
                     </p>
+
                 </div>
-                <div class="page-actions">
-                    <a th:href="@{/view/usuarios}"
-                       class="btn btn-white">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>
-                            Volver
-                        </span>
-                    </a>
-                </div>
+
             </section>
+
+
+            <!-- FORMULARIO -->
             <section class="form-box">
-                <form th:action="@{/view/usuarios/save}"
-                      th:object="${usuario}"
+
+
+                <!-- ================================================= -->
+                <!-- TIPO DE REGISTRO -->
+                <!-- ================================================= -->
+
+                <div class="form-section"
+                     th:if="${!modoEdicion}">
+
+                    <h2 class="form-section-title">
+                        Tipo de registro
+                    </h2>
+
+                    <div class="form-section-divider">
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="field-group">
+
+                            <label for="tipoRegistro">
+                                Tipo de registro
+                            </label>
+
+                            <select id="tipoRegistro"
+                                    onchange="cambiarFormulario()">
+
+                                <option value="">
+                                    Seleccione una opción
+                                </option>
+
+                                <option value="cliente">
+                                    Cliente
+                                </option>
+
+                                <option value="empleado">
+                                    Empleado
+                                </option>
+
+                                <option value="proveedor">
+                                    Proveedor
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- CLIENTE -->
+                <!-- ================================================= -->
+
+                <form id="formCliente"
+                      th:action="@{/view/usuarios/cliente/save}"
                       method="post"
-                      novalidate>
-                    <input type="hidden"
-                           th:field="*{id_usuario}">
-                    <!-- INFORMACIÓN DE ACCESO -->
+                      style="display: none;">
+
+
                     <div class="form-section">
+
                         <h2 class="form-section-title">
-                            Información de acceso
+                            Información del cliente
                         </h2>
+
                         <div class="form-section-divider">
                         </div>
+
+
                         <div class="form-grid">
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_nombres">
+                                    Nombres
+                                </label>
+
+                                <input id="cliente_nombres"
+                                       type="text"
+                                       name="nombres"
+                                       maxlength="100"
+                                       required
+                                       placeholder="Nombres">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_apellidos">
+                                    Apellidos
+                                </label>
+
+                                <input id="cliente_apellidos"
+                                       type="text"
+                                       name="apellidos"
+                                       maxlength="100"
+                                       placeholder="Apellidos">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_documento">
+                                    Documento
+                                </label>
+
+                                <input id="cliente_documento"
+                                       type="text"
+                                       name="documento"
+                                       maxlength="20"
+                                       required
+                                       placeholder="Número de documento">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_telefono">
+                                    Teléfono
+                                </label>
+
+                                <input id="cliente_telefono"
+                                       type="text"
+                                       name="telefono"
+                                       maxlength="20"
+                                       placeholder="Número de teléfono">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_correo">
+                                    Correo electrónico
+                                </label>
+
+                                <input id="cliente_correo"
+                                       type="email"
+                                       name="correo"
+                                       maxlength="100"
+                                       placeholder="correo@ejemplo.com">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_direccion">
+                                    Dirección
+                                </label>
+
+                                <input id="cliente_direccion"
+                                       type="text"
+                                       name="direccion"
+                                       maxlength="150"
+                                       placeholder="Dirección">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_fecha_nacimiento">
+                                    Fecha de nacimiento
+                                </label>
+
+                                <input id="cliente_fecha_nacimiento"
+                                       type="date"
+                                       name="fecha_nacimiento"
+                                       required>
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="cliente_eps">
+                                    EPS
+                                </label>
+
+                                <input id="cliente_eps"
+                                       type="text"
+                                       name="eps"
+                                       maxlength="100"
+                                       placeholder="EPS">
+
+                            </div>
+
+
                             <div class="field-group wide">
+
+                                <label for="cliente_alergias">
+                                    Alergias conocidas
+                                </label>
+
+                                <textarea id="cliente_alergias"
+                                          name="alergias"
+                                          rows="4"
+                                          placeholder="Indique alergias conocidas"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/usuarios}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Guardar cliente
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <!-- ================================================= -->
+                <!-- EMPLEADO -->
+                <!-- ================================================= -->
+
+                <form id="formEmpleado"
+                      th:action="${modoEdicion}
+                        ? @{/view/usuarios/update}
+                        : @{/view/usuarios/empleado/save}"
+                      method="post"
+                      th:style="${modoEdicion ? 'display:block;' : 'display:none;'}">
+
+
+                    <input type="hidden"
+                           name="id_usuario"
+                           th:if="${modoEdicion}"
+                           th:value="${usuario.id_usuario}">
+
+
+                    <!-- INFORMACIÓN DEL EMPLEADO -->
+
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información del empleado
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_nombres">
+                                    Nombres
+                                </label>
+
+                                <input id="empleado_nombres"
+                                       type="text"
+                                       name="nombres"
+                                       maxlength="100"
+                                       th:value="${modoEdicion && empleado != null ? empleado.nombres : ''}"
+                                       required
+                                       placeholder="Nombres">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_apellidos">
+                                    Apellidos
+                                </label>
+
+                                <input id="empleado_apellidos"
+                                       type="text"
+                                       name="apellidos"
+                                       maxlength="100"
+                                       th:value="${modoEdicion && empleado != null ? empleado.apellidos : ''}"
+                                       required
+                                       placeholder="Apellidos">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_documento">
+                                    Documento
+                                </label>
+
+                                <input id="empleado_documento"
+                                       type="text"
+                                       name="documento"
+                                       maxlength="20"
+                                       th:value="${modoEdicion && empleado != null ? empleado.documento : ''}"
+                                       required
+                                       placeholder="Documento">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_telefono">
+                                    Teléfono
+                                </label>
+
+                                <input id="empleado_telefono"
+                                       type="text"
+                                       name="telefono"
+                                       maxlength="20"
+                                       th:value="${modoEdicion && empleado != null ? empleado.telefono : ''}"
+                                       placeholder="Teléfono">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_correo">
+                                    Correo electrónico
+                                </label>
+
+                                <input id="empleado_correo"
+                                       type="email"
+                                       name="correo"
+                                       maxlength="100"
+                                       th:value="${modoEdicion && empleado != null ? empleado.correo : ''}"
+                                       placeholder="correo@ejemplo.com">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="empleado_direccion">
+                                    Dirección
+                                </label>
+
+                                <input id="empleado_direccion"
+                                       type="text"
+                                       name="direccion"
+                                       maxlength="150"
+                                       th:value="${modoEdicion && empleado != null ? empleado.direccion : ''}"
+                                       placeholder="Dirección">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="salario">
+                                    Salario
+                                </label>
+
+                                <input id="salario"
+                                       type="number"
+                                       name="salario"
+                                       min="0"
+                                       step="0.01"
+                                       th:value="${modoEdicion && empleado != null ? empleado.salario : ''}"
+                                       placeholder="0.00">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="fecha_ingreso">
+                                    Fecha de ingreso
+                                </label>
+
+                                <input id="fecha_ingreso"
+                                       type="date"
+                                       name="fecha_ingreso"
+                                       th:value="${modoEdicion && empleado != null && empleado.fecha_ingreso != null
+                                       ? empleado.fecha_ingreso : ''}">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="estadoEmpleado">
+                                    Estado del empleado
+                                </label>
+
+                                <select id="estadoEmpleado"
+                                        name="estadoEmpleado">
+
+                                    <option value="ACTIVO"
+                                            th:selected="${modoEdicion && empleado != null
+                                            && empleado.estado != null
+                                            && empleado.estado.name() == 'ACTIVO'}">
+                                        Activo
+                                    </option>
+
+                                    <option value="INACTIVO"
+                                            th:selected="${modoEdicion && empleado != null
+                                            && empleado.estado != null
+                                            && empleado.estado.name() == 'INACTIVO'}">
+                                        Inactivo
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CUENTA -->
+
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Cuenta de acceso
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="field-group">
+
                                 <label for="username">
                                     Nombre de usuario
                                 </label>
+
                                 <input id="username"
                                        type="text"
-                                       th:field="*{username}"
+                                       name="username"
+                                       maxlength="50"
+                                       th:value="${modoEdicion ? usuario.username : ''}"
                                        required
-                                       placeholder="Ej: juan.perez"
-                                       autocomplete="username">
+                                       placeholder="Nombre de usuario">
+
                             </div>
-                            <div class="field-group wide">
+
+
+                            <div class="field-group">
+
                                 <label for="password">
                                     Contraseña
                                 </label>
+
                                 <input id="password"
                                        type="password"
-                                       th:field="*{password}"
-                                       required
-                                       placeholder="Contraseña segura"
-                                       autocomplete="new-password">
+                                       name="password"
+                                       th:placeholder="${modoEdicion
+                                       ? 'Dejar vacío para conservar la actual'
+                                       : 'Contraseña'}"
+                                       th:required="${!modoEdicion}">
+
                             </div>
-                        </div>
-                    </div>
-                    <!-- SEGURIDAD -->
-                    <div class="form-section">
-                        <h2 class="form-section-title">
-                            Seguridad y permisos
-                        </h2>
-                        <div class="form-section-divider">
-                        </div>
-                        <div class="form-grid">
+
+
                             <div class="field-group">
+
                                 <label for="id_rol">
-                                    Rol del usuario
+                                    Rol
                                 </label>
+
                                 <select id="id_rol"
-                                        th:field="*{id_rol}"
+                                        name="id_rol"
                                         required>
+
                                     <option value="">
-                                        Seleccione
+                                        Seleccione un rol
                                     </option>
+
                                     <option th:each="rol : ${roles}"
                                             th:value="${rol.id_rol}"
-                                            th:text="${rol.nombre}">
-                                        Rol
+                                            th:text="${rol.nombre}"
+                                            th:selected="${modoEdicion
+                                            && usuario.id_rol == rol.id_rol}">
                                     </option>
+
                                 </select>
+
                             </div>
+
+
                             <div class="field-group">
-                                <label for="estado">
-                                    Estado
+
+                                <label for="estadoUsuario">
+                                    Estado de la cuenta
                                 </label>
-                                <select id="estado"
-                                        th:field="*{estado}"
+
+                                <select id="estadoUsuario"
+                                        name="estadoUsuario"
                                         required>
-                                    <option th:value="true">
-                                        Activo
+
+                                    <option value="true"
+                                            th:selected="${modoEdicion && usuario.estado}">
+                                        Activa
                                     </option>
-                                    <option th:value="false">
-                                        Inactivo
+
+                                    <option value="false"
+                                            th:selected="${modoEdicion && !usuario.estado}">
+                                        Inactiva
                                     </option>
+
                                 </select>
+
                             </div>
+
                         </div>
+
                     </div>
-                    <!-- ACCIONES -->
+
+
+                    <!-- BOTONES -->
+
                     <div class="form-actions">
+
                         <a th:href="@{/view/usuarios}"
                            class="btn btn-white">
+
                             Cancelar
+
                         </a>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                th:text="${modoEdicion
+                                ? 'Actualizar usuario'
+                                : 'Guardar empleado'}">
+
+                            Guardar empleado
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <!-- ================================================= -->
+                <!-- PROVEEDOR -->
+                <!-- ================================================= -->
+
+                <form id="formProveedor"
+                      th:action="@{/view/usuarios/proveedor/save}"
+                      method="post"
+                      style="display: none;">
+
+
+                    <div class="form-section">
+
+                        <h2 class="form-section-title">
+                            Información del proveedor
+                        </h2>
+
+                        <div class="form-section-divider">
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="field-group">
+
+                                <label for="proveedor_nombre">
+                                    Nombre del proveedor
+                                </label>
+
+                                <input id="proveedor_nombre"
+                                       type="text"
+                                       name="nombre"
+                                       maxlength="100"
+                                       required
+                                       placeholder="Nombre del proveedor">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="nombre_contacto">
+                                    Nombre de contacto
+                                </label>
+
+                                <input id="nombre_contacto"
+                                       type="text"
+                                       name="nombre_contacto"
+                                       maxlength="100"
+                                       placeholder="Persona de contacto">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="nit">
+                                    NIT
+                                </label>
+
+                                <input id="nit"
+                                       type="text"
+                                       name="nit"
+                                       maxlength="20"
+                                       placeholder="NIT">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="proveedor_telefono">
+                                    Teléfono
+                                </label>
+
+                                <input id="proveedor_telefono"
+                                       type="text"
+                                       name="telefono"
+                                       maxlength="20"
+                                       placeholder="Teléfono">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="proveedor_correo">
+                                    Correo electrónico
+                                </label>
+
+                                <input id="proveedor_correo"
+                                       type="email"
+                                       name="correo"
+                                       maxlength="100"
+                                       placeholder="correo@ejemplo.com">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="proveedor_direccion">
+                                    Dirección
+                                </label>
+
+                                <input id="proveedor_direccion"
+                                       type="text"
+                                       name="direccion"
+                                       maxlength="150"
+                                       placeholder="Dirección">
+
+                            </div>
+
+
+                            <div class="field-group wide">
+
+                                <label for="tipo_productos_suministrados">
+                                    Tipo de productos suministrados
+                                </label>
+
+                                <input id="tipo_productos_suministrados"
+                                       type="text"
+                                       name="tipo_productos_suministrados"
+                                       maxlength="200"
+                                       placeholder="Ej: Medicamentos, productos de aseo">
+
+                            </div>
+
+
+                            <div class="field-group">
+
+                                <label for="estadoProveedor">
+                                    Estado
+                                </label>
+
+                                <select id="estadoProveedor"
+                                        name="estado">
+
+                                    <option value="ACTIVO">
+                                        Activo
+                                    </option>
+
+                                    <option value="INACTIVO">
+                                        Inactivo
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a th:href="@{/view/usuarios}"
+                           class="btn btn-white">
+
+                            Cancelar
+
+                        </a>
+
                         <button type="submit"
                                 class="btn btn-primary">
-                            Guardar usuario
+
+                            Guardar proveedor
+
                         </button>
+
                     </div>
+
                 </form>
+
             </section>
+
         </main>
+
     </div>
+
 </div>
+
+
+<script>
+
+    function cambiarFormulario() {
+
+        const tipo =
+            document.getElementById("tipoRegistro").value;
+
+
+        document.getElementById("formCliente")
+            .style.display = "none";
+
+        document.getElementById("formEmpleado")
+            .style.display = "none";
+
+        document.getElementById("formProveedor")
+            .style.display = "none";
+
+
+        if (tipo === "cliente") {
+
+            document.getElementById("formCliente")
+                .style.display = "block";
+
+        }
+
+
+        if (tipo === "empleado") {
+
+            document.getElementById("formEmpleado")
+                .style.display = "block";
+
+        }
+
+
+        if (tipo === "proveedor") {
+
+            document.getElementById("formProveedor")
+                .style.display = "block";
+
+        }
+
+    }
+
+</script>
+
+
 </body>
 </html>

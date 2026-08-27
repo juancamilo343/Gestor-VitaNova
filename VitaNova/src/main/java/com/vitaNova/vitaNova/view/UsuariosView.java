@@ -1,50 +1,54 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.model.Clientes;
+import com.vitaNova.vitaNova.model.Empleados;
+import com.vitaNova.vitaNova.model.Proveedor;
 import com.vitaNova.vitaNova.model.Usuarios;
+import com.vitaNova.vitaNova.repository.ClientesRepository;
+import com.vitaNova.vitaNova.repository.EmpleadosRepository;
+import com.vitaNova.vitaNova.repository.ProveedorRepository;
 import com.vitaNova.vitaNova.repository.RolRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/view/usuarios")
 public class UsuariosView {
 
-    @Autowired
-    private UsuariosRepository usuariosRepository;
+    private final UsuariosRepository usuariosRepository;
+    private final RolRepository rolRepository;
+    private final ClientesRepository clientesRepository;
+    private final EmpleadosRepository empleadosRepository;
+    private final ProveedorRepository proveedorRepository;
 
-    @Autowired
-    private RolRepository rolRepository;
+    public UsuariosView(
+            UsuariosRepository usuariosRepository,
+            RolRepository rolRepository,
+            ClientesRepository clientesRepository,
+            EmpleadosRepository empleadosRepository,
+            ProveedorRepository proveedorRepository
+    ) {
+        this.usuariosRepository = usuariosRepository;
+        this.rolRepository = rolRepository;
+        this.clientesRepository = clientesRepository;
+        this.empleadosRepository = empleadosRepository;
+        this.proveedorRepository = proveedorRepository;
+    }
 
-    // =========================
-    // LISTA
-    // Vista: usuarios/usuarios.html
-    // =========================
+    // =========================================================
+    // LISTAR USUARIOS
+    // =========================================================
+
     @GetMapping
-    public String lista(Model model) {
+    public String listarUsuarios(Model model) {
 
         model.addAttribute(
                 "usuarios",
                 usuariosRepository.findAll()
-        );
-
-        // Datos generales del layout
-        model.addAttribute(
-                "activeMenu",
-                "usuarios"
-        );
-
-        model.addAttribute(
-                "userName",
-                "Administrador"
-        );
-
-        model.addAttribute(
-                "userRole",
-                "Farmacia Central"
         );
 
         model.addAttribute(
@@ -60,67 +64,132 @@ public class UsuariosView {
         return "usuarios/usuarios";
     }
 
-    // =========================
-    // FORMULARIO NUEVO USUARIO
-    // =========================
+    // =========================================================
+    // FORMULARIO NUEVO
+    // =========================================================
+
     @GetMapping("/form")
-    public String form(Model model) {
-
-        Usuarios usuario = new Usuarios();
-
-        // Por defecto el usuario queda activo
-        usuario.setEstado(true);
-
-        model.addAttribute(
-                "usuario",
-                usuario
-        );
+    public String mostrarFormulario(Model model) {
 
         model.addAttribute(
                 "roles",
                 rolRepository.findAll()
+        );
+
+        model.addAttribute(
+                "modoEdicion",
+                false
         );
 
         model.addAttribute(
                 "pageTitle",
-                "Nuevo Usuario"
+                "Registrar"
         );
 
-        model.addAttribute(
-                "pageSubtitle",
-                "Registre y configure un nuevo usuario dentro del sistema VitaNova."
-        );
-
-        model.addAttribute(
-                "editMode",
-                false
-        );
-
-        return "usuarios/usuariosForm";
+        return "usuarios/UsuariosForm";
     }
 
-    // =========================
+    // =========================================================
+    // GUARDAR CLIENTE
+    // =========================================================
+
+    @PostMapping("/cliente/save")
+    public String guardarCliente(
+            @ModelAttribute Clientes cliente
+    ) {
+
+        cliente.setFecha_registro(LocalDate.now());
+
+        clientesRepository.save(cliente);
+
+        return "redirect:/view/usuarios";
+    }
+
+    // =========================================================
+    // GUARDAR EMPLEADO
+    // =========================================================
+
+    @PostMapping("/empleado/save")
+    public String guardarEmpleado(
+
+            @RequestParam String username,
+
+            @RequestParam String password,
+
+            @RequestParam Long id_rol,
+
+            @RequestParam Boolean estadoUsuario,
+
+            @RequestParam Empleados.EstadoEmpleado estadoEmpleado,
+
+            @ModelAttribute Empleados empleado
+    ) {
+
+        Usuarios usuario = new Usuarios();
+
+        usuario.setUsername(username);
+        usuario.setPassword(password);
+        usuario.setId_rol(id_rol);
+        usuario.setEstado(estadoUsuario);
+
+        Usuarios usuarioGuardado =
+                usuariosRepository.save(usuario);
+
+        empleado.setId_usuario(
+                usuarioGuardado.getId_usuario()
+        );
+
+        empleado.setEstado(estadoEmpleado);
+
+        empleadosRepository.save(empleado);
+
+        return "redirect:/view/usuarios";
+    }
+
+    // =========================================================
+    // GUARDAR PROVEEDOR
+    // =========================================================
+
+    @PostMapping("/proveedor/save")
+    public String guardarProveedor(
+            @ModelAttribute Proveedor proveedor
+    ) {
+
+        proveedorRepository.save(proveedor);
+
+        return "redirect:/view/usuarios";
+    }
+
+    // =========================================================
     // EDITAR USUARIO
-    // =========================
+    // =========================================================
+
     @GetMapping("/edit/{id}")
-    public String edit(
+    public String editarUsuario(
             @PathVariable Long id,
-            Model model,
-            RedirectAttributes ra) {
+            Model model
+    ) {
 
         Usuarios usuario = usuariosRepository
                 .findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Usuario no encontrado"
+                        )
+                );
+
+        // Buscar empleado relacionado con este usuario
+        Empleados empleado = empleadosRepository
+                .findAll()
+                .stream()
+                .filter(e ->
+                        e.getId_usuario() != null &&
+                                e.getId_usuario().equals(
+                                        usuario.getId_usuario()
+                                )
+                )
+                .findFirst()
                 .orElse(null);
-
-        if (usuario == null) {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Usuario no encontrado"
-            );
-
-            return "redirect:/view/usuarios";
-        }
 
         model.addAttribute(
                 "usuario",
@@ -128,8 +197,18 @@ public class UsuariosView {
         );
 
         model.addAttribute(
+                "empleado",
+                empleado
+        );
+
+        model.addAttribute(
                 "roles",
                 rolRepository.findAll()
+        );
+
+        model.addAttribute(
+                "modoEdicion",
+                true
         );
 
         model.addAttribute(
@@ -137,78 +216,63 @@ public class UsuariosView {
                 "Editar Usuario"
         );
 
-        model.addAttribute(
-                "pageSubtitle",
-                "Actualice la información del usuario seleccionado."
-        );
-
-        model.addAttribute(
-                "editMode",
-                true
-        );
-
-        return "usuarios/usuariosForm";
+        return "usuarios/UsuariosForm";
     }
 
-    // =========================
-    // GUARDAR / ACTUALIZAR
-    // =========================
-    @PostMapping("/save")
-    public String save(
-            @ModelAttribute Usuarios usuario,
-            RedirectAttributes ra) {
+    // =========================================================
+    // ACTUALIZAR USUARIO
+    // =========================================================
 
-        boolean nuevo = usuario.getId_usuario() == null;
+    @PostMapping("/update")
+    public String actualizarUsuario(
 
-        // Si no llega estado, se establece como activo
-        if (usuario.getEstado() == null) {
-            usuario.setEstado(true);
+            @RequestParam Long id_usuario,
+
+            @RequestParam String username,
+
+            @RequestParam String password,
+
+            @RequestParam Long id_rol,
+
+            @RequestParam Boolean estadoUsuario
+    ) {
+
+        Usuarios usuario = usuariosRepository
+                .findById(id_usuario)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Usuario no encontrado"
+                        )
+                );
+
+        usuario.setUsername(username);
+
+        /*
+         * Solo actualizamos la contraseña si
+         * el usuario escribió una nueva.
+         */
+        if (password != null && !password.trim().isEmpty()) {
+            usuario.setPassword(password);
         }
+
+        usuario.setId_rol(id_rol);
+        usuario.setEstado(estadoUsuario);
 
         usuariosRepository.save(usuario);
-
-        if (nuevo) {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Usuario registrado con éxito"
-            );
-
-        } else {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Usuario actualizado con éxito"
-            );
-        }
 
         return "redirect:/view/usuarios";
     }
 
-    // =========================
+    // =========================================================
     // ELIMINAR USUARIO
-    // =========================
-    @PostMapping("/delete/{id}")
-    public String delete(
-            @PathVariable Long id,
-            RedirectAttributes ra) {
+    // =========================================================
 
-        if (usuariosRepository.existsById(id)) {
+    @GetMapping("/eliminar/{id}")
+    public String eliminarUsuario(
+            @PathVariable Long id
+    ) {
 
-            usuariosRepository.deleteById(id);
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Usuario eliminado con éxito"
-            );
-
-        } else {
-
-            ra.addFlashAttribute(
-                    "success",
-                    "Usuario no encontrado"
-            );
-        }
+        usuariosRepository.deleteById(id);
 
         return "redirect:/view/usuarios";
     }
