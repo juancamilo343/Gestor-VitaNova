@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('compras')}">
+    </aside>
+
+
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- ENCABEZADO -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Detalle de Compra
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Productos incluidos en la compra seleccionada.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/compras}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Volver
+
+                    </a>
+
+                    <a th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/form'}"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                        Agregar producto
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- MENSAJE -->
+            <div th:if="${success}"
+                 class="alert-banner success"
+                 th:text="${success}">
+            </div>
+
+
+            <!-- INFORMACIÓN DE LA COMPRA -->
+            <section class="form-box">
+
+                <div class="form-section">
+
+                    <h2 class="form-section-title">
+                        Información de la compra
+                    </h2>
+
+                    <div class="form-section-divider">
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="field-group">
+
+                            <label>
+                                Número de compra
+                            </label>
+
+                            <input type="text"
+                                   th:value="${compra.id_compra}"
+                                   readonly>
+
+                        </div>
+
+
+                        <div class="field-group">
+
+                            <label>
+                                Fecha
+                            </label>
+
+                            <input type="text"
+                                   th:value="${compra.fecha}"
+                                   readonly>
+
+                        </div>
+
+
+                        <div class="field-group">
+
+                            <label>
+                                Proveedor
+                            </label>
+
+                            <input type="text"
+                                   th:value="${compra.proveedor != null ? compra.proveedor.nombre : '—'}"
+                                   readonly>
+
+                        </div>
+
+
+                        <div class="field-group">
+
+                            <label>
+                                Estado
+                            </label>
+
+                            <input type="text"
+                                   th:value="${compra.estado}"
+                                   readonly>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- TABLA DE PRODUCTOS -->
+            <section class="table-card surface">
+
+                <div class="table-header">
+
+                    <span class="card-title">
+                        Productos de la compra
+                    </span>
+
+                </div>
+
+
+                <div class="overflow-x-auto">
+
+                    <table class="custom-table">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                Producto
+                            </th>
+
+                            <th>
+                                Cantidad
+                            </th>
+
+                            <th>
+                                Precio compra
+                            </th>
+
+                            <th>
+                                Subtotal
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="detalle : ${detalles}">
+
+                            <td>
+
+                                <div class="med-cell">
+
+                                    <div class="med-icon">
+
+                                        <i class="fa-solid fa-box"></i>
+
+                                    </div>
+
+                                    <span class="med-name"
+                                          th:text="${detalle.producto != null ? detalle.producto.nombre : 'Producto'}">
+                                        Producto
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span th:text="${detalle.cantidad}">
+                                    0
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span th:text="'$ ' + ${detalle.precio_compra}">
+                                    $ 0.00
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong th:text="'$ ' + ${detalle.subtotal}">
+                                    $ 0.00
+                                </strong>
+
+                            </td>
+
+
+                            <td class="user-table-actions">
+
+                                <div class="table-actions-row">
+
+                                    <a th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/edit/' + ${detalle.id_detalle_compra}}"
+                                       class="btn btn-white">
+
+                                        Editar
+
+                                    </a>
+
+
+                                    <form method="post"
+                                          th:action="@{'/view/compras/' + ${compra.id_compra} + '/detalles/delete/' + ${detalle.id_detalle_compra}}"
+                                          class="action-form">
+
+                                        <button type="submit"
+                                                class="btn btn-white"
+                                                onclick="return confirm('¿Eliminar este producto de la compra?')">
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(detalles)}">
+
+                            <td colspan="5"
+                                class="table-empty">
+
+                                No hay productos registrados en esta compra.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- TOTAL -->
+                <div class="table-footer">
+
+                    <strong>
+                        Total de la compra:
+                    </strong>
+
+                    <strong th:text="'$ ' + ${compra.total}">
+                        $ 0.00
+                    </strong>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

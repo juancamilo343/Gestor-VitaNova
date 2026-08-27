@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+    <aside th:replace="~{fragments/layout :: sidebar('compras')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+    <div class="main-wrapper">
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- =================================================
+                 ENCABEZADO
+            ================================================== -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Gestión de Compras
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Consulta y seguimiento de las compras realizadas.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/compras/form}"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        <span>
+                            Nueva compra
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MENSAJE
+            ================================================== -->
+            <div th:if="${success}"
+                 class="alert-banner success"
+                 th:text="${success}">
+            </div>
+
+
+            <!-- =================================================
+                 TABLA
+            ================================================== -->
+            <section class="table-card surface">
+
+                <div class="table-header">
+
+                    <span class="card-title">
+                        Consulta y Seguimiento
+                    </span>
+
+
+                    <form method="get"
+                          th:action="@{/view/compras}"
+                          class="search-form">
+
+                        <input name="search"
+                               type="search"
+                               th:value="${search}"
+                               placeholder="Buscar compra"
+                               class="search-input search-field">
+
+                        <button type="submit"
+                                class="btn btn-white nowrap">
+
+                            Buscar
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- =================================================
+                     TABLA DE COMPRAS
+                ================================================== -->
+                <div class="overflow-x-auto">
+
+                    <table class="custom-table">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                Compra
+                            </th>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Proveedor
+                            </th>
+
+                            <th>
+                                Total
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <!-- =================================================
+                             CADA COMPRA
+                        ================================================== -->
+                        <tr th:each="compra : ${compras}">
+
+                            <!-- COMPRA -->
+                            <td>
+
+                                <div class="med-cell">
+
+                                    <div class="med-icon">
+
+                                        <i class="fa-solid fa-cart-shopping"></i>
+
+                                    </div>
+
+                                    <span class="med-name"
+                                          th:text="'Compra #' + ${compra.id_compra}">
+                                        Compra #1
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- FECHA -->
+                            <td>
+
+                                <span th:text="${compra.fecha}">
+                                    2026-08-26
+                                </span>
+
+                            </td>
+
+
+                            <!-- PROVEEDOR -->
+                            <td>
+
+                                <span th:text="${compra.proveedor != null
+                                    ? compra.proveedor.nombre
+                                    : '—'}">
+                                    Proveedor
+                                </span>
+
+                            </td>
+
+
+                            <!-- TOTAL -->
+                            <td>
+
+                                <strong th:text="'$ ' + ${compra.total}">
+                                    $ 0.00
+                                </strong>
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+                            <td>
+
+                                <span th:if="${compra.estado == 'PENDIENTE'}"
+                                      class="status-pill warning">
+
+                                    Pendiente
+
+                                </span>
+
+
+                                <span th:if="${compra.estado == 'RECIBIDA'}"
+                                      class="status-pill success">
+
+                                    Recibida
+
+                                </span>
+
+
+                                <span th:if="${compra.estado == 'CANCELADA'}"
+                                      class="status-pill warning">
+
+                                    Cancelada
+
+                                </span>
+
+
+                                <!-- Para cualquier estado adicional -->
+                                <span th:if="${compra.estado != 'PENDIENTE'
+                                      and compra.estado != 'RECIBIDA'
+                                      and compra.estado != 'CANCELADA'}"
+                                      class="status-pill">
+
+                                    <span th:text="${compra.estado}">
+                                        Estado
+                                    </span>
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 ACCIONES
+                            ================================================== -->
+                            <td class="user-table-actions">
+
+                                <div class="table-actions-row">
+
+                                    <!-- VER DETALLES -->
+                                    <a th:href="@{'/view/compras/'
+                                        + ${compra.id_compra}
+                                        + '/detalles'}"
+                                       class="btn btn-white">
+
+                                        <i class="fa-solid fa-eye"></i>
+
+                                        Detalles
+
+                                    </a>
+
+
+                                    <!-- EDITAR -->
+                                    <a th:href="@{'/view/compras/edit/'
+                                        + ${compra.id_compra}}"
+                                       class="btn btn-white">
+
+                                        Editar
+
+                                    </a>
+
+
+                                    <!-- ELIMINAR -->
+                                    <form method="post"
+                                          th:action="@{'/view/compras/delete/'
+                                            + ${compra.id_compra}}"
+                                          class="action-form">
+
+                                        <button type="submit"
+                                                class="btn btn-white"
+                                                onclick="return confirm('¿Eliminar esta compra?')">
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- =================================================
+                             SIN COMPRAS
+                        ================================================== -->
+                        <tr th:if="${#lists.isEmpty(compras)}">
+
+                            <td colspan="6"
+                                class="table-empty">
+
+                                No existen compras registradas.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+                <div class="table-footer">
+
+                    Total compras:
+
+                    <span th:text="${#lists.size(compras)}">
+                        0
+                    </span>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>
