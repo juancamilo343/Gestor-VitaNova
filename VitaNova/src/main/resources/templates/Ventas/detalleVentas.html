@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside th:replace="~{fragments/layout :: sidebar('ventas')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="page-header">
+
+            <div>
+
+                <h1 th:text="${pageTitle}">
+                    Detalle de Venta
+                </h1>
+
+                <p th:text="${pageSubtitle}">
+                    Productos incluidos en la venta seleccionada.
+                </p>
+
+            </div>
+
+
+            <div class="page-header-actions">
+
+                <a th:href="@{/view/ventas}"
+                   class="btn btn-secondary">
+
+                    ← Volver a ventas
+
+                </a>
+
+
+                <a th:href="@{/view/ventas/{id}/detalles/form(id=${venta.id_venta})}"
+                   class="btn btn-primary">
+
+                    + Agregar producto
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             MENSAJE
+        ================================================== -->
+
+        <div th:if="${success}"
+             class="alert alert-success"
+             th:text="${success}">
+        </div>
+
+
+        <!-- =================================================
+             INFORMACIÓN DE LA VENTA
+        ================================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        INFORMACIÓN DE LA VENTA
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- ID -->
+
+                <div class="form-group">
+
+                    <label>
+                        ID Venta
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.id_venta}"
+                           readonly>
+
+                </div>
+
+
+                <!-- FECHA -->
+
+                <div class="form-group">
+
+                    <label>
+                        Fecha
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.fecha != null
+                               ? #temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')
+                               : '-'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- CLIENTE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Cliente
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.id_cliente != null
+                               ? 'Cliente #' + venta.id_cliente
+                               : 'Consumidor final'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- EMPLEADO -->
+
+                <div class="form-group">
+
+                    <label>
+                        Empleado
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.id_empleado != null
+                               ? 'Empleado #' + venta.id_empleado
+                               : '-'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- MÉTODO DE PAGO -->
+
+                <div class="form-group">
+
+                    <label>
+                        Método de pago
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.id_metodo_pago != null
+                               ? 'Método #' + venta.id_metodo_pago
+                               : '-'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- ESTADO -->
+
+                <div class="form-group">
+
+                    <label>
+                        Estado
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.estado != null
+                               ? venta.estado.name()
+                               : 'PENDIENTE'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- DESCUENTO -->
+
+                <div class="form-group">
+
+                    <label>
+                        Descuento
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.descuento != null
+                               ? '$ ' + #numbers.formatDecimal(venta.descuento, 1, 2)
+                               : '$ 0.00'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- IMPUESTOS -->
+
+                <div class="form-group">
+
+                    <label>
+                        Impuestos
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.impuestos != null
+                               ? '$ ' + #numbers.formatDecimal(venta.impuestos, 1, 2)
+                               : '$ 0.00'}"
+                           readonly>
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div class="form-group">
+
+                    <label>
+                        TOTAL
+                    </label>
+
+                    <input type="text"
+                           th:value="${venta.total != null
+                               ? '$ ' + #numbers.formatDecimal(venta.total, 1, 2)
+                               : '$ 0.00'}"
+                           readonly>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DETALLES
+        ================================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        PRODUCTOS DE LA VENTA
+                    </h2>
+
+                    <p>
+                        Productos incluidos en la venta seleccionada.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table class="data-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Producto
+                        </th>
+
+                        <th>
+                            Cantidad
+                        </th>
+
+                        <th>
+                            Precio
+                        </th>
+
+                        <th>
+                            Subtotal
+                        </th>
+
+                        <th>
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="detalle : ${detalles}">
+
+
+                        <!-- ID -->
+
+                        <td th:text="${detalle.id_detalle_venta}">
+                            1
+                        </td>
+
+
+                        <!-- PRODUCTO -->
+
+                        <td>
+
+                            <span th:if="${detalle.id_producto != null}"
+                                  th:text="${'Producto #' + detalle.id_producto}">
+                                Producto #1
+                            </span>
+
+                            <span th:unless="${detalle.id_producto != null}">
+                                Producto no especificado
+                            </span>
+
+                        </td>
+
+
+                        <!-- CANTIDAD -->
+
+                        <td th:text="${detalle.cantidad}">
+                            1
+                        </td>
+
+
+                        <!-- PRECIO -->
+
+                        <td>
+
+                            $<span th:text="${detalle.precio != null
+                                ? #numbers.formatDecimal(detalle.precio, 1, 2)
+                                : '0.00'}">
+                                0.00
+                            </span>
+
+                        </td>
+
+
+                        <!-- SUBTOTAL -->
+
+                        <td>
+
+                            <strong>
+
+                                $<span th:text="${detalle.subtotal != null
+                                    ? #numbers.formatDecimal(detalle.subtotal, 1, 2)
+                                    : '0.00'}">
+                                    0.00
+                                </span>
+
+                            </strong>
+
+                        </td>
+
+
+                        <!-- ACCIONES -->
+
+                        <td>
+
+                            <div class="table-actions">
+
+
+                                <!-- EDITAR -->
+
+                                <a th:href="@{/view/ventas/{id}/detalles/edit/{detalleId}(
+                                    id=${venta.id_venta},
+                                    detalleId=${detalle.id_detalle_venta}
+                                )}"
+                                   class="btn btn-secondary btn-sm">
+
+                                    Editar
+
+                                </a>
+
+
+                                <!-- ELIMINAR -->
+
+                                <form th:action="@{/view/ventas/{id}/detalles/delete/{detalleId}(
+                                    id=${venta.id_venta},
+                                    detalleId=${detalle.id_detalle_venta}
+                                )}"
+                                      method="post"
+                                      style="display:inline;">
+
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('¿Está seguro de eliminar este producto de la venta?');">
+
+                                        Eliminar
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- SIN DETALLES -->
+
+                    <tr th:if="${#lists.isEmpty(detalles)}">
+
+                        <td colspan="6"
+                            class="empty-state">
+
+                            Esta venta no tiene productos registrados.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+
+                    <!-- =================================================
+                         TOTAL
+                    ================================================== -->
+
+                    <tfoot>
+
+                    <tr>
+
+                        <td colspan="4"
+                            style="text-align:right;">
+
+                            <strong>
+                                TOTAL:
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            <strong>
+
+                                $<span th:text="${venta.total != null
+                                    ? #numbers.formatDecimal(venta.total, 1, 2)
+                                    : '0.00'}">
+                                    0.00
+                                </span>
+
+                            </strong>
+
+                        </td>
+
+                        <td></td>
+
+                    </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

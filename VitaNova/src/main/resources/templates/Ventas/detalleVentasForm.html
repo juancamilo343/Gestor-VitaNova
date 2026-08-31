@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside th:replace="~{fragments/layout :: sidebar('ventas')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="main-content">
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="page-header">
+
+            <div>
+
+                <h1 th:text="${pageTitle}">
+                    Agregar producto
+                </h1>
+
+                <p th:text="${pageSubtitle}">
+                    Agregue un producto a la venta seleccionada.
+                </p>
+
+            </div>
+
+            <div class="page-header-actions">
+
+                <a th:href="@{/view/ventas/{id}/detalles(id=${venta.id_venta})}"
+                   class="btn btn-secondary">
+
+                    ← Volver a detalles
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             FORMULARIO
+        ================================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        FORMULARIO DETALLE DE VENTA
+                    </h2>
+
+                    <p>
+                        Seleccione el producto y especifique la cantidad.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form th:action="@{/view/ventas/{id}/detalles/save(id=${venta.id_venta})}"
+                  th:object="${detalle}"
+                  method="post">
+
+
+                <!-- =================================================
+                     ID DETALLE
+                ================================================== -->
+
+                <input type="hidden"
+                       th:field="*{id_detalle_venta}">
+
+
+                <!-- =================================================
+                     ID VENTA
+                ================================================== -->
+
+                <input type="hidden"
+                       th:field="*{id_venta}">
+
+
+                <div class="form-grid">
+
+
+                    <!-- =================================================
+                         PRODUCTO
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="id_producto">
+                            Producto
+                        </label>
+
+                        <select id="id_producto"
+                                th:field="*{id_producto}"
+                                required>
+
+                            <option value="">
+                                Seleccione un producto
+                            </option>
+
+                            <option th:each="producto : ${productos}"
+                                    th:value="${producto.id_producto}"
+                                    th:text="${producto.nombre +
+                                             ' - $' +
+                                             #numbers.formatDecimal(
+                                                 producto.precio_venta,
+                                                 1,
+                                                 2
+                                             )}">
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         CANTIDAD
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="cantidad">
+                            Cantidad
+                        </label>
+
+                        <input id="cantidad"
+                               type="number"
+                               min="1"
+                               step="1"
+                               th:field="*{cantidad}"
+                               required>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PRECIO
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="precio">
+                            Precio de venta
+                        </label>
+
+                        <input id="precio"
+                               type="number"
+                               step="0.01"
+                               min="0"
+                               th:field="*{precio}"
+                               required>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SUBTOTAL
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="subtotal">
+                            Subtotal
+                        </label>
+
+                        <input id="subtotal"
+                               type="number"
+                               step="0.01"
+                               min="0"
+                               th:field="*{subtotal}"
+                               readonly>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     INFORMACIÓN DE LA VENTA
+                ================================================== -->
+
+                <div class="card"
+                     style="margin-top: 24px;">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                VENTA SELECCIONADA
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- ID -->
+
+                        <div class="form-group">
+
+                            <label>
+                                Venta
+                            </label>
+
+                            <input type="text"
+                                   th:value="${'Venta #' + venta.id_venta}"
+                                   readonly>
+
+                        </div>
+
+
+                        <!-- FECHA -->
+
+                        <div class="form-group">
+
+                            <label>
+                                Fecha
+                            </label>
+
+                            <input type="text"
+                                   th:value="${venta.fecha != null
+                                       ? #temporals.format(
+                                           venta.fecha,
+                                           'dd/MM/yyyy HH:mm'
+                                         )
+                                       : '-'}"
+                                   readonly>
+
+                        </div>
+
+
+                        <!-- TOTAL ACTUAL -->
+
+                        <div class="form-group">
+
+                            <label>
+                                Total actual
+                            </label>
+
+                            <input type="text"
+                                   th:value="${venta.total != null
+                                       ? '$ ' +
+                                         #numbers.formatDecimal(
+                                             venta.total,
+                                             1,
+                                             2
+                                         )
+                                       : '$ 0.00'}"
+                                   readonly>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     BOTONES
+                ================================================== -->
+
+                <div class="form-actions">
+
+                    <a th:href="@{/view/ventas/{id}/detalles(id=${venta.id_venta})}"
+                       class="btn btn-secondary">
+
+                        Cancelar
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <span th:if="${editMode}">
+                            Actualizar detalle
+                        </span>
+
+                        <span th:unless="${editMode}">
+                            Agregar producto
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     CALCULAR SUBTOTAL AUTOMÁTICAMENTE
+========================================================= -->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const cantidad =
+            document.getElementById("cantidad");
+
+        const precio =
+            document.getElementById("precio");
+
+        const subtotal =
+            document.getElementById("subtotal");
+
+
+        function calcularSubtotal() {
+
+            const cantidadValor =
+                parseFloat(cantidad.value) || 0;
+
+            const precioValor =
+                parseFloat(precio.value) || 0;
+
+            const resultado =
+                cantidadValor * precioValor;
+
+            subtotal.value =
+                resultado.toFixed(2);
+        }
+
+
+        if (cantidad) {
+            cantidad.addEventListener(
+                "input",
+                calcularSubtotal
+            );
+        }
+
+
+        if (precio) {
+            precio.addEventListener(
+                "input",
+                calcularSubtotal
+            );
+        }
+
+
+        calcularSubtotal();
+
+    });
+
+</script>
+
+</body>
+
+</html>

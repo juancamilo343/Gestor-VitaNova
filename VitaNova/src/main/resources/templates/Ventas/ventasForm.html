@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside th:replace="~{fragments/layout :: sidebar('ventas')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <div class="main-wrapper">
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <!-- =================================================
+             CONTENIDO
+        ================================================== -->
+
+        <main class="dashboard-content">
+
+
+            <!-- =================================================
+                 ENCABEZADO
+            ================================================== -->
+
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Nueva venta
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Registre una nueva venta dentro del sistema VitaNova.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 FORMULARIO
+            ================================================== -->
+
+            <section class="form-box">
+
+
+                <!-- =================================================
+                     INFORMACIÓN DE LA VENTA
+                ================================================== -->
+
+                <div class="form-section">
+
+                    <h2 class="form-section-title">
+                        Información de la venta
+                    </h2>
+
+                    <div class="form-section-divider">
+                    </div>
+
+
+                    <form th:action="@{/view/ventas/save}"
+                          th:object="${venta}"
+                          method="post">
+
+
+                        <div class="form-grid">
+
+
+                            <!-- =================================================
+                                 CLIENTE
+                            ================================================= -->
+
+                            <div class="field-group">
+
+                                <label for="id_cliente">
+                                    Cliente
+                                </label>
+
+                                <select id="id_cliente"
+                                        th:field="*{id_cliente}">
+
+                                    <option value="">
+                                        Consumidor final
+                                    </option>
+
+                                    <option th:each="cliente : ${clientes}"
+                                            th:value="${cliente.id_cliente}"
+                                            th:text="${cliente.nombres + ' ' + (cliente.apellidos != null ? cliente.apellidos : '')}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 EMPLEADO
+                            ================================================= -->
+
+                            <div class="field-group">
+
+                                <label for="id_empleado">
+                                    Empleado
+                                </label>
+
+                                <select id="id_empleado"
+                                        th:field="*{id_empleado}">
+
+                                    <option value="">
+                                        Seleccione un empleado
+                                    </option>
+
+                                    <option th:each="empleado : ${empleados}"
+                                            th:value="${empleado.id_empleado}"
+                                            th:text="${empleado.nombres + ' ' + (empleado.apellidos != null ? empleado.apellidos : '')}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 MÉTODO DE PAGO
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="id_metodo_pago">
+                                    Método de pago
+                                </label>
+
+                                <select id="id_metodo_pago"
+                                        th:field="*{id_metodo_pago}">
+
+                                    <option value="">
+                                        Seleccione un método de pago
+                                    </option>
+
+                                    <option th:each="metodo : ${metodosPago}"
+                                            th:value="${metodo.id_metodo_pago}"
+                                            th:text="${metodo.nombre}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 DESCUENTO
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="descuento">
+                                    Descuento
+                                </label>
+
+                                <input id="descuento"
+                                       type="number"
+                                       th:field="*{descuento}"
+                                       min="0"
+                                       step="0.01"
+                                       placeholder="0.00">
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 IMPUESTOS
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="impuestos">
+                                    Impuestos
+                                </label>
+
+                                <input id="impuestos"
+                                       type="number"
+                                       th:field="*{impuestos}"
+                                       min="0"
+                                       step="0.01"
+                                       placeholder="0.00">
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 TOTAL
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="total">
+                                    Total
+                                </label>
+
+                                <input id="total"
+                                       type="number"
+                                       th:field="*{total}"
+                                       min="0"
+                                       step="0.01"
+                                       placeholder="0.00">
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 ESTADO
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="estado">
+                                    Estado
+                                </label>
+
+                                <select id="estado"
+                                        th:field="*{estado}">
+
+                                    <option th:each="estado : ${estados}"
+                                            th:value="${estado}"
+                                            th:text="${estado}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 FECHA
+                            ================================================== -->
+
+                            <div class="field-group">
+
+                                <label for="fecha">
+                                    Fecha de venta
+                                </label>
+
+                                <input id="fecha"
+                                       type="datetime-local"
+                                       th:field="*{fecha}">
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- =================================================
+                             BOTONES
+                        ================================================== -->
+
+                        <div class="form-actions">
+
+                            <a th:href="@{/view/ventas}"
+                               class="btn btn-white">
+
+                                <i class="fa-solid fa-arrow-left"></i>
+
+                                Cancelar
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="fa-solid fa-floppy-disk"></i>
+
+                                Guardar venta
+
+                            </button>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

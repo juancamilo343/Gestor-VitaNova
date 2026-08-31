@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside th:replace="~{fragments/layout :: sidebar('ventas')}">
+    </aside>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <div class="main-wrapper">
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <!-- =================================================
+             CONTENIDO
+        ================================================== -->
+
+        <main class="dashboard-content">
+
+
+            <!-- =================================================
+                 ENCABEZADO
+            ================================================== -->
+
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle != null ? pageTitle : 'Gestión de Ventas'}">
+                        Gestión de Ventas
+                    </h1>
+
+                    <p th:text="${pageSubtitle != null ? pageSubtitle : 'Consulta y seguimiento de ventas de la farmacia.'}">
+                        Consulta y seguimiento de ventas de la farmacia.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/ventas/form}"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        <span>
+                            Nueva venta
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MENSAJE
+            ================================================== -->
+
+            <div th:if="${success}"
+                 class="alert-banner success"
+                 th:text="${success}">
+            </div>
+
+
+            <!-- =================================================
+                 TARJETA DE VENTAS
+            ================================================== -->
+
+            <section class="table-card surface">
+
+
+                <!-- =================================================
+                     CABECERA
+                ================================================== -->
+
+                <div class="table-header">
+
+                    <div>
+
+                        <span class="card-title">
+                            Consulta y Seguimiento
+                        </span>
+
+                        <p class="text-muted text-small">
+                            Ventas registradas en el sistema.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     TABLA
+                ================================================== -->
+
+                <div class="overflow-x-auto">
+
+                    <table class="custom-table">
+
+                        <thead>
+
+                        <tr>
+
+                            <!-- ID -->
+
+                            <th>
+                                ID
+                            </th>
+
+
+                            <!-- FECHA -->
+
+                            <th>
+                                Fecha
+                            </th>
+
+
+                            <!-- CLIENTE -->
+
+                            <th>
+                                Cliente
+                            </th>
+
+
+                            <!-- EMPLEADO -->
+
+                            <th>
+                                Empleado
+                            </th>
+
+
+                            <!-- MÉTODO -->
+
+                            <th>
+                                Método de pago
+                            </th>
+
+
+                            <!-- DESCUENTO -->
+
+                            <th>
+                                Descuento
+                            </th>
+
+
+                            <!-- IMPUESTOS -->
+
+                            <th>
+                                Impuestos
+                            </th>
+
+
+                            <!-- TOTAL -->
+
+                            <th>
+                                Total
+                            </th>
+
+
+                            <!-- ESTADO -->
+
+                            <th>
+                                Estado
+                            </th>
+
+
+                            <!-- ACCIONES -->
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                        <!-- =================================================
+                             VENTAS
+                        ================================================== -->
+
+                        <tr th:each="venta : ${ventas}">
+
+
+                            <!-- =================================================
+                                 ID
+                            ================================================== -->
+
+                            <td>
+
+                                <strong th:text="${venta.id_venta}">
+                                    1
+                                </strong>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 FECHA
+                            ================================================== -->
+
+                            <td>
+
+                                <span th:if="${venta.fecha != null}"
+                                      th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')}">
+
+                                    26/08/2026 15:30
+
+                                </span>
+
+                                <span th:unless="${venta.fecha != null}">
+                                    —
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 CLIENTE
+                            ================================================== -->
+
+                            <td>
+
+                                <div class="med-cell">
+
+                                    <div class="med-icon">
+
+                                        <i class="fa-solid fa-user"></i>
+
+                                    </div>
+
+                                    <span class="med-name"
+                                          th:if="${venta.id_cliente != null}"
+                                          th:text="${'Cliente #' + venta.id_cliente}">
+
+                                        Cliente #1
+
+                                    </span>
+
+                                    <span class="med-name"
+                                          th:unless="${venta.id_cliente != null}">
+
+                                        Consumidor final
+
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 EMPLEADO
+                            ================================================== -->
+
+                            <td>
+
+                                <span th:if="${venta.id_empleado != null}"
+                                      th:text="${'Empleado #' + venta.id_empleado}">
+
+                                    Empleado #1
+
+                                </span>
+
+                                <span th:unless="${venta.id_empleado != null}"
+                                      class="text-muted">
+
+                                    —
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 MÉTODO DE PAGO
+                            ================================================== -->
+
+                            <td>
+
+                                <span th:if="${venta.id_metodo_pago != null}"
+                                      th:text="${'Método #' + venta.id_metodo_pago}">
+
+                                    Método #1
+
+                                </span>
+
+                                <span th:unless="${venta.id_metodo_pago != null}"
+                                      class="text-muted">
+
+                                    —
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 DESCUENTO
+                            ================================================== -->
+
+                            <td>
+
+                                <span th:text="${'$ ' +
+                                    (venta.descuento != null
+                                    ? #numbers.formatDecimal(venta.descuento, 1, 2)
+                                    : '0.00')}">
+
+                                    $ 0.00
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 IMPUESTOS
+                            ================================================== -->
+
+                            <td>
+
+                                <span th:text="${'$ ' +
+                                    (venta.impuestos != null
+                                    ? #numbers.formatDecimal(venta.impuestos, 1, 2)
+                                    : '0.00')}">
+
+                                    $ 0.00
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 TOTAL
+                            ================================================== -->
+
+                            <td>
+
+                                <strong>
+
+                                    <span th:text="${'$ ' +
+                                        (venta.total != null
+                                        ? #numbers.formatDecimal(venta.total, 1, 2)
+                                        : '0.00')}">
+
+                                        $ 0.00
+
+                                    </span>
+
+                                </strong>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 ESTADO
+                            ================================================== -->
+
+                            <td>
+
+                                <span class="status-pill"
+                                      th:classappend="${venta.estado != null
+                                          ? (
+                                              venta.estado.name() == 'PAGADA'
+                                              ? ' success'
+                                              : venta.estado.name() == 'ANULADA'
+                                              ? ' danger'
+                                              : venta.estado.name() == 'DEVUELTA'
+                                              ? ' warning'
+                                              : ' warning'
+                                            )
+                                          : ' warning'}"
+                                      th:text="${venta.estado != null
+                                          ? venta.estado.name()
+                                          : 'PENDIENTE'}">
+
+                                    PENDIENTE
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 ACCIONES
+                            ================================================== -->
+
+                            <td class="user-table-actions">
+
+                                <div class="table-actions-row">
+
+
+                                    <!-- DETALLES -->
+
+                                    <a th:href="@{/view/ventas/{id}/detalles(id=${venta.id_venta})}"
+                                       class="btn btn-white">
+
+                                        <i class="fa-solid fa-eye"></i>
+
+                                        Detalles
+
+                                    </a>
+
+
+                                    <!-- EDITAR -->
+
+                                    <a th:href="@{/view/ventas/edit/{id}(id=${venta.id_venta})}"
+                                       class="btn btn-white">
+
+                                        <i class="fa-solid fa-pen"></i>
+
+                                        Editar
+
+                                    </a>
+
+
+                                    <!-- ELIMINAR -->
+
+                                    <form method="post"
+                                          th:action="@{/view/ventas/delete/{id}(id=${venta.id_venta})}"
+                                          class="action-form">
+
+                                        <button type="submit"
+                                                class="btn btn-white"
+                                                onclick="return confirm('¿Está seguro de eliminar esta venta?')">
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- =================================================
+                             SIN VENTAS
+                        ================================================== -->
+
+                        <tr th:if="${#lists.isEmpty(ventas)}">
+
+                            <td colspan="10"
+                                class="table-empty">
+
+                                No existen ventas registradas.
+
+                            </td>
+
+                        </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="table-footer">
+
+                    Total ventas:
+
+                    <span th:text="${#lists.size(ventas)}">
+                        0
+                    </span>
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
