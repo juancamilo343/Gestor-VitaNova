@@ -44,7 +44,9 @@ public class UsuariosController {
 
         return usuariosRepository.findById(id)
                 .map(existing -> {
+
                     usuario.setId_usuario(id);
+
                     return ResponseEntity.ok(
                             usuariosRepository.save(usuario)
                     );

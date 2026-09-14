@@ -44,6 +44,13 @@
             </section>
 
 
+            <!-- MENSAJE DE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner"
+                 th:text="${error}">
+            </div>
+
+
             <!-- FORMULARIO -->
             <section class="form-box">
 
@@ -74,19 +81,23 @@
                             <select id="tipoRegistro"
                                     onchange="cambiarFormulario()">
 
-                                <option value="">
+                                <option value=""
+                                        th:selected="${tipoRegistro == null or tipoRegistro == ''}">
                                     Seleccione una opción
                                 </option>
 
-                                <option value="cliente">
+                                <option value="cliente"
+                                        th:selected="${tipoRegistro == 'cliente'}">
                                     Cliente
                                 </option>
 
-                                <option value="empleado">
+                                <option value="empleado"
+                                        th:selected="${tipoRegistro == 'empleado'}">
                                     Empleado
                                 </option>
 
-                                <option value="proveedor">
+                                <option value="proveedor"
+                                        th:selected="${tipoRegistro == 'proveedor'}">
                                     Proveedor
                                 </option>
 
@@ -106,7 +117,7 @@
                 <form id="formCliente"
                       th:action="@{/view/usuarios/cliente/save}"
                       method="post"
-                      style="display: none;">
+                      th:style="${tipoRegistro == 'cliente' ? 'display:block;' : 'display:none;'}">
 
 
                     <div class="form-section">
@@ -133,7 +144,8 @@
                                        name="nombres"
                                        maxlength="100"
                                        required
-                                       placeholder="Nombres">
+                                       placeholder="Nombres"
+                                       th:value="${cliente != null ? cliente.nombres : ''}">
 
                             </div>
 
@@ -148,7 +160,8 @@
                                        type="text"
                                        name="apellidos"
                                        maxlength="100"
-                                       placeholder="Apellidos">
+                                       placeholder="Apellidos"
+                                       th:value="${cliente != null ? cliente.apellidos : ''}">
 
                             </div>
 
@@ -164,7 +177,8 @@
                                        name="documento"
                                        maxlength="20"
                                        required
-                                       placeholder="Número de documento">
+                                       placeholder="Número de documento"
+                                       th:value="${cliente != null ? cliente.documento : ''}">
 
                             </div>
 
@@ -179,7 +193,8 @@
                                        type="text"
                                        name="telefono"
                                        maxlength="20"
-                                       placeholder="Número de teléfono">
+                                       placeholder="Número de teléfono"
+                                       th:value="${cliente != null ? cliente.telefono : ''}">
 
                             </div>
 
@@ -194,7 +209,8 @@
                                        type="email"
                                        name="correo"
                                        maxlength="100"
-                                       placeholder="correo@ejemplo.com">
+                                       placeholder="correo@ejemplo.com"
+                                       th:value="${cliente != null ? cliente.correo : ''}">
 
                             </div>
 
@@ -209,7 +225,8 @@
                                        type="text"
                                        name="direccion"
                                        maxlength="150"
-                                       placeholder="Dirección">
+                                       placeholder="Dirección"
+                                       th:value="${cliente != null ? cliente.direccion : ''}">
 
                             </div>
 
@@ -223,7 +240,8 @@
                                 <input id="cliente_fecha_nacimiento"
                                        type="date"
                                        name="fecha_nacimiento"
-                                       required>
+                                       required
+                                       th:value="${cliente != null ? cliente.fecha_nacimiento : ''}">
 
                             </div>
 
@@ -238,7 +256,8 @@
                                        type="text"
                                        name="eps"
                                        maxlength="100"
-                                       placeholder="EPS">
+                                       placeholder="EPS"
+                                       th:value="${cliente != null ? cliente.eps : ''}">
 
                             </div>
 
@@ -252,7 +271,8 @@
                                 <textarea id="cliente_alergias"
                                           name="alergias"
                                           rows="4"
-                                          placeholder="Indique alergias conocidas"></textarea>
+                                          placeholder="Indique alergias conocidas"
+                                          th:text="${cliente != null ? cliente.alergias : ''}"></textarea>
 
                             </div>
 
@@ -291,7 +311,9 @@
                         ? @{/view/usuarios/update}
                         : @{/view/usuarios/empleado/save}"
                       method="post"
-                      th:style="${modoEdicion ? 'display:block;' : 'display:none;'}">
+                      th:style="${modoEdicion || tipoRegistro == 'empleado'
+                        ? 'display:block;'
+                        : 'display:none;'}">
 
 
                     <input type="hidden"
@@ -615,7 +637,9 @@
                 <form id="formProveedor"
                       th:action="@{/view/usuarios/proveedor/save}"
                       method="post"
-                      style="display: none;">
+                      th:style="${tipoRegistro == 'proveedor'
+                        ? 'display:block;'
+                        : 'display:none;'}">
 
 
                     <div class="form-section">
@@ -642,7 +666,8 @@
                                        name="nombre"
                                        maxlength="100"
                                        required
-                                       placeholder="Nombre del proveedor">
+                                       placeholder="Nombre del proveedor"
+                                       th:value="${proveedor != null ? proveedor.nombre : ''}">
 
                             </div>
 
@@ -657,7 +682,8 @@
                                        type="text"
                                        name="nombre_contacto"
                                        maxlength="100"
-                                       placeholder="Persona de contacto">
+                                       placeholder="Persona de contacto"
+                                       th:value="${proveedor != null ? proveedor.nombre_contacto : ''}">
 
                             </div>
 
@@ -672,7 +698,8 @@
                                        type="text"
                                        name="nit"
                                        maxlength="20"
-                                       placeholder="NIT">
+                                       placeholder="NIT"
+                                       th:value="${proveedor != null ? proveedor.nit : ''}">
 
                             </div>
 
@@ -687,7 +714,8 @@
                                        type="text"
                                        name="telefono"
                                        maxlength="20"
-                                       placeholder="Teléfono">
+                                       placeholder="Teléfono"
+                                       th:value="${proveedor != null ? proveedor.telefono : ''}">
 
                             </div>
 
@@ -702,7 +730,8 @@
                                        type="email"
                                        name="correo"
                                        maxlength="100"
-                                       placeholder="correo@ejemplo.com">
+                                       placeholder="correo@ejemplo.com"
+                                       th:value="${proveedor != null ? proveedor.correo : ''}">
 
                             </div>
 
@@ -717,7 +746,8 @@
                                        type="text"
                                        name="direccion"
                                        maxlength="150"
-                                       placeholder="Dirección">
+                                       placeholder="Dirección"
+                                       th:value="${proveedor != null ? proveedor.direccion : ''}">
 
                             </div>
 
@@ -732,7 +762,8 @@
                                        type="text"
                                        name="tipo_productos_suministrados"
                                        maxlength="200"
-                                       placeholder="Ej: Medicamentos, productos de aseo">
+                                       placeholder="Ej: Medicamentos, productos de aseo"
+                                       th:value="${proveedor != null ? proveedor.tipo_productos_suministrados : ''}">
 
                             </div>
 
@@ -746,11 +777,16 @@
                                 <select id="estadoProveedor"
                                         name="estado">
 
-                                    <option value="ACTIVO">
+                                    <option value="ACTIVO"
+                                            th:selected="${proveedor == null
+                                            || proveedor.estado == null
+                                            || proveedor.estado == 'ACTIVO'}">
                                         Activo
                                     </option>
 
-                                    <option value="INACTIVO">
+                                    <option value="INACTIVO"
+                                            th:selected="${proveedor != null
+                                            && proveedor.estado == 'INACTIVO'}">
                                         Inactivo
                                     </option>
 

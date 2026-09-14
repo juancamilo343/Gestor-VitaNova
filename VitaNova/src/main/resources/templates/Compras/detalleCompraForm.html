@@ -2,7 +2,7 @@
 <html lang="es"
       xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/layout :: head(${pageTitle})">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
 </head>
 
 <body>
@@ -63,15 +63,20 @@
                       method="post"
                       novalidate>
 
+                    <!-- ID DEL DETALLE -->
                     <input type="hidden"
                            th:field="*{id_detalle_compra}">
 
 
+                    <!-- ID DE LA COMPRA -->
                     <input type="hidden"
                            th:field="*{id_compra}">
 
 
-                    <!-- INFORMACIÓN -->
+                    <!-- =========================================
+                         INFORMACIÓN DEL PRODUCTO
+                    ========================================== -->
+
                     <div class="form-section">
 
                         <h2 class="form-section-title">
@@ -83,6 +88,8 @@
 
 
                         <div class="form-grid">
+
+                            <!-- PRODUCTO -->
 
                             <div class="field-group wide">
 
@@ -109,6 +116,8 @@
                             </div>
 
 
+                            <!-- CANTIDAD -->
+
                             <div class="field-group">
 
                                 <label for="cantidad">
@@ -124,17 +133,19 @@
                             </div>
 
 
+                            <!-- PRECIO -->
+
                             <div class="field-group">
 
-                                <label for="precio_compra">
+                                <label for="precio">
                                     Precio de compra
                                 </label>
 
-                                <input id="precio_compra"
+                                <input id="precio"
                                        type="number"
                                        step="0.01"
                                        min="0"
-                                       th:field="*{precio_compra}"
+                                       th:field="*{precio}"
                                        required>
 
                             </div>
@@ -144,7 +155,10 @@
                     </div>
 
 
-                    <!-- INFORMACIÓN CALCULADA -->
+                    <!-- =========================================
+                         INFORMACIÓN CALCULADA
+                    ========================================== -->
+
                     <div class="form-section">
 
                         <h2 class="form-section-title">
@@ -156,6 +170,8 @@
 
 
                         <div class="form-grid">
+
+                            <!-- COMPRA -->
 
                             <div class="field-group">
 
@@ -170,6 +186,8 @@
                             </div>
 
 
+                            <!-- PROVEEDOR -->
+
                             <div class="field-group">
 
                                 <label>
@@ -182,6 +200,8 @@
 
                             </div>
 
+
+                            <!-- SUBTOTAL -->
 
                             <div class="field-group">
 
@@ -201,7 +221,10 @@
                     </div>
 
 
-                    <!-- ACCIONES -->
+                    <!-- =========================================
+                         ACCIONES
+                    ========================================== -->
+
                     <div class="form-actions">
 
                         <a th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles'}"
@@ -234,14 +257,17 @@
 </div>
 
 
-<!-- CALCULAR SUBTOTAL -->
+<!-- =========================================================
+     CALCULAR SUBTOTAL
+========================================================== -->
+
 <script>
 
     const cantidad =
         document.getElementById('cantidad');
 
     const precio =
-        document.getElementById('precio_compra');
+        document.getElementById('precio');
 
     const subtotal =
         document.getElementById('subtotalVisual');
@@ -268,10 +294,12 @@
         calcularSubtotal
     );
 
+
     precio.addEventListener(
         'input',
         calcularSubtotal
     );
+
 
     calcularSubtotal();
 

@@ -9,21 +9,16 @@
 
 <div class="app-shell">
 
-    <!-- SIDEBAR -->
     <aside th:replace="~{fragments/layout :: sidebar('compras')}">
     </aside>
 
-
     <div class="main-wrapper">
 
-        <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
 
-
         <main class="dashboard-content">
 
-            <!-- ENCABEZADO -->
             <section class="page-header">
 
                 <div class="page-title">
@@ -37,7 +32,6 @@
                     </p>
 
                 </div>
-
 
                 <div class="page-actions">
 
@@ -55,7 +49,6 @@
             </section>
 
 
-            <!-- FORMULARIO -->
             <section class="form-box">
 
                 <form th:action="@{/view/compras/save}"
@@ -69,6 +62,7 @@
                     <!-- =========================================
                          INFORMACIÓN DE LA COMPRA
                     ========================================== -->
+
                     <div class="form-section">
 
                         <h2 class="form-section-title">
@@ -78,8 +72,8 @@
                         <div class="form-section-divider">
                         </div>
 
-
                         <div class="form-grid">
+
 
                             <!-- PROVEEDOR -->
 
@@ -178,6 +172,7 @@
                     <!-- =========================================
                          PRODUCTOS
                     ========================================== -->
+
                     <div class="form-section">
 
                         <h2 class="form-section-title">
@@ -191,6 +186,7 @@
                         <div id="productos-container">
 
                             <div class="form-grid producto-row">
+
 
                                 <!-- PRODUCTO -->
 
@@ -278,8 +274,6 @@
                         </div>
 
 
-                        <!-- AGREGAR PRODUCTO -->
-
                         <div class="form-actions">
 
                             <button type="button"
@@ -300,6 +294,7 @@
                     <!-- =========================================
                          TOTAL
                     ========================================== -->
+
                     <div class="form-section">
 
                         <div class="form-grid">
@@ -326,6 +321,7 @@
                     <!-- =========================================
                          ACCIONES
                     ========================================== -->
+
                     <div class="form-actions">
 
                         <a th:href="@{/view/compras}"
@@ -357,10 +353,6 @@
 
 </div>
 
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================== -->
 
 <script>
 
@@ -439,24 +431,29 @@
                 row.querySelector(".precio-input");
 
 
-            producto.addEventListener("change", function () {
+            producto.addEventListener(
+                "change",
+                function () {
 
-                const opcion =
-                    producto.options[producto.selectedIndex];
+                    const opcion =
+                        producto.options[
+                            producto.selectedIndex
+                            ];
 
-                const precioProducto =
-                    opcion.getAttribute("data-precio");
+                    const precioProducto =
+                        opcion.getAttribute(
+                            "data-precio"
+                        );
 
-                if (precioProducto !== null) {
+                    if (precioProducto !== null) {
 
-                    precio.value =
-                        precioProducto;
+                        precio.value =
+                            precioProducto;
+                    }
 
+                    calcularFila(row);
                 }
-
-                calcularFila(row);
-
-            });
+            );
 
 
             cantidad.addEventListener(
@@ -477,12 +474,13 @@
 
                 }
             );
-
         }
 
 
         configurarFila(
-            container.querySelector(".producto-row")
+            container.querySelector(
+                ".producto-row"
+            )
         );
 
 
@@ -491,35 +489,49 @@
             function () {
 
                 const primeraFila =
-                    container.querySelector(".producto-row");
+                    container.querySelector(
+                        ".producto-row"
+                    );
 
                 const nuevaFila =
                     primeraFila.cloneNode(true);
 
 
                 nuevaFila
-                    .querySelector(".producto-select")
+                    .querySelector(
+                        ".producto-select"
+                    )
                     .value = "";
 
 
                 nuevaFila
-                    .querySelector(".cantidad-input")
+                    .querySelector(
+                        ".cantidad-input"
+                    )
                     .value = "1";
 
 
                 nuevaFila
-                    .querySelector(".precio-input")
+                    .querySelector(
+                        ".precio-input"
+                    )
                     .value = "0";
 
 
                 nuevaFila
-                    .querySelector(".subtotal-input")
+                    .querySelector(
+                        ".subtotal-input"
+                    )
                     .value = "0";
 
 
-                container.appendChild(nuevaFila);
+                container.appendChild(
+                    nuevaFila
+                );
 
-                configurarFila(nuevaFila);
+                configurarFila(
+                    nuevaFila
+                );
 
             }
         );
@@ -533,3 +545,4 @@
 
 </body>
 </html>
+

@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 
 @Controller
-@RequestMapping("/view/ventas")
+@RequestMapping("/legacy/ventas")
 public class DetalleVentaView {
 
     @Autowired

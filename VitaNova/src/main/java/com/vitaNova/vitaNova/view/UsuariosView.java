@@ -9,11 +9,14 @@ import com.vitaNova.vitaNova.repository.EmpleadosRepository;
 import com.vitaNova.vitaNova.repository.ProveedorRepository;
 import com.vitaNova.vitaNova.repository.RolRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/view/usuarios")
@@ -39,10 +42,6 @@ public class UsuariosView {
         this.proveedorRepository = proveedorRepository;
     }
 
-    // =========================================================
-    // LISTAR USUARIOS
-    // =========================================================
-
     @GetMapping
     public String listarUsuarios(Model model) {
 
@@ -63,10 +62,6 @@ public class UsuariosView {
 
         return "usuarios/usuarios";
     }
-
-    // =========================================================
-    // FORMULARIO NUEVO
-    // =========================================================
 
     @GetMapping("/form")
     public String mostrarFormulario(Model model) {
@@ -89,80 +84,291 @@ public class UsuariosView {
         return "usuarios/UsuariosForm";
     }
 
-    // =========================================================
-    // GUARDAR CLIENTE
-    // =========================================================
-
     @PostMapping("/cliente/save")
     public String guardarCliente(
-            @ModelAttribute Clientes cliente
+            @Valid @ModelAttribute Clientes cliente,
+            BindingResult result,
+            Model model
     ) {
 
-        cliente.setFecha_registro(LocalDate.now());
+        if (result.hasErrors()) {
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "cliente"
+            );
+
+            String mensaje = result.getFieldError() != null
+                    ? result.getFieldError().getDefaultMessage()
+                    : "Verifique los datos ingresados.";
+
+            model.addAttribute(
+                    "error",
+                    mensaje
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        if (cliente.getDocumento() != null
+                && clientesRepository.existeDocumento(
+                cliente.getDocumento().trim()
+        )) {
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "cliente"
+            );
+
+            model.addAttribute(
+                    "error",
+                    "La cédula ya existe."
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        cliente.setFecha_registro(
+                LocalDate.now()
+        );
 
         clientesRepository.save(cliente);
 
         return "redirect:/view/usuarios";
     }
 
-    // =========================================================
-    // GUARDAR EMPLEADO
-    // =========================================================
-
     @PostMapping("/empleado/save")
     public String guardarEmpleado(
-
             @RequestParam String username,
-
             @RequestParam String password,
-
             @RequestParam Long id_rol,
-
             @RequestParam Boolean estadoUsuario,
-
             @RequestParam Empleados.EstadoEmpleado estadoEmpleado,
-
-            @ModelAttribute Empleados empleado
+            @Valid @ModelAttribute Empleados empleado,
+            BindingResult result,
+            Model model
     ) {
 
+        if (result.hasErrors()) {
+
+            String mensaje = result.getFieldError() != null
+                    ? result.getFieldError().getDefaultMessage()
+                    : "Verifique los datos ingresados.";
+
+            model.addAttribute(
+                    "error",
+                    mensaje
+            );
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "empleado"
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        /*
+         * Validar username duplicado
+         */
+        if (usuariosRepository.existeUsername(
+                username.trim()
+        )) {
+
+            model.addAttribute(
+                    "error",
+                    "El nombre de usuario ya existe."
+            );
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "empleado"
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        /*
+         * Validar documento duplicado
+         */
+        if (empleado.getDocumento() != null
+                && empleadosRepository.existeDocumento(
+                empleado.getDocumento().trim()
+        )) {
+
+            model.addAttribute(
+                    "error",
+                    "La cédula ya existe."
+            );
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "empleado"
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        /*
+         * Crear usuario
+         */
         Usuarios usuario = new Usuarios();
 
-        usuario.setUsername(username);
-        usuario.setPassword(password);
-        usuario.setId_rol(id_rol);
-        usuario.setEstado(estadoUsuario);
+        usuario.setUsername(
+                username.trim()
+        );
+
+        usuario.setPassword(
+                password
+        );
+
+        usuario.setId_rol(
+                id_rol
+        );
+
+        usuario.setEstado(
+                estadoUsuario
+        );
 
         Usuarios usuarioGuardado =
                 usuariosRepository.save(usuario);
 
+        /*
+         * Relacionar empleado con usuario
+         */
         empleado.setId_usuario(
                 usuarioGuardado.getId_usuario()
         );
 
-        empleado.setEstado(estadoEmpleado);
+        empleado.setEstado(
+                estadoEmpleado
+        );
 
-        empleadosRepository.save(empleado);
+        empleadosRepository.save(
+                empleado
+        );
 
         return "redirect:/view/usuarios";
     }
-
-    // =========================================================
-    // GUARDAR PROVEEDOR
-    // =========================================================
 
     @PostMapping("/proveedor/save")
     public String guardarProveedor(
-            @ModelAttribute Proveedor proveedor
+            @ModelAttribute Proveedor proveedor,
+            Model model
     ) {
 
-        proveedorRepository.save(proveedor);
+        if (proveedor.getNombre() == null
+                || proveedor.getNombre().trim().isEmpty()) {
+
+            model.addAttribute(
+                    "error",
+                    "El nombre del proveedor es obligatorio."
+            );
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    false
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Registrar"
+            );
+
+            model.addAttribute(
+                    "tipoRegistro",
+                    "proveedor"
+            );
+
+            return "usuarios/UsuariosForm";
+        }
+
+        proveedorRepository.save(
+                proveedor
+        );
 
         return "redirect:/view/usuarios";
     }
-
-    // =========================================================
-    // EDITAR USUARIO
-    // =========================================================
 
     @GetMapping("/edit/{id}")
     public String editarUsuario(
@@ -170,26 +376,26 @@ public class UsuariosView {
             Model model
     ) {
 
-        Usuarios usuario = usuariosRepository
-                .findById(id)
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Usuario no encontrado"
-                        )
-                );
-
-        // Buscar empleado relacionado con este usuario
-        Empleados empleado = empleadosRepository
-                .findAll()
-                .stream()
-                .filter(e ->
-                        e.getId_usuario() != null &&
-                                e.getId_usuario().equals(
-                                        usuario.getId_usuario()
+        Usuarios usuario =
+                usuariosRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Usuario no encontrado"
                                 )
-                )
-                .findFirst()
-                .orElse(null);
+                        );
+
+        Empleados empleado =
+                empleadosRepository.findAll()
+                        .stream()
+                        .filter(e ->
+                                e.getId_usuario() != null
+                                        && e.getId_usuario()
+                                        .equals(
+                                                usuario.getId_usuario()
+                                        )
+                        )
+                        .findFirst()
+                        .orElse(null);
 
         model.addAttribute(
                 "usuario",
@@ -219,53 +425,105 @@ public class UsuariosView {
         return "usuarios/UsuariosForm";
     }
 
-    // =========================================================
-    // ACTUALIZAR USUARIO
-    // =========================================================
-
     @PostMapping("/update")
     public String actualizarUsuario(
-
             @RequestParam Long id_usuario,
-
             @RequestParam String username,
-
             @RequestParam String password,
-
             @RequestParam Long id_rol,
-
-            @RequestParam Boolean estadoUsuario
+            @RequestParam Boolean estadoUsuario,
+            Model model
     ) {
 
-        Usuarios usuario = usuariosRepository
-                .findById(id_usuario)
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Usuario no encontrado"
-                        )
+        Usuarios usuario =
+                usuariosRepository.findById(id_usuario)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Usuario no encontrado"
+                                )
+                        );
+
+        Optional<Usuarios> usuarioExistente =
+                usuariosRepository.buscarPorUsername(
+                        username.trim()
                 );
 
-        usuario.setUsername(username);
+        if (usuarioExistente.isPresent()
+                && !usuarioExistente
+                .get()
+                .getId_usuario()
+                .equals(id_usuario)) {
 
-        /*
-         * Solo actualizamos la contraseña si
-         * el usuario escribió una nueva.
-         */
-        if (password != null && !password.trim().isEmpty()) {
-            usuario.setPassword(password);
+            Empleados empleado =
+                    empleadosRepository.findAll()
+                            .stream()
+                            .filter(e ->
+                                    e.getId_usuario() != null
+                                            && e.getId_usuario()
+                                            .equals(id_usuario)
+                            )
+                            .findFirst()
+                            .orElse(null);
+
+            model.addAttribute(
+                    "error",
+                    "El nombre de usuario ya existe."
+            );
+
+            model.addAttribute(
+                    "usuario",
+                    usuario
+            );
+
+            model.addAttribute(
+                    "empleado",
+                    empleado
+            );
+
+            model.addAttribute(
+                    "roles",
+                    rolRepository.findAll()
+            );
+
+            model.addAttribute(
+                    "modoEdicion",
+                    true
+            );
+
+            model.addAttribute(
+                    "pageTitle",
+                    "Editar Usuario"
+            );
+
+            return "usuarios/UsuariosForm";
         }
 
-        usuario.setId_rol(id_rol);
-        usuario.setEstado(estadoUsuario);
+        usuario.setUsername(
+                username.trim()
+        );
 
-        usuariosRepository.save(usuario);
+        if (password != null
+                && !password.trim().isEmpty()) {
+
+            usuario.setPassword(
+                    password
+            );
+        }
+
+        usuario.setId_rol(
+                id_rol
+        );
+
+        usuario.setEstado(
+                estadoUsuario
+        );
+
+        usuariosRepository.save(
+                usuario
+        );
 
         return "redirect:/view/usuarios";
     }
-
-    // =========================================================
-    // ELIMINAR USUARIO
-    // =========================================================
 
     @GetMapping("/eliminar/{id}")
     public String eliminarUsuario(

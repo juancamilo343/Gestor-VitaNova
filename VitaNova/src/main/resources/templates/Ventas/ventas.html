@@ -84,6 +84,11 @@
                  th:text="${success}">
             </div>
 
+            <div th:if="${error}"
+                 class="alert-banner"
+                 th:text="${error}">
+            </div>
+
 
             <!-- =================================================
                  TARJETA DE VENTAS
@@ -440,6 +445,28 @@
                                         Editar
 
                                     </a>
+
+
+                                    <!-- ANULAR -->
+
+                                    <form method="post"
+                                          th:action="@{/view/ventas/anular/{id}(id=${venta.id_venta})}"
+                                          class="action-form">
+
+                                        <button type="submit"
+                                                class="btn btn-white"
+                                                th:disabled="${venta.estado != null
+                                                    && (venta.estado.name() == 'ANULADA'
+                                                    || venta.estado.name() == 'DEVUELTA')}"
+                                                onclick="return confirm('¿Está seguro de anular esta venta? El inventario se restaurará una sola vez.')">
+
+                                            <i class="fa-solid fa-ban"></i>
+
+                                            Anular
+
+                                        </button>
+
+                                    </form>
 
 
                                     <!-- ELIMINAR -->

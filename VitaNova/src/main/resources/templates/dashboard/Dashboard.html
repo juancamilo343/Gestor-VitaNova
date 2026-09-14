@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es"
       xmlns:th="http://www.thymeleaf.org">
@@ -50,6 +51,7 @@
 
             <div class="page-actions">
 
+                <!-- FECHA ACTUAL -->
                 <button type="button"
                         class="btn btn-white">
 
@@ -62,6 +64,7 @@
                 </button>
 
 
+                <!-- REPORTE: todavía no existe ReportesView -->
                 <button type="button"
                         class="btn btn-primary">
 
@@ -236,8 +239,9 @@
 
         <section class="action-bar">
 
-            <button type="button"
-                    class="action-btn">
+            <!-- NUEVO PRODUCTO -->
+            <a th:href="@{/view/productos/form}"
+               class="action-btn">
 
                 <i class="fa-solid fa-square-plus"></i>
 
@@ -245,11 +249,12 @@
                     Nuevo producto
                 </span>
 
-            </button>
+            </a>
 
 
-            <button type="button"
-                    class="action-btn">
+            <!-- REGISTRAR VENTA -->
+            <a th:href="@{/view/ventas/form}"
+               class="action-btn">
 
                 <i class="fa-solid fa-cash-register"></i>
 
@@ -257,11 +262,13 @@
                     Registrar venta
                 </span>
 
-            </button>
+            </a>
 
 
-            <button type="button"
-                    class="action-btn">
+            <!-- NUEVO CLIENTE
+                 Los clientes nuevos se registran desde Usuarios -->
+            <a th:href="@{/view/usuarios/form}"
+               class="action-btn">
 
                 <i class="fa-solid fa-user-plus"></i>
 
@@ -269,9 +276,11 @@
                     Nuevo cliente
                 </span>
 
-            </button>
+            </a>
 
 
+            <!-- CREAR FACTURA
+                 Todavía no existe un módulo/ruta de facturas -->
             <button type="button"
                     class="action-btn">
 
@@ -404,7 +413,8 @@
                     </span>
 
 
-                    <a href="#"
+                    <!-- VER TODOS LOS PRODUCTOS -->
+                    <a th:href="@{/view/productos}"
                        class="link-more">
 
                         Ver todos los productos
@@ -515,13 +525,15 @@
 
                         <td>
 
-                            <button type="button"
-                                    class="table-action-btn"
-                                    aria-label="Más acciones">
+                            <!-- EDITAR PRODUCTO -->
+                            <a th:href="@{/view/productos/edit/{id}(id=${producto.idProducto})}"
+                               class="table-action-btn"
+                               aria-label="Editar producto"
+                               title="Editar producto">
 
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
 
-                            </button>
+                            </a>
 
                         </td>
 
@@ -578,11 +590,12 @@
                                 </span>
 
 
-                                <a th:href="${alerta.actionHref}"
+                                <!-- TODAS LAS ALERTAS LLEVAN AL INVENTARIO -->
+                                <a th:href="@{/view/inventario}"
                                    class="alert-action"
                                    th:text="${alerta.actionText}">
 
-                                    Gestionar devoluciones
+                                    Gestionar inventario
 
                                 </a>
 
@@ -626,12 +639,13 @@
                         </span>
 
 
-                        <button type="button"
-                                class="opt-btn">
+                        <!-- VER ANÁLISIS DE INVENTARIO -->
+                        <a th:href="@{/view/inventario}"
+                           class="opt-btn">
 
                             Ver análisis detallado
 
-                        </button>
+                        </a>
 
                     </div>
 
