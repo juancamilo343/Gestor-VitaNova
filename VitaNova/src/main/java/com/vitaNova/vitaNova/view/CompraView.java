@@ -3,12 +3,15 @@ package com.vitaNova.vitaNova.view;
 import com.vitaNova.vitaNova.model.Compra;
 import com.vitaNova.vitaNova.model.DetalleCompra;
 import com.vitaNova.vitaNova.model.Inventario;
+import com.vitaNova.vitaNova.model.Lote;
 import com.vitaNova.vitaNova.repository.CompraRepository;
 import com.vitaNova.vitaNova.repository.DetalleCompraRepository;
 import com.vitaNova.vitaNova.repository.InventarioRepository;
+import com.vitaNova.vitaNova.repository.LoteRepository;
 import com.vitaNova.vitaNova.repository.ProductosRepository;
 import com.vitaNova.vitaNova.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -39,26 +42,53 @@ public class CompraView {
     @Autowired
     private InventarioRepository inventarioRepository;
 
+    @Autowired
+    private LoteRepository loteRepository;
+
 
     // =========================================================
     // LISTA
     // =========================================================
 
     @GetMapping
-    public String lista(Model model) {
+    public String lista(
+            Model model,
+            Authentication authentication,
+            @RequestParam(required = false) String search) {
+
+        if (search != null && !search.trim().isEmpty()) {
+
+            model.addAttribute(
+                    "compras",
+                    compraRepository.buscarCompras(search.trim())
+            );
+
+        } else {
+
+            model.addAttribute(
+                    "compras",
+                    compraRepository.findAll()
+            );
+        }
 
         model.addAttribute(
-                "compras",
-                compraRepository.findAll()
+                "search",
+                search
         );
 
         model.addAttribute("activeMenu", "compras");
         model.addAttribute("userName", "Administrador");
         model.addAttribute("userRole", "Farmacia Central");
         model.addAttribute("pageTitle", "Gestión de Compras");
+
         model.addAttribute(
                 "pageSubtitle",
                 "Consulta y seguimiento de las compras realizadas."
+        );
+
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificar(authentication)
         );
 
         return "compras/compras";
@@ -70,17 +100,25 @@ public class CompraView {
     // =========================================================
 
     @GetMapping("/form")
-    public String form(Model model) {
+    public String form(
+            Model model,
+            Authentication authentication,
+            RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para registrar compras."
+            );
+
+            return "redirect:/view/compras";
+        }
 
         Compra compra = new Compra();
 
         compra.setFecha(LocalDate.now());
         compra.setTotal(BigDecimal.ZERO);
-
-        /*
-         * La compra se registra como recibida.
-         * Al guardar sus productos, estos ingresarán al inventario.
-         */
         compra.setEstado("RECIBIDA");
 
         model.addAttribute(
@@ -125,7 +163,18 @@ public class CompraView {
     public String edit(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para editar compras."
+            );
+
+            return "redirect:/view/compras";
+        }
 
         Compra compra =
                 compraRepository
@@ -177,7 +226,7 @@ public class CompraView {
 
 
     // =========================================================
-    // GUARDAR COMPRA + DETALLES + INVENTARIO
+    // GUARDAR COMPRA + DETALLES + LOTES + INVENTARIO
     // =========================================================
 
     @PostMapping("/save")
@@ -203,7 +252,36 @@ public class CompraView {
             )
             List<BigDecimal> precios,
 
+            @RequestParam(
+                    value = "lote_numeros[]",
+                    required = false
+            )
+            List<String> loteNumeros,
+
+            @RequestParam(
+                    value = "fechas_fabricacion[]",
+                    required = false
+            )
+            List<LocalDate> fechasFabricacion,
+
+            @RequestParam(
+                    value = "fechas_vencimiento[]",
+                    required = false
+            )
+            List<LocalDate> fechasVencimiento,
+
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para registrar o modificar compras."
+            );
+
+            return "redirect:/view/compras";
+        }
 
         boolean nuevo =
                 compra.getId_compra() == null;
@@ -213,7 +291,7 @@ public class CompraView {
         // VALORES POR DEFECTO
         // =====================================================
 
-        if (compra.getFecha() == null) {
+        if (nuevo) {
 
             compra.setFecha(
                     LocalDate.now()
@@ -240,11 +318,6 @@ public class CompraView {
 
         if (nuevo) {
 
-            /*
-             * Primero guardamos la compra para obtener
-             * su id_compra.
-             */
-
             compra.setTotal(
                     BigDecimal.ZERO
             );
@@ -262,6 +335,9 @@ public class CompraView {
             if (idProductos == null
                     || cantidades == null
                     || precios == null
+                    || loteNumeros == null
+                    || fechasFabricacion == null
+                    || fechasVencimiento == null
                     || idProductos.isEmpty()) {
 
                 ra.addFlashAttribute(
@@ -274,14 +350,24 @@ public class CompraView {
             }
 
 
+            // -------------------------------------------------
+            // VALIDAR CANTIDAD DE DATOS
+            // -------------------------------------------------
+
             if (idProductos.size()
                     != cantidades.size()
                     || idProductos.size()
-                    != precios.size()) {
+                    != precios.size()
+                    || idProductos.size()
+                    != loteNumeros.size()
+                    || idProductos.size()
+                    != fechasFabricacion.size()
+                    || idProductos.size()
+                    != fechasVencimiento.size()) {
 
                 ra.addFlashAttribute(
                         "error",
-                        "Los datos de los productos de la compra no son válidos."
+                        "Los datos de los productos y lotes de la compra no son válidos."
                 );
 
                 return "redirect:/view/compras/edit/"
@@ -290,7 +376,7 @@ public class CompraView {
 
 
             // -------------------------------------------------
-            // CREAR DETALLES
+            // CREAR DETALLES Y LOTES
             // -------------------------------------------------
 
             List<DetalleCompra> detalles =
@@ -313,6 +399,19 @@ public class CompraView {
                 BigDecimal precio =
                         precios.get(i);
 
+                String numeroLote =
+                        loteNumeros.get(i);
+
+                LocalDate fechaFabricacion =
+                        fechasFabricacion.get(i);
+
+                LocalDate fechaVencimiento =
+                        fechasVencimiento.get(i);
+
+
+                // -------------------------------------------------
+                // VALIDAR PRODUCTO
+                // -------------------------------------------------
 
                 if (idProducto == null
                         || !productosRepository.existsById(idProducto)) {
@@ -327,6 +426,10 @@ public class CompraView {
                 }
 
 
+                // -------------------------------------------------
+                // VALIDAR CANTIDAD
+                // -------------------------------------------------
+
                 if (cantidad == null
                         || cantidad <= 0) {
 
@@ -339,6 +442,10 @@ public class CompraView {
                             + compraGuardada.getId_compra();
                 }
 
+
+                // -------------------------------------------------
+                // VALIDAR PRECIO
+                // -------------------------------------------------
 
                 if (precio == null
                         || precio.compareTo(BigDecimal.ZERO) < 0) {
@@ -353,6 +460,108 @@ public class CompraView {
                 }
 
 
+                // -------------------------------------------------
+                // VALIDAR NÚMERO DE LOTE
+                // -------------------------------------------------
+
+                if (numeroLote == null
+                        || numeroLote.trim().isEmpty()) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "El número de lote es obligatorio."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+                numeroLote =
+                        numeroLote.trim();
+
+
+                if (numeroLote.length() > 50) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "El número de lote no puede superar los 50 caracteres."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+
+                // -------------------------------------------------
+                // VALIDAR FECHA DE FABRICACIÓN
+                // -------------------------------------------------
+
+                if (fechaFabricacion == null) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "La fecha de fabricación es obligatoria."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+
+                // -------------------------------------------------
+                // VALIDAR FECHA DE VENCIMIENTO
+                // -------------------------------------------------
+
+                if (fechaVencimiento == null) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "La fecha de vencimiento es obligatoria."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+
+                // -------------------------------------------------
+                // VALIDAR ORDEN DE FECHAS
+                // -------------------------------------------------
+
+                if (fechaVencimiento.isBefore(
+                        fechaFabricacion)) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "La fecha de vencimiento no puede ser anterior a la fecha de fabricación."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+
+                // -------------------------------------------------
+                // VALIDAR VENCIMIENTO
+                // -------------------------------------------------
+
+                if (fechaVencimiento.isBefore(
+                        LocalDate.now())) {
+
+                    ra.addFlashAttribute(
+                            "error",
+                            "No se puede registrar una compra con un lote ya vencido."
+                    );
+
+                    return "redirect:/view/compras/edit/"
+                            + compraGuardada.getId_compra();
+                }
+
+
+                // -------------------------------------------------
+                // CALCULAR SUBTOTAL
+                // -------------------------------------------------
+
                 BigDecimal subtotal =
                         precio.multiply(
                                 BigDecimal.valueOf(
@@ -360,6 +569,48 @@ public class CompraView {
                                 )
                         );
 
+
+                // -------------------------------------------------
+                // CREAR LOTE
+                // -------------------------------------------------
+
+                Lote lote =
+                        new Lote();
+
+                lote.setNumero_lote(
+                        numeroLote
+                );
+
+                lote.setFecha_fabricacion(
+                        fechaFabricacion
+                );
+
+                lote.setFecha_vencimiento(
+                        fechaVencimiento
+                );
+
+                lote.setCantidad(
+                        cantidad
+                );
+
+                lote.setEstado(
+                        Lote.EstadoLote.ACTIVO
+                );
+
+                lote.setId_producto(
+                        idProducto
+                );
+
+
+                Lote loteGuardado =
+                        loteRepository.save(
+                                lote
+                        );
+
+
+                // -------------------------------------------------
+                // CREAR DETALLE
+                // -------------------------------------------------
 
                 DetalleCompra detalle =
                         new DetalleCompra();
@@ -370,6 +621,10 @@ public class CompraView {
 
                 detalle.setId_producto(
                         idProducto
+                );
+
+                detalle.setId_lote(
+                        loteGuardado.getId_lote()
                 );
 
                 detalle.setCantidad(
@@ -445,7 +700,7 @@ public class CompraView {
 
             ra.addFlashAttribute(
                     "success",
-                    "Compra registrada correctamente. El inventario fue actualizado."
+                    "Compra registrada correctamente. El lote y el inventario fueron actualizados."
             );
 
             return "redirect:/view/compras/"
@@ -494,11 +749,14 @@ public class CompraView {
         if (!eraRecibida
                 && seraRecibida) {
 
+            List<DetalleCompra> detalles =
+                    detallesDeCompra(
+                            compra.getId_compra()
+                    );
+
             String errorInventario =
                     aumentarInventario(
-                            detallesDeCompra(
-                                    compra.getId_compra()
-                            )
+                            detalles
                     );
 
             if (errorInventario != null) {
@@ -506,6 +764,23 @@ public class CompraView {
                 ra.addFlashAttribute(
                         "error",
                         errorInventario
+                );
+
+                return "redirect:/view/compras/edit/"
+                        + compra.getId_compra();
+            }
+
+
+            String errorLotes =
+                    activarLotesDeCompra(
+                            detalles
+                    );
+
+            if (errorLotes != null) {
+
+                ra.addFlashAttribute(
+                        "error",
+                        errorLotes
                 );
 
                 return "redirect:/view/compras/edit/"
@@ -521,11 +796,14 @@ public class CompraView {
         if (eraRecibida
                 && !seraRecibida) {
 
+            List<DetalleCompra> detalles =
+                    detallesDeCompra(
+                            compra.getId_compra()
+                    );
+
             String errorInventario =
                     revertirInventario(
-                            detallesDeCompra(
-                                    compra.getId_compra()
-                            )
+                            detalles
                     );
 
             if (errorInventario != null) {
@@ -538,7 +816,42 @@ public class CompraView {
                 return "redirect:/view/compras/edit/"
                         + compra.getId_compra();
             }
+
+
+            String errorLotes =
+                    revertirLotesDeCompra(
+                            detalles
+                    );
+
+            if (errorLotes != null) {
+
+                ra.addFlashAttribute(
+                        "error",
+                        errorLotes
+                );
+
+                return "redirect:/view/compras/edit/"
+                        + compra.getId_compra();
+            }
         }
+
+
+        // =====================================================
+        // CONSERVAR FECHA ORIGINAL
+        // =====================================================
+
+        compra.setFecha(
+                compraAnterior.getFecha()
+        );
+
+
+        // =====================================================
+        // CONSERVAR TOTAL ORIGINAL
+        // =====================================================
+
+        compra.setTotal(
+                compraAnterior.getTotal()
+        );
 
 
         // =====================================================
@@ -567,7 +880,18 @@ public class CompraView {
     @Transactional
     public String delete(
             @PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar compras."
+            );
+
+            return "redirect:/view/compras";
+        }
 
         Compra compra =
                 compraRepository
@@ -605,10 +929,30 @@ public class CompraView {
 
                 return "redirect:/view/compras";
             }
+
+
+            String errorLotes =
+                    revertirLotesDeCompra(
+                            detalles
+                    );
+
+            if (errorLotes != null) {
+
+                ra.addFlashAttribute(
+                        "error",
+                        errorLotes
+                );
+
+                return "redirect:/view/compras";
+            }
         }
 
 
         detalleCompraRepository.deleteAll(
+                detalles
+        );
+
+        eliminarLotesDeCompra(
                 detalles
         );
 
@@ -623,6 +967,28 @@ public class CompraView {
         );
 
         return "redirect:/view/compras";
+    }
+
+
+    // =========================================================
+    // PERMISOS
+    // =========================================================
+
+    private boolean puedeModificar(
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMINISTRADOR")
+                                || authority.getAuthority()
+                                .equals("ROLE_FARMACEUTICO")
+                );
     }
 
 
@@ -673,29 +1039,21 @@ public class CompraView {
             return "La compra no tiene productos registrados.";
         }
 
-
-        // -----------------------------------------------------
-        // VALIDAR DATOS
-        // -----------------------------------------------------
-
         for (DetalleCompra detalle : detalles) {
 
             if (detalle.getId_producto() == null) {
-
                 return "Un detalle de compra no tiene producto.";
             }
 
             if (detalle.getCantidad() == null
                     || detalle.getCantidad() <= 0) {
-
                 return "La cantidad de un producto no es válida.";
             }
+
+            if (detalle.getId_lote() == null) {
+                return "Un detalle de compra no tiene lote asociado.";
+            }
         }
-
-
-        // -----------------------------------------------------
-        // SUMAR O CREAR INVENTARIO
-        // -----------------------------------------------------
 
         for (DetalleCompra detalle : detalles) {
 
@@ -706,14 +1064,10 @@ public class CompraView {
                             )
                             .orElse(null);
 
-
-            // -------------------------------------------------
-            // SI NO EXISTE, CREAR INVENTARIO
-            // -------------------------------------------------
-
             if (inventario == null) {
 
-                inventario = new Inventario();
+                inventario =
+                        new Inventario();
 
                 inventario.setId_producto(
                         detalle.getId_producto()
@@ -723,27 +1077,13 @@ public class CompraView {
                         detalle.getCantidad()
                 );
 
-                /*
-                 * El stock mínimo y máximo son valores
-                 * de configuración inicial.
-                 *
-                 * Posteriormente, pueden modificarse
-                 * desde el módulo Inventario.
-                 */
                 inventario.setStock_minimo(0);
 
                 inventario.setStock_maximo(0);
-            }
 
-
-            // -------------------------------------------------
-            // SI EXISTE, SUMAR STOCK
-            // -------------------------------------------------
-
-            else {
+            } else {
 
                 if (inventario.getStock_actual() == null) {
-
                     inventario.setStock_actual(0);
                 }
 
@@ -753,12 +1093,10 @@ public class CompraView {
                 );
             }
 
-
             inventarioRepository.save(
                     inventario
             );
         }
-
 
         return null;
     }
@@ -777,12 +1115,16 @@ public class CompraView {
             return null;
         }
 
-
-        // -----------------------------------------------------
-        // VALIDAR
-        // -----------------------------------------------------
-
         for (DetalleCompra detalle : detalles) {
+
+            if (detalle.getId_producto() == null) {
+                return "Un detalle de compra no tiene producto.";
+            }
+
+            if (detalle.getCantidad() == null
+                    || detalle.getCantidad() <= 0) {
+                return "La cantidad de un producto no es válida.";
+            }
 
             Inventario inventario =
                     inventarioRepository
@@ -791,13 +1133,11 @@ public class CompraView {
                             )
                             .orElse(null);
 
-
             if (inventario == null
                     || inventario.getStock_actual() == null) {
 
                 return "No se puede revertir la compra porque el producto no tiene inventario.";
             }
-
 
             if (inventario.getStock_actual()
                     < detalle.getCantidad()) {
@@ -805,11 +1145,6 @@ public class CompraView {
                 return "No se puede revertir la compra porque parte del stock ya fue utilizado.";
             }
         }
-
-
-        // -----------------------------------------------------
-        // RESTAR
-        // -----------------------------------------------------
 
         for (DetalleCompra detalle : detalles) {
 
@@ -820,19 +1155,148 @@ public class CompraView {
                             )
                             .orElseThrow();
 
-
             inventario.setStock_actual(
                     inventario.getStock_actual()
                             - detalle.getCantidad()
             );
-
 
             inventarioRepository.save(
                     inventario
             );
         }
 
+        return null;
+    }
+
+
+    // =========================================================
+    // ACTIVAR LOTES DE UNA COMPRA
+    // =========================================================
+
+    private String activarLotesDeCompra(
+            List<DetalleCompra> detalles) {
+
+        if (detalles == null
+                || detalles.isEmpty()) {
+
+            return null;
+        }
+
+        for (DetalleCompra detalle : detalles) {
+
+            if (detalle.getId_lote() == null) {
+                continue;
+            }
+
+            Lote lote =
+                    loteRepository
+                            .findById(
+                                    detalle.getId_lote()
+                            )
+                            .orElse(null);
+
+            if (lote == null) {
+                return "No se encontró el lote asociado a uno de los productos.";
+            }
+
+            if (lote.getEstado()
+                    == Lote.EstadoLote.RETIRADO) {
+
+                return "No se puede recibir la compra porque uno de sus lotes está retirado.";
+            }
+
+            if (lote.getFecha_vencimiento() != null
+                    && lote.getFecha_vencimiento()
+                    .isBefore(LocalDate.now())) {
+
+                return "No se puede recibir la compra porque uno de sus lotes está vencido.";
+            }
+
+            lote.setEstado(
+                    lote.getCantidad() != null
+                            && lote.getCantidad() > 0
+                            ? Lote.EstadoLote.ACTIVO
+                            : Lote.EstadoLote.AGOTADO
+            );
+
+            loteRepository.save(
+                    lote
+            );
+        }
 
         return null;
+    }
+
+
+    // =========================================================
+    // REVERTIR LOTES DE UNA COMPRA
+    // =========================================================
+
+    private String revertirLotesDeCompra(
+            List<DetalleCompra> detalles) {
+
+        if (detalles == null
+                || detalles.isEmpty()) {
+
+            return null;
+        }
+
+        for (DetalleCompra detalle : detalles) {
+
+            if (detalle.getId_lote() == null) {
+                continue;
+            }
+
+            Lote lote =
+                    loteRepository
+                            .findById(
+                                    detalle.getId_lote()
+                            )
+                            .orElse(null);
+
+            if (lote == null) {
+                return "No se encontró el lote asociado a uno de los productos.";
+            }
+
+            lote.setEstado(
+                    Lote.EstadoLote.AGOTADO
+            );
+
+            loteRepository.save(
+                    lote
+            );
+        }
+
+        return null;
+    }
+
+
+    // =========================================================
+    // ELIMINAR LOTES DE UNA COMPRA
+    // =========================================================
+
+    private void eliminarLotesDeCompra(
+            List<DetalleCompra> detalles) {
+
+        if (detalles == null
+                || detalles.isEmpty()) {
+
+            return;
+        }
+
+        for (DetalleCompra detalle : detalles) {
+
+            if (detalle.getId_lote() == null) {
+                continue;
+            }
+
+            if (loteRepository.existsById(
+                    detalle.getId_lote())) {
+
+                loteRepository.deleteById(
+                        detalle.getId_lote()
+                );
+            }
+        }
     }
 }

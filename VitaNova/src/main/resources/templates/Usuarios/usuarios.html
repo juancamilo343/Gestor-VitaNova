@@ -13,12 +13,14 @@
     <aside th:replace="~{fragments/layout :: sidebar('usuarios')}">
     </aside>
 
+
     <!-- CONTENIDO PRINCIPAL -->
     <div class="main-wrapper">
 
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
+
 
         <main class="dashboard-content">
 
@@ -37,9 +39,12 @@
 
                 </div>
 
+
                 <div class="page-actions">
 
-                    <a th:href="@{/view/usuarios/form}"
+                    <!-- SOLO ADMINISTRADOR Y FARMACÉUTICO -->
+                    <a th:if="${puedeModificar}"
+                       th:href="@{/view/usuarios/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-user-plus"></i>
@@ -54,11 +59,20 @@
 
             </section>
 
-            <!-- MENSAJE -->
+
+            <!-- MENSAJE DE ÉXITO -->
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
             </div>
+
+
+            <!-- MENSAJE DE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner"
+                 th:text="${error}">
+            </div>
+
 
             <!-- TABLA -->
             <section class="table-card surface">
@@ -68,6 +82,7 @@
                     <span class="card-title">
                         Consulta y Seguimiento
                     </span>
+
 
                     <form method="get"
                           th:action="@{/view/usuarios}"
@@ -79,6 +94,7 @@
                                placeholder="Buscar por usuario o rol"
                                class="search-input search-field">
 
+
                         <button type="submit"
                                 class="btn btn-white nowrap">
 
@@ -89,6 +105,7 @@
                     </form>
 
                 </div>
+
 
                 <div class="overflow-x-auto">
 
@@ -118,6 +135,7 @@
 
                         </thead>
 
+
                         <tbody>
 
                         <tr th:each="usuario : ${usuarios}">
@@ -133,24 +151,34 @@
 
                                     </div>
 
+
                                     <span class="med-name"
                                           th:text="${usuario.username}">
+
                                         admin
+
                                     </span>
 
                                 </div>
 
+
                                 <span class="text-muted text-small"
                                       th:text="'ID: ' + ${usuario.id_usuario}">
+
                                     ID: 1
+
                                 </span>
 
                             </td>
 
+
                             <!-- ROL -->
                             <td th:text="${usuario.rol != null ? usuario.rol.nombre : '—'}">
+
                                 Administrador
+
                             </td>
+
 
                             <!-- ESTADO -->
                             <td>
@@ -162,6 +190,7 @@
 
                                 </span>
 
+
                                 <span th:unless="${usuario.estado}"
                                       class="status-pill warning">
 
@@ -171,10 +200,13 @@
 
                             </td>
 
+
                             <!-- ACCIONES -->
                             <td class="user-table-actions">
 
-                                <div class="table-actions-row">
+                                <!-- ADMINISTRADOR Y FARMACÉUTICO -->
+                                <div th:if="${puedeModificar}"
+                                     class="table-actions-row">
 
                                     <a th:href="@{/view/usuarios/edit/{id}(id=${usuario.id_usuario})}"
                                        class="btn btn-white">
@@ -185,27 +217,32 @@
 
                                     </a>
 
-                                    <form method="post"
-                                          th:action="@{/view/usuarios/delete/{id}(id=${usuario.id_usuario})}"
-                                          class="action-form">
 
-                                        <button type="submit"
-                                                class="btn btn-white"
-                                                onclick="return confirm('¿Eliminar este usuario?')">
+                                    <a th:href="@{/view/usuarios/eliminar/{id}(id=${usuario.id_usuario})}"
+                                       class="btn btn-white"
+                                       onclick="return confirm('¿Eliminar este usuario?')">
 
-                                            <i class="fa-solid fa-trash"></i>
+                                        <i class="fa-solid fa-trash"></i>
 
-                                            Eliminar
+                                        Eliminar
 
-                                        </button>
-
-                                    </form>
+                                    </a>
 
                                 </div>
+
+
+                                <!-- VENDEDOR Y AUXILIAR -->
+                                <span th:unless="${puedeModificar}"
+                                      class="text-muted text-small">
+
+                                    Solo lectura
+
+                                </span>
 
                             </td>
 
                         </tr>
+
 
                         <!-- SIN USUARIOS -->
                         <tr th:if="${#lists.isEmpty(usuarios)}">
@@ -224,6 +261,7 @@
                     </table>
 
                 </div>
+
 
                 <!-- FOOTER -->
                 <div class="table-footer">

@@ -13,13 +13,16 @@
     <aside th:replace="~{fragments/layout :: sidebar('inventario')}">
     </aside>
 
+
     <div class="main-wrapper">
 
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
 
+
         <main class="dashboard-content">
+
 
             <!-- ENCABEZADO -->
             <section class="page-header">
@@ -36,9 +39,12 @@
 
                 </div>
 
+
                 <div class="page-actions">
 
-                    <a th:href="@{/view/inventario/form}"
+                    <!-- SOLO ADMINISTRADOR Y FARMACÉUTICO -->
+                    <a th:if="${puedeModificar}"
+                       th:href="@{/view/inventario/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-boxes-stacked"></i>
@@ -53,14 +59,24 @@
 
             </section>
 
-            <!-- MENSAJE -->
+
+            <!-- MENSAJE ÉXITO -->
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
             </div>
 
+
+            <!-- MENSAJE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
+
+
             <!-- TABLA -->
             <section class="table-card surface">
+
 
                 <div class="table-header">
 
@@ -70,9 +86,11 @@
 
                 </div>
 
+
                 <div class="overflow-x-auto">
 
                     <table class="custom-table">
+
 
                         <thead>
 
@@ -106,9 +124,12 @@
 
                         </thead>
 
+
                         <tbody>
 
+
                         <tr th:each="inventario : ${inventarios}">
+
 
                             <td>
 
@@ -133,6 +154,7 @@
 
                             </td>
 
+
                             <td>
 
                                 <strong th:text="${inventario.stock_actual}">
@@ -140,6 +162,7 @@
                                 </strong>
 
                             </td>
+
 
                             <td>
 
@@ -149,6 +172,7 @@
 
                             </td>
 
+
                             <td>
 
                                 <span th:text="${inventario.stock_maximo}">
@@ -156,6 +180,7 @@
                                 </span>
 
                             </td>
+
 
                             <td>
 
@@ -166,6 +191,7 @@
 
                                 </span>
 
+
                                 <span th:if="${inventario.stock_actual > 0
                                       and inventario.stock_actual <= inventario.stock_minimo}"
                                       class="status-pill warning">
@@ -173,6 +199,7 @@
                                     Stock bajo
 
                                 </span>
+
 
                                 <span th:if="${inventario.stock_actual > inventario.stock_minimo}"
                                       class="status-pill success">
@@ -183,18 +210,37 @@
 
                             </td>
 
+
                             <td class="user-table-actions">
+
 
                                 <div class="table-actions-row">
 
-                                    <a th:href="@{'/view/inventario/edit/' + ${inventario.id_inventario}}"
+
+                                    <!-- VER LOTES -->
+                                    <a th:href="@{'/view/inventario/lotes/' + ${inventario.id_producto}}"
+                                       class="btn btn-white">
+
+                                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                                        Lotes
+
+                                    </a>
+
+
+                                    <!-- EDITAR -->
+                                    <a th:if="${puedeModificar}"
+                                       th:href="@{'/view/inventario/edit/' + ${inventario.id_inventario}}"
                                        class="btn btn-white">
 
                                         Editar
 
                                     </a>
 
-                                    <form method="post"
+
+                                    <!-- ELIMINAR -->
+                                    <form th:if="${puedeModificar}"
+                                          method="post"
                                           th:action="@{'/view/inventario/delete/' + ${inventario.id_inventario}}"
                                           class="action-form">
 
@@ -208,11 +254,23 @@
 
                                     </form>
 
+
+                                    <!-- SOLO LECTURA -->
+                                    <span th:unless="${puedeModificar}"
+                                          class="text-muted text-small">
+
+                                        Solo lectura
+
+                                    </span>
+
+
                                 </div>
+
 
                             </td>
 
                         </tr>
+
 
                         <tr th:if="${#lists.isEmpty(inventarios)}">
 
@@ -225,11 +283,13 @@
 
                         </tr>
 
+
                         </tbody>
 
                     </table>
 
                 </div>
+
 
                 <div class="table-footer">
 
@@ -241,7 +301,9 @@
 
                 </div>
 
+
             </section>
+
 
         </main>
 
@@ -250,4 +312,5 @@
 </div>
 
 </body>
+
 </html>

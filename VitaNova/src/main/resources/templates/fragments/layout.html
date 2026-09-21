@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="es"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:fragment="head(pageTitle)">
 
-    <title th:text="${pageTitle != null ? pageTitle + ' | VitaNova' : 'VitaNova | Pharma ERP'}">
-        VitaNova | Pharma ERP
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${pageTitle != null ? pageTitle + ' | VitaNova PHARMA ERP' : 'VitaNova PHARMA ERP'}">
+        VitaNova PHARMA ERP
     </title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet">
 
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-          referrerpolicy="no-referrer">
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet"
           th:href="@{/css/style.css}">
@@ -24,290 +33,286 @@
 </head>
 
 
-<body>
-
-
 <!-- =========================================================
      SIDEBAR
-     ========================================================= -->
+========================================================= -->
 
 <aside th:fragment="sidebar(activeMenu)"
        class="sidebar">
 
+    <!-- MARCA -->
     <div class="sidebar-brand">
 
-        <div class="brand-mark">
-            <i class="fa-solid fa-briefcase-medical"></i>
+        <div class="brand-icon">
+            <i class="fa-solid fa-prescription-bottle-medical"></i>
         </div>
 
-        <div class="brand-copy">
-            <span class="brand-name">VitaNova</span>
-            <span class="brand-tag">PHARMA ERP</span>
+        <div class="brand-text">
+
+            <span class="brand-name">
+                VitaNova
+            </span>
+
+            <span class="brand-subtitle">
+                PHARMA ERP
+            </span>
+
         </div>
 
     </div>
 
 
-    <nav class="sidebar-nav"
-         aria-label="Navegación principal">
+    <!-- USUARIO ACTUAL -->
+    <div class="sidebar-user">
+
+        <div class="sidebar-user-avatar">
+            <i class="fa-solid fa-user"></i>
+        </div>
+
+        <div class="sidebar-user-info">
+
+            <span class="sidebar-user-name"
+                  th:text="${usuarioActual}">
+                admin
+            </span>
+
+            <span class="sidebar-user-role"
+                  th:text="${rolUsuarioActual}">
+                Administrador
+            </span>
+
+        </div>
+
+    </div>
 
 
-        <!-- =================================================
-             DASHBOARD
-             ================================================= -->
+    <!-- MENÚ -->
+    <nav class="sidebar-nav">
 
-        <a th:href="@{/view/dashboard}"
+        <!-- DASHBOARD -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR','AUXILIAR_FARMACIA')"
+           th:href="@{/view/dashboard}"
            class="nav-link"
-           th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'dashboard'} ? ' active'">
 
-            <i class="fa-solid fa-table-cells-large"></i>
-            <span>Dashboard</span>
+            <i class="fa-solid fa-chart-line"></i>
+
+            <span>
+                Dashboard
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             CLIENTES
-             ================================================= -->
-
-        <a th:href="@{/view/clientes}"
+        <!-- CLIENTES -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR','AUXILIAR_FARMACIA')"
+           th:href="@{/view/clientes}"
            class="nav-link"
-           th:classappend="${activeMenu == 'clientes'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'clientes'} ? ' active'">
 
             <i class="fa-solid fa-users"></i>
-            <span>Clientes</span>
+
+            <span>
+                Clientes
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             PRODUCTOS
-             ================================================= -->
-
-        <a th:href="@{/view/productos}"
+        <!-- PRODUCTOS -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','AUXILIAR_FARMACIA')"
+           th:href="@{/view/productos}"
            class="nav-link"
-           th:classappend="${activeMenu == 'productos'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'productos'} ? ' active'">
 
-            <i class="fa-solid fa-capsules"></i>
-            <span>Productos</span>
+            <i class="fa-solid fa-pills"></i>
 
-        </a>
-        <!-- =================================================
-     CATEGORÍAS
-     ================================================= -->
-
-        <a th:href="@{/view/categorias}"
-           class="nav-link"
-           th:classappend="${activeMenu == 'categorias'} ? ' active' : ''">
-
-            <i class="fa-solid fa-tags"></i>
-            <span>Categorías</span>
+            <span>
+                Productos
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             INVENTARIO
-             ================================================= -->
-
-        <a th:href="@{/view/inventario}"
+        <!-- CATEGORÍAS -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO')"
+           th:href="@{/view/categorias}"
            class="nav-link"
-           th:classappend="${activeMenu == 'inventario'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'categorias'} ? ' active'">
+
+            <i class="fa-solid fa-layer-group"></i>
+
+            <span>
+                Categorías
+            </span>
+
+        </a>
+
+
+        <!-- INVENTARIO -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','AUXILIAR_FARMACIA')"
+           th:href="@{/view/inventario}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'inventario'} ? ' active'">
 
             <i class="fa-solid fa-boxes-stacked"></i>
-            <span>Inventario</span>
+
+            <span>
+                Inventario
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             VENTAS
-             ================================================= -->
-
-        <a th:href="@{/view/ventas}"
+        <!-- VENTAS -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
+           th:href="@{/view/ventas}"
            class="nav-link"
-           th:classappend="${activeMenu == 'ventas'} ? ' active' : ''">
-
-            <i class="fa-solid fa-cash-register"></i>
-            <span>Ventas</span>
-
-        </a>
-
-
-        <!-- =================================================
-             COMPRAS
-             ================================================= -->
-
-        <a th:href="@{/view/compras}"
-           class="nav-link"
-           th:classappend="${activeMenu == 'compras'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'ventas'} ? ' active'">
 
             <i class="fa-solid fa-cart-shopping"></i>
-            <span>Compras</span>
+
+            <span>
+                Ventas
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             PROVEEDORES
-             ================================================= -->
-
-        <a th:href="@{/view/proveedores}"
+        <!-- COMPRAS -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO')"
+           th:href="@{/view/compras}"
            class="nav-link"
-           th:classappend="${activeMenu == 'proveedores'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'compras'} ? ' active'">
 
-            <i class="fa-solid fa-truck"></i>
-            <span>Proveedores</span>
+            <i class="fa-solid fa-cart-flatbed"></i>
+
+            <span>
+                Compras
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             EMPLEADOS
-             ================================================= -->
-
-        <a th:href="@{/view/empleados}"
+        <!-- PROVEEDORES -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO')"
+           th:href="@{/view/proveedores}"
            class="nav-link"
-           th:classappend="${activeMenu == 'empleados'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'proveedores'} ? ' active'">
 
-            <i class="fa-solid fa-id-card"></i>
-            <span>Empleados</span>
+            <i class="fa-solid fa-truck-field"></i>
+
+            <span>
+                Proveedores
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             USUARIOS
-             ================================================= -->
-
-        <a th:href="@{/view/usuarios}"
+        <!-- EMPLEADOS -->
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/view/empleados}"
            class="nav-link"
-           th:classappend="${activeMenu == 'usuarios'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'empleados'} ? ' active'">
+
+            <i class="fa-solid fa-user-tie"></i>
+
+            <span>
+                Empleados
+            </span>
+
+        </a>
+
+
+        <!-- USUARIOS -->
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/view/usuarios}"
+           class="nav-link"
+           th:classappend="${activeMenu == 'usuarios'} ? ' active'">
 
             <i class="fa-solid fa-user-gear"></i>
-            <span>Usuarios</span>
+
+            <span>
+                Usuarios
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             ROLES
-             ================================================= -->
-
-        <a th:href="@{/view/rol}"
+        <!-- ROLES -->
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/view/rol}"
            class="nav-link"
-           th:classappend="${activeMenu == 'roles'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'rol' or activeMenu == 'roles'} ? ' active'">
 
-            <i class="fa-solid fa-sitemap"></i>
-            <span>Roles</span>
+            <i class="fa-solid fa-shield-halved"></i>
+
+            <span>
+                Roles
+            </span>
 
         </a>
 
 
-        <!-- =================================================
-             REPORTES
-             ================================================= -->
-
-        <a th:href="@{/view/reportes}"
+        <!-- REPORTES -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO')"
+           th:href="@{/view/reportes}"
            class="nav-link"
-           th:classappend="${activeMenu == 'reportes'} ? ' active' : ''">
+           th:classappend="${activeMenu == 'reportes'} ? ' active'">
 
-            <i class="fa-solid fa-chart-simple"></i>
-            <span>Reportes</span>
+            <i class="fa-solid fa-file-lines"></i>
 
-        </a>
-
-
-        <!-- =================================================
-             CONFIGURACIÓN
-             ================================================= -->
-
-        <a th:href="@{/view/configuracion}"
-           class="nav-link"
-           th:classappend="${activeMenu == 'configuracion'} ? ' active' : ''">
-
-            <i class="fa-solid fa-gear"></i>
-            <span>Configuración</span>
+            <span>
+                Reportes
+            </span>
 
         </a>
 
     </nav>
 
 
-    <!-- =====================================================
-         CERRAR SESIÓN
-         ===================================================== -->
-
+    <!-- CERRAR SESIÓN -->
     <div class="sidebar-footer">
 
-        <a href="#"
-           class="logout-link">
+        <form th:action="@{/logout}"
+              method="post">
 
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Cerrar sesión</span>
+            <button type="submit"
+                    class="logout-link">
 
-        </a>
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span>
+                    Cerrar sesión
+                </span>
+
+            </button>
+
+        </form>
 
     </div>
 
 </aside>
 
 
-
 <!-- =========================================================
      TOPBAR
-     ========================================================= -->
+========================================================= -->
 
 <header th:fragment="topbar"
         class="topbar">
 
-    <div class="search-box">
+    <div class="topbar-left">
 
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <div>
 
-        <input type="search"
-               class="search-input"
-               placeholder="Buscar medicamento, cliente o factura...">
+            <h1 th:text="${pageTitle != null ? pageTitle : 'VitaNova PHARMA ERP'}">
+                VitaNova PHARMA ERP
+            </h1>
 
-    </div>
-
-
-    <div class="header-user">
-
-        <button type="button"
-                class="icon-button"
-                aria-label="Notificaciones">
-
-            <i class="fa-regular fa-bell"></i>
-
-        </button>
-
-
-        <div class="user-profile">
-
-            <div class="user-meta">
-
-                <span class="user-name"
-                      th:text="${userName != null ? userName : 'Administrador'}">
-
-                    Administrador
-
-                </span>
-
-
-                <span class="user-role"
-                      th:text="${userRole != null ? userRole : 'Farmacia Central'}">
-
-                    Farmacia Central
-
-                </span>
-
-            </div>
-
-
-            <div class="user-avatar">
-                AD
-            </div>
+            <p th:if="${pageSubtitle != null}"
+               th:text="${pageSubtitle}">
+            </p>
 
         </div>
 
@@ -316,6 +321,12 @@
 </header>
 
 
-</body>
+<!-- =========================================================
+     SCRIPTS
+========================================================= -->
+
+<script th:fragment="scripts">
+
+</script>
 
 </html>

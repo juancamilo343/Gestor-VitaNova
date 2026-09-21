@@ -6,6 +6,7 @@ import com.vitaNova.vitaNova.repository.DetalleVentaRepository;
 import com.vitaNova.vitaNova.repository.ProductosRepository;
 import com.vitaNova.vitaNova.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class DetalleVentaView {
 
     // =====================================================
     // LISTAR DETALLES DE UNA VENTA
+    // TODOS LOS ROLES PUEDEN CONSULTAR
     // =====================================================
 
     @GetMapping("/{id}/detalles")
@@ -45,7 +47,7 @@ public class DetalleVentaView {
         if (venta == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Venta no encontrada"
             );
 
@@ -101,13 +103,27 @@ public class DetalleVentaView {
 
     // =====================================================
     // FORMULARIO NUEVO DETALLE
+    // SOLO ROLES CON PERMISO DE MODIFICACIÓN
     // =====================================================
 
     @GetMapping("/{id}/detalles/form")
     public String form(
             @PathVariable Long id,
             Model model,
-            RedirectAttributes ra) {
+            RedirectAttributes ra,
+            Authentication authentication) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para modificar los detalles de una venta."
+            );
+
+            return "redirect:/view/ventas/"
+                    + id
+                    + "/detalles";
+        }
 
         Venta venta =
                 ventaRepository
@@ -117,7 +133,7 @@ public class DetalleVentaView {
         if (venta == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Venta no encontrada"
             );
 
@@ -173,6 +189,7 @@ public class DetalleVentaView {
 
     // =====================================================
     // EDITAR DETALLE
+    // SOLO ROLES CON PERMISO DE MODIFICACIÓN
     // =====================================================
 
     @GetMapping("/{id}/detalles/edit/{detalleId}")
@@ -180,7 +197,20 @@ public class DetalleVentaView {
             @PathVariable Long id,
             @PathVariable Long detalleId,
             Model model,
-            RedirectAttributes ra) {
+            RedirectAttributes ra,
+            Authentication authentication) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para modificar los detalles de una venta."
+            );
+
+            return "redirect:/view/ventas/"
+                    + id
+                    + "/detalles";
+        }
 
         Venta venta =
                 ventaRepository
@@ -190,7 +220,7 @@ public class DetalleVentaView {
         if (venta == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Venta no encontrada"
             );
 
@@ -205,7 +235,7 @@ public class DetalleVentaView {
         if (detalle == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Detalle de venta no encontrado"
             );
 
@@ -255,13 +285,27 @@ public class DetalleVentaView {
 
     // =====================================================
     // GUARDAR DETALLE
+    // SOLO ROLES CON PERMISO DE MODIFICACIÓN
     // =====================================================
 
     @PostMapping("/{id}/detalles/save")
     public String save(
             @PathVariable Long id,
             @ModelAttribute DetalleVenta detalle,
-            RedirectAttributes ra) {
+            RedirectAttributes ra,
+            Authentication authentication) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para modificar los detalles de una venta."
+            );
+
+            return "redirect:/view/ventas/"
+                    + id
+                    + "/detalles";
+        }
 
         Venta venta =
                 ventaRepository
@@ -271,7 +315,7 @@ public class DetalleVentaView {
         if (venta == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Venta no encontrada"
             );
 
@@ -359,13 +403,27 @@ public class DetalleVentaView {
 
     // =====================================================
     // ELIMINAR DETALLE
+    // SOLO ROLES CON PERMISO DE MODIFICACIÓN
     // =====================================================
 
     @PostMapping("/{id}/detalles/delete/{detalleId}")
     public String delete(
             @PathVariable Long id,
             @PathVariable Long detalleId,
-            RedirectAttributes ra) {
+            RedirectAttributes ra,
+            Authentication authentication) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar detalles de una venta."
+            );
+
+            return "redirect:/view/ventas/"
+                    + id
+                    + "/detalles";
+        }
 
         if (detalleVentaRepository.existsById(detalleId)) {
 
@@ -393,7 +451,7 @@ public class DetalleVentaView {
         } else {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Detalle de venta no encontrado"
             );
         }
@@ -447,7 +505,8 @@ public class DetalleVentaView {
                         .add(impuestos);
 
         if (total.compareTo(
-                BigDecimal.ZERO) < 0) {
+                BigDecimal.ZERO
+        ) < 0) {
 
             total = BigDecimal.ZERO;
         }
@@ -455,5 +514,30 @@ public class DetalleVentaView {
         venta.setTotal(total);
 
         ventaRepository.save(venta);
+    }
+
+
+    // =====================================================
+    // PERMISOS DE VENTAS
+    // ADMINISTRADOR + FARMACEUTICO + VENDEDOR
+    // =====================================================
+
+    private boolean puedeModificar(
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMINISTRADOR")
+                                || authority.getAuthority()
+                                .equals("ROLE_FARMACEUTICO")
+                                || authority.getAuthority()
+                                .equals("ROLE_VENDEDOR")
+                );
     }
 }

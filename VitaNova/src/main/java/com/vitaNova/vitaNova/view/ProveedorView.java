@@ -3,6 +3,7 @@ package com.vitaNova.vitaNova.view;
 import com.vitaNova.vitaNova.model.Proveedor;
 import com.vitaNova.vitaNova.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,29 @@ public class ProveedorView {
     // =========================================================
 
     @GetMapping
-    public String lista(Model model) {
+    public String lista(
+            Model model,
+            Authentication authentication,
+            @RequestParam(required = false) String search) {
+
+        if (search != null && !search.trim().isEmpty()) {
+
+            model.addAttribute(
+                    "proveedores",
+                    proveedorRepository.buscarProveedores(search.trim())
+            );
+
+        } else {
+
+            model.addAttribute(
+                    "proveedores",
+                    proveedorRepository.findAll()
+            );
+        }
 
         model.addAttribute(
-                "proveedores",
-                proveedorRepository.findAll()
+                "search",
+                search
         );
 
         model.addAttribute(
@@ -52,6 +71,11 @@ public class ProveedorView {
                 "Consulta y seguimiento de los proveedores de la farmacia."
         );
 
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificar(authentication)
+        );
+
         return "proveedores/proveedores";
     }
 
@@ -62,7 +86,19 @@ public class ProveedorView {
     // =========================================================
 
     @GetMapping("/form")
-    public String form(RedirectAttributes ra) {
+    public String form(
+            Authentication authentication,
+            RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para registrar proveedores."
+            );
+
+            return "redirect:/view/proveedores";
+        }
 
         ra.addFlashAttribute(
                 "success",
@@ -80,7 +116,18 @@ public class ProveedorView {
     public String edit(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para editar proveedores."
+            );
+
+            return "redirect:/view/proveedores";
+        }
 
         Proveedor proveedor = proveedorRepository
                 .findById(id)
@@ -89,7 +136,7 @@ public class ProveedorView {
         if (proveedor == null) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Proveedor no encontrado"
             );
 
@@ -126,7 +173,18 @@ public class ProveedorView {
     @PostMapping("/save")
     public String save(
             @ModelAttribute Proveedor proveedor,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para modificar proveedores."
+            );
+
+            return "redirect:/view/proveedores";
+        }
 
         // Los proveedores nuevos deben registrarse desde Usuarios.
         if (proveedor.getId_proveedor() == null) {
@@ -143,7 +201,7 @@ public class ProveedorView {
                 proveedor.getId_proveedor())) {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Proveedor no encontrado"
             );
 
@@ -173,7 +231,18 @@ public class ProveedorView {
     @PostMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar proveedores."
+            );
+
+            return "redirect:/view/proveedores";
+        }
 
         if (proveedorRepository.existsById(id)) {
 
@@ -187,11 +256,33 @@ public class ProveedorView {
         } else {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Proveedor no encontrado"
             );
         }
 
         return "redirect:/view/proveedores";
+    }
+
+    // =========================================================
+    // PERMISOS
+    // =========================================================
+
+    private boolean puedeModificar(
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMINISTRADOR")
+                                ||
+                                authority.getAuthority()
+                                        .equals("ROLE_FARMACEUTICO")
+                );
     }
 }

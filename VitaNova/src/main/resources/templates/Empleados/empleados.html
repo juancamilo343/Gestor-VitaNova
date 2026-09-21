@@ -39,7 +39,8 @@
 
                 <div class="page-actions">
 
-                    <a th:href="@{/view/usuarios/form}"
+                    <a th:if="${puedeModificar}"
+                       th:href="@{/view/usuarios/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-user-plus"></i>
@@ -54,10 +55,16 @@
 
             </section>
 
-            <!-- MENSAJE -->
+            <!-- MENSAJE ÉXITO -->
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
+            </div>
+
+            <!-- MENSAJE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
             </div>
 
             <!-- TABLA -->
@@ -188,7 +195,8 @@
                             <!-- ACCIONES -->
                             <td class="user-table-actions">
 
-                                <div class="table-actions-row">
+                                <div th:if="${puedeModificar}"
+                                     class="table-actions-row">
 
                                     <a th:href="@{'/view/empleados/edit/' + ${empleado.id_empleado}}"
                                        class="btn btn-white">
@@ -212,6 +220,13 @@
                                     </form>
 
                                 </div>
+
+                                <span th:unless="${puedeModificar}"
+                                      class="text-muted text-small">
+
+                                    Solo lectura
+
+                                </span>
 
                             </td>
 

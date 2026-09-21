@@ -35,6 +35,7 @@
 
             </section>
 
+
             <div th:if="${error}"
                  class="alert-banner"
                  th:text="${error}">
@@ -44,6 +45,7 @@
                  class="alert-banner success"
                  th:text="${success}">
             </div>
+
 
             <section class="form-box">
 
@@ -64,9 +66,14 @@
                           method="post"
                           id="formVenta">
 
+
                         <input type="hidden"
                                th:field="*{id_venta}">
 
+
+                        <!-- ===================================================== -->
+                        <!-- INFORMACIÓN PRINCIPAL -->
+                        <!-- ===================================================== -->
 
                         <div class="form-grid">
 
@@ -75,23 +82,59 @@
 
                             <div class="field-group">
 
-                                <label for="id_cliente">
+                                <label for="buscarCliente">
                                     Cliente
                                 </label>
 
-                                <select id="id_cliente"
-                                        th:field="*{id_cliente}">
+                                <input type="hidden"
+                                       id="id_cliente"
+                                       th:field="*{id_cliente}">
 
-                                    <option value="">
-                                        Consumidor final
-                                    </option>
+                                <div id="contenedorBuscadorCliente"
+                                     style="position: relative;">
 
-                                    <option th:each="cliente : ${clientes}"
-                                            th:value="${cliente.id_cliente}"
-                                            th:text="${cliente.nombres + ' ' + (cliente.apellidos != null ? cliente.apellidos : '')}">
-                                    </option>
+                                    <input type="text"
+                                           id="buscarCliente"
+                                           placeholder="Buscar por nombre, apellido o documento..."
+                                           autocomplete="off">
 
-                                </select>
+                                    <div id="resultadosClientes"
+                                         style="
+                                            display: none;
+                                            position: absolute;
+                                            top: calc(100% + 5px);
+                                            left: 0;
+                                            right: 0;
+                                            background: #ffffff;
+                                            border: 1px solid #d1d5db;
+                                            border-radius: 8px;
+                                            box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+                                            max-height: 300px;
+                                            overflow-y: auto;
+                                            z-index: 1000;
+                                         ">
+                                    </div>
+
+                                </div>
+
+                                <small id="clienteSeleccionadoTexto">
+                                    No se ha seleccionado un cliente. Se usará consumidor final.
+                                </small>
+
+                                <div id="clientesData"
+                                     style="display: none;">
+
+                                    <div th:each="cliente : ${clientes}"
+                                         class="cliente-data"
+                                         th:attr="
+                                            data-id=${cliente.id_cliente},
+                                            data-nombres=${cliente.nombres},
+                                            data-apellidos=${cliente.apellidos != null ? cliente.apellidos : ''},
+                                            data-documento=${cliente.documento != null ? cliente.documento : ''}
+                                         ">
+                                    </div>
+
+                                </div>
 
                             </div>
 
@@ -104,20 +147,18 @@
                                     Empleado
                                 </label>
 
-                                <select id="id_empleado"
-                                        th:field="*{id_empleado}"
-                                        required>
+                                <input type="hidden"
+                                       id="id_empleado"
+                                       name="id_empleado"
+                                       th:value="${venta.id_empleado}">
 
-                                    <option value="">
-                                        Seleccione un empleado
-                                    </option>
+                                <input type="text"
+                                       th:value="${empleadoActual != null ? empleadoActual.nombres + ' ' + empleadoActual.apellidos : ''}"
+                                       readonly>
 
-                                    <option th:each="empleado : ${empleados}"
-                                            th:value="${empleado.id_empleado}"
-                                            th:text="${empleado.nombres + ' ' + (empleado.apellidos != null ? empleado.apellidos : '')}">
-                                    </option>
-
-                                </select>
+                                <small>
+                                    El empleado se asigna automáticamente según el usuario que inició sesión.
+                                </small>
 
                             </div>
 
@@ -131,7 +172,8 @@
                                 </label>
 
                                 <select id="id_metodo_pago"
-                                        th:field="*{id_metodo_pago}">
+                                        th:field="*{id_metodo_pago}"
+                                        required>
 
                                     <option value="">
                                         Seleccione un método de pago
@@ -143,6 +185,10 @@
                                     </option>
 
                                 </select>
+
+                                <small>
+                                    Seleccione un único método de pago para la venta.
+                                </small>
 
                             </div>
 
@@ -242,33 +288,148 @@
 
                                 <input id="fecha"
                                        type="datetime-local"
-                                       th:field="*{fecha}">
+                                       th:value="${venta.fecha != null
+                                           ? #temporals.format(venta.fecha, 'yyyy-MM-dd''T''HH:mm')
+                                           : ''}"
+                                       readonly>
+
+                                <small>
+                                    La fecha y hora se generan automáticamente.
+                                </small>
 
                             </div>
 
                         </div>
 
 
-                        <!-- PRODUCTOS (SOLO NUEVA VENTA) -->
+                        <!-- ========================================================= -->
+                        <!-- PRODUCTOS -->
+                        <!-- ========================================================= -->
 
                         <div th:if="${venta.id_venta == null}"
                              class="form-section"
-                             style="margin-top: 28px;">
+                             style="margin-top: 32px;">
 
-                            <h2 class="form-section-title">
-                                Productos de la venta
-                            </h2>
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: flex-start;
+                                gap: 20px;
+                                flex-wrap: wrap;
+                            ">
+
+                                <div>
+
+                                    <h2 class="form-section-title"
+                                        style="margin-bottom: 5px;">
+
+                                        Productos de la venta
+
+                                    </h2>
+
+                                    <p class="text-muted text-small"
+                                       style="margin: 0;">
+
+                                        Agregue los productos que desea vender.
+                                        El precio, stock y subtotal se calculan automáticamente.
+
+                                    </p>
+
+                                </div>
+
+
+                                <div style="
+                                    padding: 10px 14px;
+                                    background: #eff6ff;
+                                    border: 1px solid #bfdbfe;
+                                    border-radius: 8px;
+                                    color: #1d4ed8;
+                                    font-size: 13px;
+                                ">
+
+                                    <i class="fa-solid fa-box"></i>
+
+                                    Stock disponible por lote
+
+                                </div>
+
+                            </div>
+
 
                             <div class="form-section-divider">
                             </div>
 
-                            <p class="text-muted text-small">
-                                Seleccione el producto e indique la cantidad.
-                                El precio y el subtotal se calculan automáticamente.
-                            </p>
+
+                            <!-- ===================================================== -->
+                            <!-- CÓDIGO DE BARRAS -->
+                            <!-- ===================================================== -->
+
+                            <div style="
+                                margin-top: 22px;
+                                padding: 18px;
+                                background: #f8fafc;
+                                border: 1px solid #e2e8f0;
+                                border-radius: 10px;
+                            ">
+
+                                <div class="field-group">
+
+                                    <label for="codigoBarrasVenta">
+
+                                        <i class="fa-solid fa-barcode"></i>
+                                        Agregar por código de barras
+
+                                    </label>
+
+                                    <div style="
+                                        display: flex;
+                                        gap: 10px;
+                                        align-items: stretch;
+                                    ">
+
+                                        <input type="text"
+                                               id="codigoBarrasVenta"
+                                               placeholder="Escanee o escriba el código de barras..."
+                                               autocomplete="off"
+                                               inputmode="numeric"
+                                               style="flex: 1;">
+
+                                        <button type="button"
+                                                class="btn btn-primary"
+                                                id="btnBuscarCodigoBarras">
+
+                                            <i class="fa-solid fa-barcode"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                    <small>
+                                        Escanee el producto y presione Enter para agregarlo rápidamente.
+                                    </small>
+
+                                    <div id="mensajeCodigoBarras"
+                                         style="
+                                            display: none;
+                                            margin-top: 8px;
+                                            padding: 9px 12px;
+                                            border-radius: 6px;
+                                            font-size: 13px;
+                                         ">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ===================================================== -->
+                            <!-- TABLA -->
+                            <!-- ===================================================== -->
 
                             <div class="overflow-x-auto"
-                                 style="margin-top: 16px;">
+                                 style="margin-top: 22px;">
 
                                 <table class="custom-table"
                                        id="tablaProductos">
@@ -276,11 +437,31 @@
                                     <thead>
 
                                     <tr>
-                                        <th>Producto</th>
-                                        <th>Cantidad</th>
-                                        <th>Precio unitario</th>
-                                        <th>Subtotal</th>
-                                        <th></th>
+
+                                        <th>
+                                            Producto
+                                        </th>
+
+                                        <th>
+                                            Disponible
+                                        </th>
+
+                                        <th>
+                                            Cantidad
+                                        </th>
+
+                                        <th>
+                                            Precio unitario
+                                        </th>
+
+                                        <th>
+                                            Subtotal
+                                        </th>
+
+                                        <th>
+                                            Acción
+                                        </th>
+
                                     </tr>
 
                                     </thead>
@@ -292,8 +473,19 @@
 
                             </div>
 
-                            <div class="form-actions"
-                                 style="justify-content: flex-start;">
+
+                            <!-- ===================================================== -->
+                            <!-- BOTÓN AGREGAR -->
+                            <!-- ===================================================== -->
+
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-top: 18px;
+                                gap: 15px;
+                                flex-wrap: wrap;
+                            ">
 
                                 <button type="button"
                                         class="btn btn-white"
@@ -304,22 +496,156 @@
 
                                 </button>
 
+
+                                <span class="text-muted text-small">
+
+                                    <i class="fa-solid fa-circle-info"></i>
+
+                                    Los productos se descuentan de los lotes por fecha de vencimiento.
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- ===================================================== -->
+                            <!-- RESUMEN -->
+                            <!-- ===================================================== -->
+
+                            <div style="
+                                margin-top: 26px;
+                                display: flex;
+                                justify-content: flex-end;
+                            ">
+
+                                <div style="
+                                    width: 100%;
+                                    max-width: 420px;
+                                    padding: 20px;
+                                    background: #f8fafc;
+                                    border: 1px solid #e2e8f0;
+                                    border-radius: 10px;
+                                ">
+
+                                    <div style="
+                                        font-size: 16px;
+                                        font-weight: 700;
+                                        margin-bottom: 15px;
+                                    ">
+
+                                        <i class="fa-solid fa-receipt"></i>
+                                        Resumen de la venta
+
+                                    </div>
+
+
+                                    <div style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        padding: 8px 0;
+                                        color: #475569;
+                                    ">
+
+                                        <span>
+                                            Subtotal
+                                        </span>
+
+                                        <strong id="subtotalVista">
+                                            $ 0.00
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        padding: 8px 0;
+                                        color: #475569;
+                                    ">
+
+                                        <span>
+                                            Descuento
+                                        </span>
+
+                                        <strong id="descuentoVista">
+                                            $ 0.00
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        padding: 8px 0;
+                                        color: #475569;
+                                    ">
+
+                                        <span>
+                                            Impuestos (19%)
+                                        </span>
+
+                                        <strong id="impuestoResumenVista">
+                                            $ 0.00
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div style="
+                                        border-top: 1px solid #cbd5e1;
+                                        margin-top: 8px;
+                                        padding-top: 14px;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                    ">
+
+                                        <span style="
+                                            font-size: 17px;
+                                            font-weight: 700;
+                                        ">
+                                            Total
+                                        </span>
+
+                                        <strong id="totalResumenVista"
+                                                style="
+                                                    font-size: 22px;
+                                                ">
+                                            $ 0.00
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
 
+
+                        <!-- ========================================================= -->
+                        <!-- AVISO AL EDITAR -->
+                        <!-- ========================================================= -->
 
                         <div th:if="${venta.id_venta != null}"
                              class="alert-banner"
                              style="margin-top: 20px;">
 
                             <strong>Consulta:</strong>
+
                             Los productos de esta venta se ven en
                             <strong>Detalles</strong>.
+
                             No se vuelven a registrar desde esta pantalla.
 
                         </div>
 
+
+                        <!-- ========================================================= -->
+                        <!-- ACCIONES -->
+                        <!-- ========================================================= -->
 
                         <div class="form-actions">
 
@@ -327,11 +653,9 @@
                                class="btn btn-white">
 
                                 <i class="fa-solid fa-arrow-left"></i>
-
                                 Cancelar
 
                             </a>
-
 
                             <button type="submit"
                                     class="btn btn-primary">
@@ -350,7 +674,6 @@
 
                         </div>
 
-
                     </form>
 
                 </div>
@@ -363,189 +686,1454 @@
 
 </div>
 
+
+<!-- ============================================================= -->
+<!-- PLANTILLA DE PRODUCTO -->
+<!-- ============================================================= -->
+
 <template id="filaProductoPlantilla">
+
     <tr>
+
         <td>
-            <select name="id_producto" class="select-producto" required>
-                <option value="">Seleccione un producto</option>
+
+            <select name="id_producto"
+                    class="select-producto"
+                    required>
+
+                <option value="">
+                    Seleccione un producto
+                </option>
+
                 <option th:each="producto : ${productos}"
                         th:if="${producto.estado == null
                             || (producto.estado != 'INACTIVO'
                             && producto.estado != 'AGOTADO')}"
                         th:value="${producto.id_producto}"
                         th:data-precio="${producto.precio_venta}"
+                        th:data-barcode="${producto.codigo_barras != null ? producto.codigo_barras : ''}"
+                        th:data-stock="${stockPorProducto[producto.id_producto]}"
                         th:text="${producto.nombre}">
                 </option>
+
             </select>
+
         </td>
+
+
         <td>
+
+            <span class="stock-disponible"
+                  style="
+                    display: inline-block;
+                    min-width: 70px;
+                    padding: 6px 9px;
+                    background: #f1f5f9;
+                    border-radius: 6px;
+                    text-align: center;
+                    font-weight: 600;
+                  ">
+
+                0
+
+            </span>
+
+        </td>
+
+
+        <td>
+
             <input type="number"
                    name="cantidad"
                    class="input-cantidad"
                    min="1"
                    step="1"
                    value="1"
-                   required>
+                   required
+                   style="max-width: 90px;">
+
         </td>
+
+
         <td>
+
             <input type="text"
                    class="input-precio"
                    value="0.00"
                    readonly>
+
         </td>
+
+
         <td>
+
             <input type="text"
                    class="input-subtotal"
                    value="0.00"
                    readonly>
+
         </td>
+
+
         <td>
+
             <button type="button"
                     class="btn btn-white btn-quitar">
+
+                <i class="fa-solid fa-trash"></i>
                 Quitar
+
             </button>
+
         </td>
+
     </tr>
+
 </template>
 
+
 <script th:inline="javascript">
+
     document.addEventListener("DOMContentLoaded", function () {
 
         const IVA = 0.19;
-        const cuerpo = document.getElementById("cuerpoProductos");
-        const plantilla = document.getElementById("filaProductoPlantilla");
-        const btnAgregar = document.getElementById("btnAgregarProducto");
-        const descuentoInput = document.getElementById("descuento");
-        const impuestosVista = document.getElementById("impuestosVista");
-        const totalVista = document.getElementById("totalVista");
-        const formVenta = document.getElementById("formVenta");
-        const esNueva = /*[[${venta.id_venta == null}]]*/ false;
-        const stockPorProducto = /*[[${stockPorProducto}]]*/ {};
+
+        const cuerpo =
+            document.getElementById("cuerpoProductos");
+
+        const plantilla =
+            document.getElementById("filaProductoPlantilla");
+
+        const btnAgregar =
+            document.getElementById("btnAgregarProducto");
+
+        const descuentoInput =
+            document.getElementById("descuento");
+
+        const impuestosVista =
+            document.getElementById("impuestosVista");
+
+        const totalVista =
+            document.getElementById("totalVista");
+
+        const subtotalVista =
+            document.getElementById("subtotalVista");
+
+        const descuentoVista =
+            document.getElementById("descuentoVista");
+
+        const impuestoResumenVista =
+            document.getElementById("impuestoResumenVista");
+
+        const totalResumenVista =
+            document.getElementById("totalResumenVista");
+
+        const formVenta =
+            document.getElementById("formVenta");
+
+        const esNueva =
+            /*[[${venta.id_venta == null}]]*/ false;
+
+        const stockPorProducto =
+            /*[[${stockPorProducto}]]*/ {};
+
+        const codigoBarrasVenta =
+            document.getElementById("codigoBarrasVenta");
+
+        const btnBuscarCodigoBarras =
+            document.getElementById("btnBuscarCodigoBarras");
+
+        const mensajeCodigoBarras =
+            document.getElementById("mensajeCodigoBarras");
+
+        const idClienteInput =
+            document.getElementById("id_cliente");
+
+        const buscarCliente =
+            document.getElementById("buscarCliente");
+
+        const resultadosClientes =
+            document.getElementById("resultadosClientes");
+
+        const clienteSeleccionadoTexto =
+            document.getElementById("clienteSeleccionadoTexto");
+
+        const contenedorBuscadorCliente =
+            document.getElementById("contenedorBuscadorCliente");
+
+
+        const clientes =
+            Array.from(
+                document.querySelectorAll(".cliente-data")
+            ).map(function (elemento) {
+
+                return {
+                    id: elemento.dataset.id || "",
+                    nombres: elemento.dataset.nombres || "",
+                    apellidos: elemento.dataset.apellidos || "",
+                    documento: elemento.dataset.documento || ""
+                };
+
+            });
+
+
+        function normalizarTexto(texto) {
+
+            return String(texto || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+
+        }
+
+
+        function obtenerNombreCompleto(cliente) {
+
+            return [
+                cliente.nombres,
+                cliente.apellidos
+            ]
+                .filter(function (valor) {
+
+                    return valor &&
+                        valor.trim() !== "";
+
+                })
+                .join(" ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+        }
+
+
+        function ocultarResultadosClientes() {
+
+            if (!resultadosClientes) {
+                return;
+            }
+
+            resultadosClientes.style.display = "none";
+            resultadosClientes.innerHTML = "";
+
+        }
+
+
+        function mostrarResultadosClientes() {
+
+            if (!resultadosClientes) {
+                return;
+            }
+
+            resultadosClientes.style.display = "block";
+
+        }
+
+
+        function seleccionarCliente(cliente) {
+
+            if (!idClienteInput ||
+                !buscarCliente ||
+                !clienteSeleccionadoTexto) {
+
+                return;
+
+            }
+
+            idClienteInput.value =
+                cliente.id;
+
+            const nombre =
+                obtenerNombreCompleto(cliente);
+
+            buscarCliente.value =
+                nombre;
+
+            if (cliente.documento) {
+
+                clienteSeleccionadoTexto.textContent =
+                    "Cliente seleccionado: "
+                    + nombre
+                    + " — Documento: "
+                    + cliente.documento;
+
+            } else {
+
+                clienteSeleccionadoTexto.textContent =
+                    "Cliente seleccionado: "
+                    + nombre;
+
+            }
+
+            clienteSeleccionadoTexto.style.color =
+                "#166534";
+
+            ocultarResultadosClientes();
+
+        }
+
+
+        function crearResultadoCliente(cliente) {
+
+            const elemento =
+                document.createElement("div");
+
+            const nombre =
+                obtenerNombreCompleto(cliente);
+
+            elemento.style.padding =
+                "10px 12px";
+
+            elemento.style.cursor =
+                "pointer";
+
+            elemento.style.borderBottom =
+                "1px solid #f1f5f9";
+
+            elemento.style.background =
+                "#ffffff";
+
+            elemento.innerHTML =
+                "<div style=\"font-weight: 600;\">"
+                + nombre
+                + "</div>"
+                +
+                (
+                    cliente.documento
+                        ? "<div style=\"font-size: 13px; color: #6b7280; margin-top: 2px;\">Documento: "
+                        + cliente.documento
+                        + "</div>"
+                        : ""
+                );
+
+            elemento.addEventListener(
+                "mouseenter",
+                function () {
+
+                    elemento.style.background =
+                        "#f8fafc";
+
+                }
+            );
+
+            elemento.addEventListener(
+                "mouseleave",
+                function () {
+
+                    elemento.style.background =
+                        "#ffffff";
+
+                }
+            );
+
+            elemento.addEventListener(
+                "click",
+                function () {
+
+                    seleccionarCliente(cliente);
+
+                }
+            );
+
+            return elemento;
+
+        }
+
+
+        function buscarClientes() {
+
+            if (!buscarCliente ||
+                !resultadosClientes) {
+
+                return;
+
+            }
+
+            const texto =
+                normalizarTexto(
+                    buscarCliente.value
+                );
+
+            resultadosClientes.innerHTML = "";
+
+            if (!texto) {
+
+                ocultarResultadosClientes();
+                return;
+
+            }
+
+            const coincidencias =
+                clientes.filter(function (cliente) {
+
+                    const nombre =
+                        normalizarTexto(
+                            obtenerNombreCompleto(cliente)
+                        );
+
+                    const documento =
+                        normalizarTexto(
+                            cliente.documento
+                        );
+
+                    return nombre.includes(texto)
+                        || documento.includes(texto);
+
+                });
+
+            if (!coincidencias.length) {
+
+                const sinResultados =
+                    document.createElement("div");
+
+                sinResultados.style.padding =
+                    "12px";
+
+                sinResultados.style.color =
+                    "#6b7280";
+
+                sinResultados.textContent =
+                    "No se encontraron clientes.";
+
+                resultadosClientes.appendChild(
+                    sinResultados
+                );
+
+                mostrarResultadosClientes();
+
+                return;
+
+            }
+
+            const limite =
+                Math.min(
+                    coincidencias.length,
+                    10
+                );
+
+            for (let i = 0; i < limite; i++) {
+
+                resultadosClientes.appendChild(
+                    crearResultadoCliente(
+                        coincidencias[i]
+                    )
+                );
+
+            }
+
+            if (coincidencias.length > 10) {
+
+                const aviso =
+                    document.createElement("div");
+
+                aviso.style.padding =
+                    "10px 12px";
+
+                aviso.style.color =
+                    "#6b7280";
+
+                aviso.style.fontSize =
+                    "13px";
+
+                aviso.style.background =
+                    "#f8fafc";
+
+                aviso.textContent =
+                    "Hay más resultados. Escribe más para afinar la búsqueda.";
+
+                resultadosClientes.appendChild(
+                    aviso
+                );
+
+            }
+
+            mostrarResultadosClientes();
+
+        }
+
+
+        if (buscarCliente) {
+
+            buscarCliente.addEventListener(
+                "input",
+                function () {
+
+                    buscarClientes();
+
+                }
+            );
+
+            buscarCliente.addEventListener(
+                "focus",
+                function () {
+
+                    if (buscarCliente.value.trim() !== "") {
+
+                        buscarClientes();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        document.addEventListener(
+            "click",
+            function (evento) {
+
+                if (!contenedorBuscadorCliente) {
+                    return;
+                }
+
+                if (!contenedorBuscadorCliente.contains(evento.target)) {
+
+                    ocultarResultadosClientes();
+
+                }
+
+            }
+        );
+
+
+        function cargarClienteActual() {
+
+            if (!idClienteInput ||
+                !idClienteInput.value) {
+
+                return;
+
+            }
+
+            const idActual =
+                String(idClienteInput.value);
+
+            const clienteActual =
+                clientes.find(function (cliente) {
+
+                    return String(cliente.id) === idActual;
+
+                });
+
+            if (!clienteActual) {
+                return;
+            }
+
+            const nombre =
+                obtenerNombreCompleto(clienteActual);
+
+            if (buscarCliente) {
+
+                buscarCliente.value =
+                    nombre;
+
+            }
+
+            if (clienteSeleccionadoTexto) {
+
+                if (clienteActual.documento) {
+
+                    clienteSeleccionadoTexto.textContent =
+                        "Cliente seleccionado: "
+                        + nombre
+                        + " — Documento: "
+                        + clienteActual.documento;
+
+                } else {
+
+                    clienteSeleccionadoTexto.textContent =
+                        "Cliente seleccionado: "
+                        + nombre;
+
+                }
+
+                clienteSeleccionadoTexto.style.color =
+                    "#166534";
+
+            }
+
+        }
+
+
+        cargarClienteActual();
+
 
         function formatoDinero(valor) {
-            return "$ " + Number(valor).toFixed(2);
+
+            return "$ " +
+                Number(valor).toFixed(2);
+
         }
+
+
+        function obtenerStockDeFila(fila) {
+
+            const select =
+                fila.querySelector(
+                    ".select-producto"
+                );
+
+            if (!select) {
+                return 0;
+            }
+
+            const opcion =
+                select.options[
+                    select.selectedIndex
+                    ];
+
+            if (!opcion) {
+                return 0;
+            }
+
+            const stock =
+                Number(
+                    opcion.getAttribute(
+                        "data-stock"
+                    )
+                );
+
+            return isNaN(stock)
+                ? 0
+                : stock;
+
+        }
+
+
+        function actualizarStockVisual(fila) {
+
+            const stockElemento =
+                fila.querySelector(
+                    ".stock-disponible"
+                );
+
+            if (!stockElemento) {
+                return;
+            }
+
+            const stock =
+                obtenerStockDeFila(fila);
+
+            stockElemento.textContent =
+                stock;
+
+            if (stock <= 0) {
+
+                stockElemento.style.background =
+                    "#fef2f2";
+
+                stockElemento.style.color =
+                    "#b91c1c";
+
+            } else if (stock <= 5) {
+
+                stockElemento.style.background =
+                    "#fff7ed";
+
+                stockElemento.style.color =
+                    "#c2410c";
+
+            } else {
+
+                stockElemento.style.background =
+                    "#f0fdf4";
+
+                stockElemento.style.color =
+                    "#166534";
+
+            }
+
+        }
+
 
         function recalcularFila(fila) {
-            const select = fila.querySelector(".select-producto");
-            const cantidadInput = fila.querySelector(".input-cantidad");
-            const precioInput = fila.querySelector(".input-precio");
-            const subtotalInput = fila.querySelector(".input-subtotal");
-            const opcion = select.options[select.selectedIndex];
-            const precio = parseFloat(opcion && opcion.getAttribute("data-precio")) || 0;
-            const cantidad = parseFloat(cantidadInput.value) || 0;
 
-            precioInput.value = precio.toFixed(2);
-            subtotalInput.value = (precio * cantidad).toFixed(2);
+            const select =
+                fila.querySelector(
+                    ".select-producto"
+                );
+
+            const cantidadInput =
+                fila.querySelector(
+                    ".input-cantidad"
+                );
+
+            const precioInput =
+                fila.querySelector(
+                    ".input-precio"
+                );
+
+            const subtotalInput =
+                fila.querySelector(
+                    ".input-subtotal"
+                );
+
+            const opcion =
+                select.options[
+                    select.selectedIndex
+                    ];
+
+            const precio =
+                parseFloat(
+                    opcion &&
+                    opcion.getAttribute(
+                        "data-precio"
+                    )
+                ) || 0;
+
+            const cantidad =
+                parseFloat(
+                    cantidadInput.value
+                ) || 0;
+
+            precioInput.value =
+                precio.toFixed(2);
+
+            subtotalInput.value =
+                (
+                    precio * cantidad
+                ).toFixed(2);
+
+            actualizarStockVisual(fila);
+
         }
 
+
         function recalcularTotales() {
+
             let subtotal = 0;
 
             if (cuerpo) {
-                cuerpo.querySelectorAll("tr").forEach(function (fila) {
-                    const valor = parseFloat(fila.querySelector(".input-subtotal").value) || 0;
-                    subtotal += valor;
-                });
+
+                cuerpo
+                    .querySelectorAll("tr")
+                    .forEach(function (fila) {
+
+                        const valor =
+                            parseFloat(
+                                fila
+                                    .querySelector(
+                                        ".input-subtotal"
+                                    )
+                                    .value
+                            ) || 0;
+
+                        subtotal += valor;
+
+                    });
+
             }
 
-            const descuento = parseFloat(descuentoInput && descuentoInput.value) || 0;
-            const impuestos = subtotal * IVA;
-            let total = subtotal - descuento + impuestos;
+            const descuento =
+                parseFloat(
+                    descuentoInput &&
+                    descuentoInput.value
+                ) || 0;
+
+            const impuestos =
+                subtotal * IVA;
+
+            let total =
+                subtotal
+                - descuento
+                + impuestos;
 
             if (total < 0) {
                 total = 0;
             }
 
             if (impuestosVista) {
-                impuestosVista.value = formatoDinero(impuestos);
+
+                impuestosVista.value =
+                    formatoDinero(
+                        impuestos
+                    );
+
             }
 
             if (totalVista) {
-                totalVista.value = formatoDinero(total);
+
+                totalVista.value =
+                    formatoDinero(
+                        total
+                    );
+
             }
+
+            if (subtotalVista) {
+
+                subtotalVista.textContent =
+                    formatoDinero(
+                        subtotal
+                    );
+
+            }
+
+            if (descuentoVista) {
+
+                descuentoVista.textContent =
+                    formatoDinero(
+                        descuento
+                    );
+
+            }
+
+            if (impuestoResumenVista) {
+
+                impuestoResumenVista.textContent =
+                    formatoDinero(
+                        impuestos
+                    );
+
+            }
+
+            if (totalResumenVista) {
+
+                totalResumenVista.textContent =
+                    formatoDinero(
+                        total
+                    );
+
+            }
+
         }
+
 
         function enlazarFila(fila) {
-            fila.querySelector(".select-producto").addEventListener("change", function () {
-                recalcularFila(fila);
-                recalcularTotales();
-            });
 
-            fila.querySelector(".input-cantidad").addEventListener("input", function () {
-                recalcularFila(fila);
-                recalcularTotales();
-            });
+            const selectProducto =
+                fila.querySelector(
+                    ".select-producto"
+                );
 
-            fila.querySelector(".btn-quitar").addEventListener("click", function () {
-                fila.remove();
-                recalcularTotales();
-            });
+            const cantidadInput =
+                fila.querySelector(
+                    ".input-cantidad"
+                );
+
+            const btnQuitar =
+                fila.querySelector(
+                    ".btn-quitar"
+                );
+
+            if (selectProducto) {
+
+                selectProducto.addEventListener(
+                    "change",
+                    function () {
+
+                        recalcularFila(fila);
+                        recalcularTotales();
+
+                    }
+                );
+
+            }
+
+            if (cantidadInput) {
+
+                cantidadInput.addEventListener(
+                    "input",
+                    function () {
+
+                        recalcularFila(fila);
+                        recalcularTotales();
+
+                    }
+                );
+
+            }
+
+            if (btnQuitar) {
+
+                btnQuitar.addEventListener(
+                    "click",
+                    function () {
+
+                        fila.remove();
+                        recalcularTotales();
+
+                    }
+                );
+
+            }
+
         }
 
+
         function agregarFila() {
-            if (!plantilla || !cuerpo) {
+
+            if (!plantilla ||
+                !cuerpo) {
+
+                return;
+
+            }
+
+            const fila =
+                plantilla.content
+                    .cloneNode(true)
+                    .querySelector("tr");
+
+            enlazarFila(fila);
+
+            cuerpo.appendChild(fila);
+
+            recalcularFila(fila);
+            recalcularTotales();
+
+        }
+
+
+        function buscarFilaPorProducto(idProducto) {
+
+            if (!cuerpo) {
+                return null;
+            }
+
+            const filas =
+                cuerpo.querySelectorAll("tr");
+
+            for (let i = 0; i < filas.length; i++) {
+
+                const select =
+                    filas[i].querySelector(
+                        ".select-producto"
+                    );
+
+                if (select &&
+                    String(select.value) === String(idProducto)) {
+
+                    return filas[i];
+
+                }
+
+            }
+
+            return null;
+
+        }
+
+
+        function mostrarMensajeCodigoBarras(
+            mensaje,
+            tipo
+        ) {
+
+            if (!mensajeCodigoBarras) {
                 return;
             }
 
-            const fila = plantilla.content.cloneNode(true).querySelector("tr");
+            mensajeCodigoBarras.textContent =
+                mensaje;
+
+            mensajeCodigoBarras.style.display =
+                "block";
+
+            if (tipo === "error") {
+
+                mensajeCodigoBarras.style.background =
+                    "#fef2f2";
+
+                mensajeCodigoBarras.style.color =
+                    "#b91c1c";
+
+                mensajeCodigoBarras.style.border =
+                    "1px solid #fecaca";
+
+            } else {
+
+                mensajeCodigoBarras.style.background =
+                    "#f0fdf4";
+
+                mensajeCodigoBarras.style.color =
+                    "#166534";
+
+                mensajeCodigoBarras.style.border =
+                    "1px solid #bbf7d0";
+
+            }
+
+        }
+
+
+        function ocultarMensajeCodigoBarras() {
+
+            if (!mensajeCodigoBarras) {
+                return;
+            }
+
+            mensajeCodigoBarras.style.display =
+                "none";
+
+            mensajeCodigoBarras.textContent =
+                "";
+
+        }
+
+
+        function buscarProductoPorCodigoBarras() {
+
+            if (!codigoBarrasVenta ||
+                !esNueva) {
+
+                return;
+
+            }
+
+            const codigo =
+                codigoBarrasVenta.value.trim();
+
+            if (codigo === "") {
+
+                mostrarMensajeCodigoBarras(
+                    "Ingrese o escanee un código de barras.",
+                    "error"
+                );
+
+                codigoBarrasVenta.focus();
+
+                return;
+
+            }
+
+            ocultarMensajeCodigoBarras();
+
+            let opcionEncontrada = null;
+
+            if (plantilla) {
+
+                const filaTemporal =
+                    plantilla.content
+                        .cloneNode(true)
+                        .querySelector("tr");
+
+                if (filaTemporal) {
+
+                    const selectTemporal =
+                        filaTemporal.querySelector(
+                            ".select-producto"
+                        );
+
+                    if (selectTemporal) {
+
+                        const opciones =
+                            selectTemporal.querySelectorAll(
+                                "option"
+                            );
+
+                        for (
+                            let i = 0;
+                            i < opciones.length;
+                            i++
+                        ) {
+
+                            const opcion =
+                                opciones[i];
+
+                            const codigoProducto =
+                                (
+                                    opcion.getAttribute(
+                                        "data-barcode"
+                                    ) || ""
+                                ).trim();
+
+                            if (
+                                codigoProducto !== ""
+                                &&
+                                codigoProducto === codigo
+                            ) {
+
+                                opcionEncontrada =
+                                    opcion;
+
+                                break;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if (!opcionEncontrada) {
+
+                mostrarMensajeCodigoBarras(
+                    "No se encontró ningún producto con el código de barras: "
+                    + codigo,
+                    "error"
+                );
+
+                codigoBarrasVenta.select();
+
+                return;
+
+            }
+
+            const idProducto =
+                opcionEncontrada.value;
+
+            const nombreProducto =
+                opcionEncontrada.textContent.trim();
+
+            const stockValor =
+                stockPorProducto[idProducto];
+
+            const stock =
+                Number(stockValor);
+
+            if (
+                !isNaN(stock)
+                &&
+                stock <= 0
+            ) {
+
+                mostrarMensajeCodigoBarras(
+                    "El producto \"" +
+                    nombreProducto +
+                    "\" no tiene stock disponible.",
+                    "error"
+                );
+
+                codigoBarrasVenta.select();
+
+                return;
+
+            }
+
+
+            const filaExistente =
+                buscarFilaPorProducto(
+                    idProducto
+                );
+
+            if (filaExistente) {
+
+                const cantidadInput =
+                    filaExistente.querySelector(
+                        ".input-cantidad"
+                    );
+
+                const cantidadActual =
+                    parseInt(
+                        cantidadInput.value,
+                        10
+                    ) || 0;
+
+                const nuevaCantidad =
+                    cantidadActual + 1;
+
+                if (
+                    !isNaN(stock)
+                    &&
+                    nuevaCantidad > stock
+                ) {
+
+                    mostrarMensajeCodigoBarras(
+                        "No puede agregar más unidades de \"" +
+                        nombreProducto +
+                        "\". Stock disponible: " +
+                        stock +
+                        ".",
+                        "error"
+                    );
+
+                    codigoBarrasVenta.select();
+
+                    return;
+
+                }
+
+                cantidadInput.value =
+                    nuevaCantidad;
+
+                recalcularFila(
+                    filaExistente
+                );
+
+                recalcularTotales();
+
+                mostrarMensajeCodigoBarras(
+                    "Producto agregado: " +
+                    nombreProducto +
+                    ". Cantidad: " +
+                    nuevaCantidad +
+                    ".",
+                    "success"
+                );
+
+                codigoBarrasVenta.value = "";
+                codigoBarrasVenta.focus();
+
+                return;
+
+            }
+
+
+            if (!plantilla ||
+                !cuerpo) {
+
+                return;
+
+            }
+
+            const fila =
+                plantilla.content
+                    .cloneNode(true)
+                    .querySelector("tr");
+
+            if (!fila) {
+                return;
+            }
+
+            const select =
+                fila.querySelector(
+                    ".select-producto"
+                );
+
+            const cantidadInput =
+                fila.querySelector(
+                    ".input-cantidad"
+                );
+
+            if (!select ||
+                !cantidadInput) {
+
+                return;
+
+            }
+
+            select.value =
+                idProducto;
+
+            cantidadInput.value =
+                "1";
+
             enlazarFila(fila);
+
             cuerpo.appendChild(fila);
+
             recalcularFila(fila);
             recalcularTotales();
+
+            mostrarMensajeCodigoBarras(
+                "Producto agregado: " +
+                nombreProducto +
+                ".",
+                "success"
+            );
+
+            codigoBarrasVenta.value = "";
+            codigoBarrasVenta.focus();
+
         }
 
-        if (esNueva && btnAgregar) {
-            btnAgregar.addEventListener("click", agregarFila);
-            agregarFila();
+
+        if (btnBuscarCodigoBarras) {
+
+            btnBuscarCodigoBarras.addEventListener(
+                "click",
+                function () {
+
+                    buscarProductoPorCodigoBarras();
+
+                }
+            );
+
         }
+
+
+        if (codigoBarrasVenta) {
+
+            codigoBarrasVenta.addEventListener(
+                "keydown",
+                function (evento) {
+
+                    if (evento.key === "Enter") {
+
+                        evento.preventDefault();
+
+                        buscarProductoPorCodigoBarras();
+
+                    }
+
+                }
+            );
+
+            codigoBarrasVenta.addEventListener(
+                "input",
+                function () {
+
+                    ocultarMensajeCodigoBarras();
+
+                }
+            );
+
+        }
+
+
+        if (esNueva &&
+            btnAgregar) {
+
+            btnAgregar.addEventListener(
+                "click",
+                agregarFila
+            );
+
+            agregarFila();
+
+        }
+
 
         if (descuentoInput) {
-            descuentoInput.addEventListener("input", recalcularTotales);
+
+            descuentoInput.addEventListener(
+                "input",
+                recalcularTotales
+            );
+
         }
 
-        if (formVenta && esNueva) {
-            formVenta.addEventListener("submit", function (evento) {
-                const filas = cuerpo ? cuerpo.querySelectorAll("tr") : [];
 
-                if (!filas.length) {
-                    evento.preventDefault();
-                    alert("Debe agregar al menos un producto.");
-                    return;
+        if (formVenta &&
+            esNueva) {
+
+            formVenta.addEventListener(
+                "submit",
+                function (evento) {
+
+                    const filas =
+                        cuerpo
+                            ? cuerpo.querySelectorAll("tr")
+                            : [];
+
+                    if (!filas.length) {
+
+                        evento.preventDefault();
+
+                        alert(
+                            "Debe agregar al menos un producto."
+                        );
+
+                        return;
+
+                    }
+
+                    const productosSeleccionados =
+                        {};
+
+                    for (
+                        let i = 0;
+                        i < filas.length;
+                        i++
+                    ) {
+
+                        const select =
+                            filas[i]
+                                .querySelector(
+                                    ".select-producto"
+                                );
+
+                        const cantidad =
+                            parseInt(
+                                filas[i]
+                                    .querySelector(
+                                        ".input-cantidad"
+                                    )
+                                    .value,
+                                10
+                            ) || 0;
+
+                        const idProducto =
+                            select.value;
+
+                        if (!idProducto) {
+
+                            evento.preventDefault();
+
+                            alert(
+                                "Seleccione un producto en todas las filas."
+                            );
+
+                            return;
+
+                        }
+
+                        if (cantidad <= 0) {
+
+                            evento.preventDefault();
+
+                            alert(
+                                "La cantidad debe ser mayor que cero."
+                            );
+
+                            return;
+
+                        }
+
+                        if (
+                            productosSeleccionados[idProducto]
+                            === undefined
+                        ) {
+
+                            productosSeleccionados[idProducto] =
+                                0;
+
+                        }
+
+                        productosSeleccionados[idProducto] +=
+                            cantidad;
+
+                    }
+
+
+                    for (
+                        const idProducto in productosSeleccionados
+                        ) {
+
+                        const cantidadTotal =
+                            productosSeleccionados[idProducto];
+
+                        const stock =
+                            Number(
+                                stockPorProducto[idProducto]
+                            );
+
+                        if (
+                            !isNaN(stock)
+                            &&
+                            cantidadTotal > stock
+                        ) {
+
+                            evento.preventDefault();
+
+                            alert(
+                                "Stock insuficiente para el producto seleccionado. Disponible: "
+                                + stock
+                                + "."
+                            );
+
+                            return;
+
+                        }
+
+                    }
+
                 }
+            );
 
-                for (let i = 0; i < filas.length; i++) {
-                    const select = filas[i].querySelector(".select-producto");
-                    const cantidad = parseInt(filas[i].querySelector(".input-cantidad").value, 10) || 0;
-                    const idProducto = select.value;
-
-                    if (!idProducto) {
-                        evento.preventDefault();
-                        alert("Seleccione un producto en todas las filas.");
-                        return;
-                    }
-
-                    if (cantidad <= 0) {
-                        evento.preventDefault();
-                        alert("La cantidad debe ser mayor que cero.");
-                        return;
-                    }
-
-                    const stock = stockPorProducto[idProducto];
-
-                    if (typeof stock === "number" && cantidad > stock) {
-                        evento.preventDefault();
-                        alert("Stock insuficiente para el producto seleccionado. Disponible: " + stock + ".");
-                        return;
-                    }
-                }
-            });
         }
+
 
         recalcularTotales();
+
     });
+
 </script>
 
 </body>
-
 </html>

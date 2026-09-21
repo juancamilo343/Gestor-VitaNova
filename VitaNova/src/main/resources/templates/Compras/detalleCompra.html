@@ -50,7 +50,10 @@
 
                     </a>
 
-                    <a th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/form'}"
+
+                    <!-- AGREGAR PRODUCTO -->
+                    <a th:if="${puedeModificar}"
+                       th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/form'}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-plus"></i>
@@ -64,10 +67,16 @@
             </section>
 
 
-            <!-- MENSAJE -->
+            <!-- MENSAJES -->
+
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
+            </div>
+
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
             </div>
 
 
@@ -205,7 +214,9 @@
 
                                     <span class="med-name"
                                           th:text="${detalle.producto != null ? detalle.producto.nombre : 'Producto'}">
+
                                         Producto
+
                                     </span>
 
                                 </div>
@@ -244,7 +255,9 @@
 
                                 <div class="table-actions-row">
 
-                                    <a th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/edit/' + ${detalle.id_detalle_compra}}"
+                                    <!-- EDITAR -->
+                                    <a th:if="${puedeModificar}"
+                                       th:href="@{'/view/compras/' + ${compra.id_compra} + '/detalles/edit/' + ${detalle.id_detalle_compra}}"
                                        class="btn btn-white">
 
                                         Editar
@@ -252,7 +265,9 @@
                                     </a>
 
 
-                                    <form method="post"
+                                    <!-- ELIMINAR -->
+                                    <form th:if="${puedeModificar}"
+                                          method="post"
                                           th:action="@{'/view/compras/' + ${compra.id_compra} + '/detalles/delete/' + ${detalle.id_detalle_compra}}"
                                           class="action-form">
 
@@ -265,6 +280,15 @@
                                         </button>
 
                                     </form>
+
+
+                                    <!-- SOLO LECTURA -->
+                                    <span th:unless="${puedeModificar}"
+                                          class="status-pill">
+
+                                        Solo lectura
+
+                                    </span>
 
                                 </div>
 

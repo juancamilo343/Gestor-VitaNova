@@ -15,7 +15,6 @@
     <aside th:replace="~{fragments/layout :: sidebar('empleados')}">
     </aside>
 
-
     <!-- =====================================================
          CONTENIDO PRINCIPAL
     ====================================================== -->
@@ -24,7 +23,6 @@
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
-
 
         <main class="dashboard-content">
 
@@ -45,7 +43,6 @@
 
                 </div>
 
-
                 <div class="page-actions">
 
                     <a th:href="@{/view/empleados}"
@@ -63,15 +60,13 @@
 
             </section>
 
-
             <!-- =================================================
                  MENSAJE DE ERROR
             ================================================== -->
             <div th:if="${error}"
-                 class="alert-banner"
+                 class="alert-banner error"
                  th:text="${error}">
             </div>
-
 
             <!-- =================================================
                  FORMULARIO
@@ -83,11 +78,9 @@
                       method="post"
                       novalidate>
 
-
                     <!-- ID DEL EMPLEADO -->
                     <input type="hidden"
                            th:field="*{id_empleado}">
-
 
                     <!-- =================================================
                          INFORMACIÓN PERSONAL
@@ -100,7 +93,6 @@
 
                         <div class="form-section-divider">
                         </div>
-
 
                         <div class="form-grid">
 
@@ -120,7 +112,6 @@
 
                             </div>
 
-
                             <!-- APELLIDOS -->
                             <div class="field-group">
 
@@ -137,7 +128,6 @@
 
                             </div>
 
-
                             <!-- DOCUMENTO -->
                             <div class="field-group">
 
@@ -153,7 +143,6 @@
                                        placeholder="Ej: 1234567890">
 
                             </div>
-
 
                             <!-- TELÉFONO -->
                             <div class="field-group">
@@ -174,7 +163,6 @@
 
                     </div>
 
-
                     <!-- =================================================
                          INFORMACIÓN DE CONTACTO
                     ================================================== -->
@@ -186,7 +174,6 @@
 
                         <div class="form-section-divider">
                         </div>
-
 
                         <div class="form-grid">
 
@@ -204,7 +191,6 @@
                                        placeholder="Ej: empleado@gmail.com">
 
                             </div>
-
 
                             <!-- DIRECCIÓN -->
                             <div class="field-group wide">
@@ -225,7 +211,6 @@
 
                     </div>
 
-
                     <!-- =================================================
                          INFORMACIÓN LABORAL
                     ================================================== -->
@@ -237,7 +222,6 @@
 
                         <div class="form-section-divider">
                         </div>
-
 
                         <div class="form-grid">
 
@@ -261,7 +245,6 @@
 
                             </div>
 
-
                             <!-- FECHA DE INGRESO -->
                             <div class="field-group">
 
@@ -271,10 +254,14 @@
 
                                 <input id="fecha_ingreso"
                                        type="date"
-                                       th:field="*{fecha_ingreso}">
+                                       th:value="${empleado.fecha_ingreso}"
+                                       readonly>
+
+                                <small>
+                                    La fecha de ingreso se genera automáticamente.
+                                </small>
 
                             </div>
-
 
                             <!-- ESTADO -->
                             <div class="field-group">
@@ -302,7 +289,6 @@
 
                     </div>
 
-
                     <!-- =================================================
                          ACCIONES
                     ================================================== -->
@@ -314,7 +300,6 @@
                             Cancelar
 
                         </a>
-
 
                         <button type="submit"
                                 class="btn btn-primary">

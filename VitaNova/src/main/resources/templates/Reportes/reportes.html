@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+
+<body>
+
+<aside th:replace="~{fragments/layout :: sidebar('reportes')}"></aside>
+
+<div class="main-wrapper">
+
+    <header th:replace="~{fragments/layout :: topbar}"></header>
+
+    <main class="dashboard-content">
+
+        <section class="page-header">
+            <div class="page-title">
+                <h1 th:text="${pageTitle}">Reportes</h1>
+                <p th:text="${pageSubtitle}">
+                    Consulte y genere reportes de ventas, compras, productos e inventario.
+                </p>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+
+            <!-- REPORTE DE VENTAS -->
+            <div class="surface">
+
+                <div class="med-cell">
+
+                    <div class="med-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div>
+                        <span class="med-name">Reporte de Ventas</span>
+
+                        <p class="chart-subtitle">
+                            Consulte las ventas registradas en VitaNova.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 20px;">
+
+                    <p>
+                        <strong>Ventas pagadas:</strong>
+                        <span th:text="${cantidadVentasPagadas}">0</span>
+                    </p>
+
+                    <p>
+                        <strong>Total vendido:</strong>
+                        $
+                        <span th:text="${#numbers.formatDecimal(totalVentasPagadas, 0, 'POINT', 2, 'COMMA')}">
+                            0,00
+                        </span>
+                    </p>
+
+                </div>
+
+                <div class="page-actions" style="margin-top: 20px;">
+
+                    <a href="/view/reportes/ventas"
+                       target="_blank"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+                        PDF
+
+                    </a>
+
+                    <a href="/view/reportes/ventas/excel"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-file-excel"></i>
+                        Excel
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORTE DE COMPRAS -->
+            <div class="surface">
+
+                <div class="med-cell">
+
+                    <div class="med-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+
+                    <div>
+                        <span class="med-name">Reporte de Compras</span>
+
+                        <p class="chart-subtitle">
+                            Consulte las compras realizadas a proveedores.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 20px;">
+
+                    <p>
+                        <strong>Compras registradas:</strong>
+                        <span th:text="${cantidadCompras}">0</span>
+                    </p>
+
+                    <p>
+                        <strong>Total comprado:</strong>
+                        $
+                        <span th:text="${#numbers.formatDecimal(totalCompras, 0, 'POINT', 2, 'COMMA')}">
+                            0,00
+                        </span>
+                    </p>
+
+                </div>
+
+                <div class="page-actions" style="margin-top: 20px;">
+
+                    <a href="/view/reportes/compras"
+                       target="_blank"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+                        PDF
+
+                    </a>
+
+                    <a href="/view/reportes/compras/excel"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-file-excel"></i>
+                        Excel
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORTE DE PRODUCTOS -->
+            <div class="surface">
+
+                <div class="med-cell">
+
+                    <div class="med-icon">
+                        <i class="fa-solid fa-pills"></i>
+                    </div>
+
+                    <div>
+                        <span class="med-name">Reporte de Productos</span>
+
+                        <p class="chart-subtitle">
+                            Consulte los productos registrados en VitaNova.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 20px;">
+
+                    <p>
+                        <strong>Productos registrados:</strong>
+                        <span th:text="${cantidadProductos}">0</span>
+                    </p>
+
+                </div>
+
+                <div class="page-actions" style="margin-top: 20px;">
+
+                    <a href="/view/reportes/productos"
+                       target="_blank"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+                        PDF
+
+                    </a>
+
+                    <a href="/view/reportes/productos/excel"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-file-excel"></i>
+                        Excel
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORTE DE INVENTARIO -->
+            <div class="surface">
+
+                <div class="med-cell">
+
+                    <div class="med-icon">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+
+                    <div>
+                        <span class="med-name">Reporte de Inventario</span>
+
+                        <p class="chart-subtitle">
+                            Consulte existencias, mínimos y máximos del inventario.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 20px;">
+
+                    <p>
+                        <strong>Registros de inventario:</strong>
+                        <span th:text="${cantidadInventarios}">0</span>
+                    </p>
+
+                    <p>
+                        <strong>Stock bajo:</strong>
+                        <span th:text="${productosStockBajo}">0</span>
+                    </p>
+
+                </div>
+
+                <div class="page-actions" style="margin-top: 20px;">
+
+                    <a href="/view/reportes/inventario"
+                       target="_blank"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+                        PDF
+
+                    </a>
+
+                    <a href="/view/reportes/inventario/excel"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-file-excel"></i>
+                        Excel
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

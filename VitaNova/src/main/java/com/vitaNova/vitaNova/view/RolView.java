@@ -3,12 +3,15 @@ package com.vitaNova.vitaNova.view;
 import com.vitaNova.vitaNova.model.Rol;
 import com.vitaNova.vitaNova.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -23,7 +26,9 @@ public class RolView {
     // =========================================================
 
     @GetMapping("/view/rol")
-    public String lista(Model model) {
+    public String lista(
+            Model model,
+            @RequestParam(required = false) String error) {
 
         model.addAttribute(
                 "roles",
@@ -45,6 +50,20 @@ public class RolView {
                 "roles"
         );
 
+        // Permisos para mostrar/ocultar acciones
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificarRoles()
+        );
+
+        // Mensaje de error por falta de permisos
+        if ("sinPermisos".equals(error)) {
+            model.addAttribute(
+                    "error",
+                    "No tiene permisos para realizar esta acción."
+            );
+        }
+
         return "roles/rol";
     }
 
@@ -55,6 +74,11 @@ public class RolView {
 
     @GetMapping("/view/rol/form")
     public String form(Model model) {
+
+        // Solo el ADMINISTRADOR puede modificar roles
+        if (!puedeModificarRoles()) {
+            return "redirect:/view/rol?error=sinPermisos";
+        }
 
         model.addAttribute(
                 "roles",
@@ -89,6 +113,11 @@ public class RolView {
             @ModelAttribute("roles") Rol rol,
             RedirectAttributes ra) {
 
+        // Protección backend
+        if (!puedeModificarRoles()) {
+            return "redirect:/view/rol?error=sinPermisos";
+        }
+
         rolRepository.save(rol);
 
         ra.addFlashAttribute(
@@ -108,6 +137,11 @@ public class RolView {
     public String edit(
             @PathVariable Long id,
             Model model) {
+
+        // Protección backend
+        if (!puedeModificarRoles()) {
+            return "redirect:/view/rol?error=sinPermisos";
+        }
 
         Rol rol = rolRepository
                 .findById(id)
@@ -150,6 +184,11 @@ public class RolView {
             @PathVariable Long id,
             RedirectAttributes ra) {
 
+        // Protección backend
+        if (!puedeModificarRoles()) {
+            return "redirect:/view/rol?error=sinPermisos";
+        }
+
         rolRepository.deleteById(id);
 
         ra.addFlashAttribute(
@@ -158,5 +197,31 @@ public class RolView {
         );
 
         return "redirect:/view/rol";
+    }
+
+
+    // =========================================================
+    // PERMISOS
+    // =========================================================
+
+    private boolean puedeModificarRoles() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMINISTRADOR")
+                );
     }
 }

@@ -37,7 +37,8 @@
 
                 </div>
 
-                <div class="page-actions">
+                <div class="page-actions"
+                     th:if="${puedeCrear}">
 
                     <a th:href="@{/view/usuarios/form}"
                        class="btn btn-primary">
@@ -54,11 +55,20 @@
 
             </section>
 
-            <!-- MENSAJE -->
+
+            <!-- MENSAJE DE ÉXITO -->
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
             </div>
+
+
+            <!-- MENSAJE DE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
+
 
             <!-- TABLA -->
             <section class="table-card surface">
@@ -89,6 +99,7 @@
                     </form>
 
                 </div>
+
 
                 <div class="overflow-x-auto">
 
@@ -126,6 +137,7 @@
 
                         </thead>
 
+
                         <tbody>
 
                         <tr th:each="cliente : ${clientes}">
@@ -155,30 +167,36 @@
 
                             </td>
 
+
                             <!-- DOCUMENTO -->
                             <td th:text="${cliente.documento}">
                                 123456789
                             </td>
+
 
                             <!-- TELÉFONO -->
                             <td th:text="${cliente.telefono != null && !cliente.telefono.isEmpty() ? cliente.telefono : '—'}">
                                 3001234567
                             </td>
 
+
                             <!-- CORREO -->
                             <td th:text="${cliente.correo != null && !cliente.correo.isEmpty() ? cliente.correo : '—'}">
                                 cliente@gmail.com
                             </td>
+
 
                             <!-- EPS -->
                             <td th:text="${cliente.eps != null && !cliente.eps.isEmpty() ? cliente.eps : '—'}">
                                 SURA
                             </td>
 
+
                             <!-- ACCIONES -->
                             <td class="user-table-actions">
 
-                                <div class="table-actions-row">
+                                <div class="table-actions-row"
+                                     th:if="${puedeModificar}">
 
                                     <a th:href="@{'/view/clientes/edit/' + ${cliente.id_cliente}}"
                                        class="btn btn-white">
@@ -186,6 +204,7 @@
                                         Editar
 
                                     </a>
+
 
                                     <form method="post"
                                           th:action="@{'/view/clientes/delete/' + ${cliente.id_cliente}}"
@@ -203,9 +222,18 @@
 
                                 </div>
 
+
+                                <span th:unless="${puedeModificar}"
+                                      class="text-muted text-small">
+
+                                    Solo lectura
+
+                                </span>
+
                             </td>
 
                         </tr>
+
 
                         <!-- SIN CLIENTES -->
                         <tr th:if="${#lists.isEmpty(clientes)}">
@@ -224,6 +252,7 @@
                     </table>
 
                 </div>
+
 
                 <!-- FOOTER -->
                 <div class="table-footer">

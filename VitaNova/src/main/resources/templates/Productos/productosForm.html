@@ -56,6 +56,13 @@
       </section>
 
 
+      <!-- MENSAJE DE ERROR -->
+      <div th:if="${error}"
+           class="alert-banner error"
+           th:text="${error}">
+      </div>
+
+
       <section class="form-box">
 
         <form th:action="@{/view/productos/save}"
@@ -109,7 +116,8 @@
               </div>
 
 
-              <div class="field-group">
+              <!-- CÓDIGO DE BARRAS -->
+              <div class="field-group wide">
 
                 <label for="codigo_barras">
                   Código de barras
@@ -118,7 +126,21 @@
                 <input id="codigo_barras"
                        type="text"
                        th:field="*{codigo_barras}"
-                       placeholder="Código de barras">
+                       placeholder="Escriba o escanee el código de barras"
+                       autocomplete="off">
+
+
+                <!-- VISTA DEL CÓDIGO DE BARRAS -->
+                <div id="barcode-container"
+                     style="margin-top: 15px; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; background: #ffffff; text-align: center; display: none;">
+
+                                    <span style="display: block; margin-bottom: 10px; font-size: 13px; color: #6b7280;">
+                                        Vista previa del código de barras
+                                    </span>
+
+                  <svg id="barcode"></svg>
+
+                </div>
 
               </div>
 
@@ -327,6 +349,90 @@
   </div>
 
 </div>
+
+
+<!-- LIBRERÍA PARA GENERAR CÓDIGOS DE BARRAS -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+
+<!-- FUNCIONALIDAD DEL CÓDIGO DE BARRAS -->
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const codigoBarras =
+            document.getElementById("codigo_barras");
+
+    const barcode =
+            document.getElementById("barcode");
+
+    const barcodeContainer =
+            document.getElementById("barcode-container");
+
+
+    function generarCodigoBarras() {
+
+      const valor =
+              codigoBarras.value.trim();
+
+
+      // Si no hay código, ocultamos la vista previa
+      if (valor === "") {
+
+        barcodeContainer.style.display = "none";
+
+        barcode.innerHTML = "";
+
+        return;
+      }
+
+
+      // Mostramos la vista previa
+      barcodeContainer.style.display = "block";
+
+
+      // Generamos el código de barras
+      JsBarcode("#barcode", valor, {
+
+        format: "CODE128",
+
+        lineColor: "#000000",
+
+        width: 2,
+
+        height: 70,
+
+        displayValue: true,
+
+        fontSize: 14,
+
+        margin: 10,
+
+        background: "#ffffff"
+
+      });
+
+    }
+
+
+    // Generar mientras el usuario escribe
+    codigoBarras.addEventListener(
+            "input",
+            function () {
+
+              generarCodigoBarras();
+
+            }
+    );
+
+
+    // Generar automáticamente al abrir el formulario
+    // Esto permite que funcione también al editar
+    generarCodigoBarras();
+
+  });
+
+</script>
 
 </body>
 </html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('inventario')}">
+    </aside>
+
+
+    <div class="main-wrapper">
+
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+
+            <!-- ENCABEZADO -->
+            <section class="page-header">
+
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+
+                        Lotes del producto
+
+                    </h1>
+
+
+                    <p th:text="${pageSubtitle}">
+
+                        Consulta de existencias por lote y fecha de vencimiento.
+
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+
+                    <a th:href="@{/view/inventario}"
+                       class="btn btn-white">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        <span>
+
+                            Volver
+
+                        </span>
+
+                    </a>
+
+
+                </div>
+
+
+            </section>
+
+
+            <!-- MENSAJE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
+
+
+            <!-- INFORMACIÓN DEL PRODUCTO -->
+            <section class="table-card surface">
+
+
+                <div class="table-header">
+
+                    <span class="card-title">
+
+                        Producto
+
+                    </span>
+
+                </div>
+
+
+                <div style="padding: 20px;">
+
+
+                    <div class="med-cell">
+
+
+                        <div class="med-icon">
+
+                            <i class="fa-solid fa-pills"></i>
+
+                        </div>
+
+
+                        <div>
+
+
+                            <div class="med-name"
+                                 th:text="${producto.nombre}">
+
+                                Producto
+
+                            </div>
+
+
+                            <div style="margin-top: 6px;">
+
+
+                                <strong>
+
+                                    Stock total:
+
+                                </strong>
+
+
+                                <span th:text="${stockTotal}">
+
+                                    0
+
+                                </span>
+
+
+                                unidades
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+            <!-- LOTES -->
+            <section class="table-card surface">
+
+
+                <div class="table-header">
+
+                    <span class="card-title">
+
+                        Lotes registrados
+
+                    </span>
+
+                </div>
+
+
+                <div class="overflow-x-auto">
+
+
+                    <table class="custom-table">
+
+
+                        <thead>
+
+
+                        <tr>
+
+
+                            <th>
+
+                                Lote
+
+                            </th>
+
+
+                            <th>
+
+                                Fecha fabricación
+
+                            </th>
+
+
+                            <th>
+
+                                Fecha vencimiento
+
+                            </th>
+
+
+                            <th>
+
+                                Cantidad
+
+                            </th>
+
+
+                            <th>
+
+                                Estado
+
+                            </th>
+
+
+                        </tr>
+
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                        <tr th:each="lote : ${lotes}">
+
+
+                            <td>
+
+
+                                <div class="med-cell">
+
+
+                                    <div class="med-icon">
+
+                                        <i class="fa-solid fa-box"></i>
+
+                                    </div>
+
+
+                                    <span class="med-name"
+                                          th:text="${lote.numero_lote}">
+
+                                        AC001
+
+                                    </span>
+
+
+                                </div>
+
+
+                            </td>
+
+
+                            <td>
+
+
+                                <span th:if="${lote.fecha_fabricacion != null}"
+                                      th:text="${#temporals.format(lote.fecha_fabricacion, 'dd/MM/yyyy')}">
+
+                                    10/01/2026
+
+                                </span>
+
+
+                                <span th:if="${lote.fecha_fabricacion == null}">
+
+                                    —
+
+                                </span>
+
+
+                            </td>
+
+
+                            <td>
+
+
+                                <span th:if="${lote.fecha_vencimiento != null}"
+                                      th:text="${#temporals.format(lote.fecha_vencimiento, 'dd/MM/yyyy')}">
+
+                                    17/11/2026
+
+                                </span>
+
+
+                                <span th:if="${lote.fecha_vencimiento == null}">
+
+                                    —
+
+                                </span>
+
+
+                            </td>
+
+
+                            <td>
+
+
+                                <strong th:text="${lote.cantidad}">
+
+                                    0
+
+                                </strong>
+
+
+                            </td>
+
+
+                            <td>
+
+
+                                <span th:if="${lote.estado != null
+                                      and lote.estado.name() == 'ACTIVO'}"
+                                      class="status-pill success">
+
+                                    Activo
+
+                                </span>
+
+
+                                <span th:if="${lote.estado != null
+                                      and lote.estado.name() == 'VENCIDO'}"
+                                      class="status-pill warning">
+
+                                    Vencido
+
+                                </span>
+
+
+                                <span th:if="${lote.estado != null
+                                      and lote.estado.name() == 'RETIRADO'}"
+                                      class="status-pill warning">
+
+                                    Retirado
+
+                                </span>
+
+
+                                <span th:if="${lote.estado != null
+                                      and lote.estado.name() == 'AGOTADO'}"
+                                      class="status-pill warning">
+
+                                    Agotado
+
+                                </span>
+
+
+                                <span th:if="${lote.estado == null}">
+
+                                    —
+
+                                </span>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(lotes)}">
+
+
+                            <td colspan="5"
+                                class="table-empty">
+
+                                Este producto no tiene lotes registrados.
+
+                            </td>
+
+
+                        </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+                <div class="table-footer">
+
+                    Total de lotes:
+
+                    <span th:text="${#lists.size(lotes)}">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

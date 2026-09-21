@@ -59,7 +59,8 @@
 
                 <div class="page-actions">
 
-                    <a th:href="@{/view/ventas/form}"
+                    <a th:if="${puedeModificar}"
+                       th:href="@{/view/ventas/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-cart-shopping"></i>
@@ -130,70 +131,41 @@
 
                         <tr>
 
-                            <!-- ID -->
-
                             <th>
                                 ID
                             </th>
-
-
-                            <!-- FECHA -->
 
                             <th>
                                 Fecha
                             </th>
 
-
-                            <!-- CLIENTE -->
-
                             <th>
                                 Cliente
                             </th>
-
-
-                            <!-- EMPLEADO -->
 
                             <th>
                                 Empleado
                             </th>
 
-
-                            <!-- MÉTODO -->
-
                             <th>
                                 Método de pago
                             </th>
-
-
-                            <!-- DESCUENTO -->
 
                             <th>
                                 Descuento
                             </th>
 
-
-                            <!-- IMPUESTOS -->
-
                             <th>
                                 Impuestos
                             </th>
-
-
-                            <!-- TOTAL -->
 
                             <th>
                                 Total
                             </th>
 
-
-                            <!-- ESTADO -->
-
                             <th>
                                 Estado
                             </th>
-
-
-                            <!-- ACCIONES -->
 
                             <th>
                                 Acciones
@@ -214,9 +186,7 @@
                         <tr th:each="venta : ${ventas}">
 
 
-                            <!-- =================================================
-                                 ID
-                            ================================================== -->
+                            <!-- ID -->
 
                             <td>
 
@@ -227,9 +197,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 FECHA
-                            ================================================== -->
+                            <!-- FECHA -->
 
                             <td>
 
@@ -247,9 +215,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 CLIENTE
-                            ================================================== -->
+                            <!-- CLIENTE -->
 
                             <td>
 
@@ -281,9 +247,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 EMPLEADO
-                            ================================================== -->
+                            <!-- EMPLEADO -->
 
                             <td>
 
@@ -304,9 +268,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 MÉTODO DE PAGO
-                            ================================================== -->
+                            <!-- MÉTODO DE PAGO -->
 
                             <td>
 
@@ -327,9 +289,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 DESCUENTO
-                            ================================================== -->
+                            <!-- DESCUENTO -->
 
                             <td>
 
@@ -345,9 +305,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 IMPUESTOS
-                            ================================================== -->
+                            <!-- IMPUESTOS -->
 
                             <td>
 
@@ -363,9 +321,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 TOTAL
-                            ================================================== -->
+                            <!-- TOTAL -->
 
                             <td>
 
@@ -385,9 +341,7 @@
                             </td>
 
 
-                            <!-- =================================================
-                                 ESTADO
-                            ================================================== -->
+                            <!-- ESTADO -->
 
                             <td>
 
@@ -423,7 +377,8 @@
                                 <div class="table-actions-row">
 
 
-                                    <!-- DETALLES -->
+                                    <!-- DETALLES
+                                         TODOS LOS ROLES PUEDEN VER -->
 
                                     <a th:href="@{/view/ventas/{id}/detalles(id=${venta.id_venta})}"
                                        class="btn btn-white">
@@ -437,7 +392,8 @@
 
                                     <!-- EDITAR -->
 
-                                    <a th:href="@{/view/ventas/edit/{id}(id=${venta.id_venta})}"
+                                    <a th:if="${puedeModificar}"
+                                       th:href="@{/view/ventas/edit/{id}(id=${venta.id_venta})}"
                                        class="btn btn-white">
 
                                         <i class="fa-solid fa-pen"></i>
@@ -449,7 +405,8 @@
 
                                     <!-- ANULAR -->
 
-                                    <form method="post"
+                                    <form th:if="${puedeModificar}"
+                                          method="post"
                                           th:action="@{/view/ventas/anular/{id}(id=${venta.id_venta})}"
                                           class="action-form">
 
@@ -471,7 +428,8 @@
 
                                     <!-- ELIMINAR -->
 
-                                    <form method="post"
+                                    <form th:if="${puedeModificar}"
+                                          method="post"
                                           th:action="@{/view/ventas/delete/{id}(id=${venta.id_venta})}"
                                           class="action-form">
 
@@ -486,6 +444,16 @@
                                         </button>
 
                                     </form>
+
+
+                                    <!-- SOLO LECTURA -->
+
+                                    <span th:unless="${puedeModificar}"
+                                          class="text-muted text-small">
+
+                                        Solo lectura
+
+                                    </span>
 
                                 </div>
 

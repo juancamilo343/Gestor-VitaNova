@@ -3,6 +3,7 @@ package com.vitaNova.vitaNova.view;
 import com.vitaNova.vitaNova.model.Categoria;
 import com.vitaNova.vitaNova.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +16,41 @@ public class CategoriaView {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+
     // =========================
     // LISTA
     // Vista: categorias/categoria.html
     // =========================
     @GetMapping
-    public String lista(Model model) {
+    public String lista(
+            Model model,
+            Authentication authentication,
+            @RequestParam(required = false) String search) {
+
+        // =====================================================
+        // BUSCADOR
+        // =====================================================
+
+        if (search != null && !search.trim().isEmpty()) {
+
+            model.addAttribute(
+                    "categorias",
+                    categoriaRepository.buscarCategorias(
+                            search.trim()
+                    )
+            );
+
+        } else {
+
+            model.addAttribute(
+                    "categorias",
+                    categoriaRepository.findAll()
+            );
+        }
 
         model.addAttribute(
-                "categorias",
-                categoriaRepository.findAll()
+                "search",
+                search
         );
 
         model.addAttribute(
@@ -52,14 +78,34 @@ public class CategoriaView {
                 "Consulta y seguimiento de las categorías de productos."
         );
 
+        // ADMINISTRADOR y FARMACÉUTICO pueden modificar
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificar(authentication)
+        );
+
         return "categorias/categoria";
     }
+
 
     // =========================
     // FORMULARIO NUEVA CATEGORÍA
     // =========================
     @GetMapping("/form")
-    public String form(Model model) {
+    public String form(
+            Model model,
+            Authentication authentication,
+            RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para registrar categorías."
+            );
+
+            return "redirect:/view/categorias";
+        }
 
         Categoria categoria = new Categoria();
 
@@ -86,6 +132,7 @@ public class CategoriaView {
         return "categorias/categoriaForm";
     }
 
+
     // =========================
     // EDITAR CATEGORÍA
     // =========================
@@ -93,7 +140,18 @@ public class CategoriaView {
     public String edit(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para editar categorías."
+            );
+
+            return "redirect:/view/categorias";
+        }
 
         Categoria categoria = categoriaRepository
                 .findById(id)
@@ -102,8 +160,8 @@ public class CategoriaView {
         if (categoria == null) {
 
             ra.addFlashAttribute(
-                    "success",
-                    "Categoría no encontrada"
+                    "error",
+                    "Categoría no encontrada."
             );
 
             return "redirect:/view/categorias";
@@ -132,15 +190,28 @@ public class CategoriaView {
         return "categorias/categoriaForm";
     }
 
+
     // =========================
     // GUARDAR / ACTUALIZAR
     // =========================
     @PostMapping("/save")
     public String save(
             @ModelAttribute Categoria categoria,
+            Authentication authentication,
             RedirectAttributes ra) {
 
-        boolean nuevo = categoria.getId_categoria() == null;
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para guardar categorías."
+            );
+
+            return "redirect:/view/categorias";
+        }
+
+        boolean nuevo =
+                categoria.getId_categoria() == null;
 
         categoriaRepository.save(categoria);
 
@@ -162,13 +233,25 @@ public class CategoriaView {
         return "redirect:/view/categorias";
     }
 
+
     // =========================
     // ELIMINAR CATEGORÍA
     // =========================
     @PostMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar categorías."
+            );
+
+            return "redirect:/view/categorias";
+        }
 
         if (categoriaRepository.existsById(id)) {
 
@@ -182,11 +265,37 @@ public class CategoriaView {
         } else {
 
             ra.addFlashAttribute(
-                    "success",
-                    "Categoría no encontrada"
+                    "error",
+                    "Categoría no encontrada."
             );
         }
 
         return "redirect:/view/categorias";
+    }
+
+
+    // =========================
+    // PERMISOS
+    // ADMINISTRADOR
+    // FARMACÉUTICO
+    // =========================
+    private boolean puedeModificar(
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals(
+                                "ROLE_ADMINISTRADOR"
+                        )
+                                ||
+                                authority.getAuthority().equals(
+                                        "ROLE_FARMACEUTICO"
+                                )
+                );
     }
 }

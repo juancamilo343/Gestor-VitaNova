@@ -30,16 +30,23 @@
                 <div class="page-title">
 
                     <h1 th:text="${pageTitle}">
-                        Nuevo Cliente
+                        Editar Cliente
                     </h1>
 
                     <p th:text="${pageSubtitle}">
-                        Registre un nuevo cliente dentro del sistema VitaNova.
+                        Actualice la información del cliente seleccionado.
                     </p>
 
                 </div>
 
             </section>
+
+
+            <!-- MENSAJE DE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
 
 
             <!-- FORMULARIO -->
@@ -205,7 +212,7 @@
                                 class="btn btn-primary">
 
                             <span th:text="${editMode ? 'Actualizar cliente' : 'Guardar cliente'}">
-                                Guardar cliente
+                                Actualizar cliente
                             </span>
 
                         </button>

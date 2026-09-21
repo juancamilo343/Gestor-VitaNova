@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Registrarse - VitaNova PHARMA ERP</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="login-page">
+
+    <div class="login-card">
+
+        <!-- ========================== -->
+        <!-- ENCABEZADO -->
+        <!-- ========================== -->
+
+        <div class="login-brand">
+
+            <div class="login-brand-icon">
+                <i class="fa-solid fa-pills"></i>
+            </div>
+
+            <div>
+                <h1>VitaNova</h1>
+
+                <span>
+                    PHARMA ERP
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="login-header">
+
+            <h2>Crear una cuenta</h2>
+
+            <p>
+                Regístrate para acceder al sistema.
+            </p>
+
+        </div>
+
+
+        <!-- ========================== -->
+        <!-- MENSAJE DE ERROR -->
+        <!-- ========================== -->
+
+        <div class="login-alert error"
+             th:if="${error}">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span th:text="${error}">
+                Error en el registro.
+            </span>
+
+        </div>
+
+
+        <!-- ========================== -->
+        <!-- FORMULARIO -->
+        <!-- ========================== -->
+
+        <form th:action="@{/registro/save}"
+              method="post"
+              class="login-form">
+
+
+            <!-- ========================== -->
+            <!-- NOMBRES -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="nombres">
+                    Nombres
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <input type="text"
+                           id="nombres"
+                           name="nombres"
+                           th:value="${empleado.nombres}"
+                           placeholder="Ingrese sus nombres"
+                           maxlength="100"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- APELLIDOS -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="apellidos">
+                    Apellidos
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <input type="text"
+                           id="apellidos"
+                           name="apellidos"
+                           th:value="${empleado.apellidos}"
+                           placeholder="Ingrese sus apellidos"
+                           maxlength="100">
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- DOCUMENTO -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="documento">
+                    Documento
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-id-card"></i>
+
+                    <input type="text"
+                           id="documento"
+                           name="documento"
+                           th:value="${empleado.documento}"
+                           placeholder="Número de documento"
+                           maxlength="20"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- TELÉFONO -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="telefono">
+                    Teléfono
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-phone"></i>
+
+                    <input type="text"
+                           id="telefono"
+                           name="telefono"
+                           th:value="${empleado.telefono}"
+                           placeholder="Número de teléfono"
+                           maxlength="20">
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- CORREO -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="correo">
+                    Correo electrónico
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-envelope"></i>
+
+                    <input type="email"
+                           id="correo"
+                           name="correo"
+                           th:value="${empleado.correo}"
+                           placeholder="correo@ejemplo.com"
+                           maxlength="100">
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- DIRECCIÓN -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="direccion">
+                    Dirección
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                    <input type="text"
+                           id="direccion"
+                           name="direccion"
+                           th:value="${empleado.direccion}"
+                           placeholder="Dirección"
+                           maxlength="150">
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- USUARIO -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="username">
+                    Nombre de usuario
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-user-shield"></i>
+
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           placeholder="Cree su nombre de usuario"
+                           maxlength="50"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- CONTRASEÑA -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="password">
+                    Contraseña
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Mínimo 6 caracteres"
+                           minlength="6"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- CONFIRMAR CONTRASEÑA -->
+            <!-- ========================== -->
+
+            <div class="field-group">
+
+                <label for="passwordConfirm">
+                    Confirmar contraseña
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input type="password"
+                           id="passwordConfirm"
+                           name="passwordConfirm"
+                           placeholder="Repita su contraseña"
+                           minlength="6"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- INFORMACIÓN DEL ROL -->
+            <!-- ========================== -->
+
+            <div class="login-info">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>
+                    La cuenta será registrada como
+                    <strong>Auxiliar de Farmacia</strong>.
+                </span>
+
+            </div>
+
+
+            <!-- ========================== -->
+            <!-- BOTÓN -->
+            <!-- ========================== -->
+
+            <button type="submit"
+                    class="login-button">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+                Crear cuenta
+
+            </button>
+
+
+            <!-- ========================== -->
+            <!-- VOLVER AL LOGIN -->
+            <!-- ========================== -->
+
+            <div class="login-register">
+
+                <span>
+                    ¿Ya tienes una cuenta?
+                </span>
+
+                <a th:href="@{/login}">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </form>
+
+
+        <!-- ========================== -->
+        <!-- FOOTER -->
+        <!-- ========================== -->
+
+        <div class="login-footer">
+
+            VitaNova PHARMA ERP
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

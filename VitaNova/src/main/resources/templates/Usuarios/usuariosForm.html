@@ -36,7 +36,9 @@
                     <p th:text="${modoEdicion
                         ? 'Modifica la información del usuario y del empleado.'
                         : 'Registra un nuevo usuario dentro del sistema VitaNova.'}">
+
                         Registra un nuevo usuario dentro del sistema VitaNova.
+
                     </p>
 
                 </div>
@@ -66,6 +68,7 @@
                         Tipo de registro
                     </h2>
 
+
                     <div class="form-section-divider">
                     </div>
 
@@ -78,27 +81,39 @@
                                 Tipo de registro
                             </label>
 
+
                             <select id="tipoRegistro"
                                     onchange="cambiarFormulario()">
 
                                 <option value=""
                                         th:selected="${tipoRegistro == null or tipoRegistro == ''}">
+
                                     Seleccione una opción
+
                                 </option>
+
 
                                 <option value="cliente"
                                         th:selected="${tipoRegistro == 'cliente'}">
+
                                     Cliente
+
                                 </option>
+
 
                                 <option value="empleado"
                                         th:selected="${tipoRegistro == 'empleado'}">
+
                                     Empleado
+
                                 </option>
+
 
                                 <option value="proveedor"
                                         th:selected="${tipoRegistro == 'proveedor'}">
+
                                     Proveedor
+
                                 </option>
 
                             </select>
@@ -117,7 +132,9 @@
                 <form id="formCliente"
                       th:action="@{/view/usuarios/cliente/save}"
                       method="post"
-                      th:style="${tipoRegistro == 'cliente' ? 'display:block;' : 'display:none;'}">
+                      th:style="${tipoRegistro == 'cliente'
+                        ? 'display:block;'
+                        : 'display:none;'}">
 
 
                     <div class="form-section">
@@ -126,12 +143,12 @@
                             Información del cliente
                         </h2>
 
+
                         <div class="form-section-divider">
                         </div>
 
 
                         <div class="form-grid">
-
 
                             <div class="field-group">
 
@@ -290,6 +307,7 @@
 
                         </a>
 
+
                         <button type="submit"
                                 class="btn btn-primary">
 
@@ -330,12 +348,12 @@
                             Información del empleado
                         </h2>
 
+
                         <div class="form-section-divider">
                         </div>
 
 
                         <div class="form-grid">
-
 
                             <div class="field-group">
 
@@ -347,7 +365,9 @@
                                        type="text"
                                        name="nombres"
                                        maxlength="100"
-                                       th:value="${modoEdicion && empleado != null ? empleado.nombres : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.nombres
+                                           : ''}"
                                        required
                                        placeholder="Nombres">
 
@@ -364,7 +384,9 @@
                                        type="text"
                                        name="apellidos"
                                        maxlength="100"
-                                       th:value="${modoEdicion && empleado != null ? empleado.apellidos : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.apellidos
+                                           : ''}"
                                        required
                                        placeholder="Apellidos">
 
@@ -381,7 +403,9 @@
                                        type="text"
                                        name="documento"
                                        maxlength="20"
-                                       th:value="${modoEdicion && empleado != null ? empleado.documento : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.documento
+                                           : ''}"
                                        required
                                        placeholder="Documento">
 
@@ -398,7 +422,9 @@
                                        type="text"
                                        name="telefono"
                                        maxlength="20"
-                                       th:value="${modoEdicion && empleado != null ? empleado.telefono : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.telefono
+                                           : ''}"
                                        placeholder="Teléfono">
 
                             </div>
@@ -414,7 +440,9 @@
                                        type="email"
                                        name="correo"
                                        maxlength="100"
-                                       th:value="${modoEdicion && empleado != null ? empleado.correo : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.correo
+                                           : ''}"
                                        placeholder="correo@ejemplo.com">
 
                             </div>
@@ -430,7 +458,9 @@
                                        type="text"
                                        name="direccion"
                                        maxlength="150"
-                                       th:value="${modoEdicion && empleado != null ? empleado.direccion : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.direccion
+                                           : ''}"
                                        placeholder="Dirección">
 
                             </div>
@@ -447,11 +477,15 @@
                                        name="salario"
                                        min="0"
                                        step="0.01"
-                                       th:value="${modoEdicion && empleado != null ? empleado.salario : ''}"
+                                       th:value="${modoEdicion && empleado != null
+                                           ? empleado.salario
+                                           : ''}"
                                        placeholder="0.00">
 
                             </div>
 
+
+                            <!-- FECHA DE INGRESO -->
 
                             <div class="field-group">
 
@@ -462,8 +496,16 @@
                                 <input id="fecha_ingreso"
                                        type="date"
                                        name="fecha_ingreso"
-                                       th:value="${modoEdicion && empleado != null && empleado.fecha_ingreso != null
-                                       ? empleado.fecha_ingreso : ''}">
+                                       th:value="${modoEdicion
+                                           && empleado != null
+                                           && empleado.fecha_ingreso != null
+                                           ? empleado.fecha_ingreso
+                                           : T(java.time.LocalDate).now()}"
+                                       readonly>
+
+                                <small>
+                                    La fecha de ingreso se genera automáticamente.
+                                </small>
 
                             </div>
 
@@ -478,17 +520,24 @@
                                         name="estadoEmpleado">
 
                                     <option value="ACTIVO"
-                                            th:selected="${modoEdicion && empleado != null
+                                            th:selected="${modoEdicion
+                                            && empleado != null
                                             && empleado.estado != null
                                             && empleado.estado.name() == 'ACTIVO'}">
+
                                         Activo
+
                                     </option>
 
+
                                     <option value="INACTIVO"
-                                            th:selected="${modoEdicion && empleado != null
+                                            th:selected="${modoEdicion
+                                            && empleado != null
                                             && empleado.estado != null
                                             && empleado.estado.name() == 'INACTIVO'}">
+
                                         Inactivo
+
                                     </option>
 
                                 </select>
@@ -508,12 +557,12 @@
                             Cuenta de acceso
                         </h2>
 
+
                         <div class="form-section-divider">
                         </div>
 
 
                         <div class="form-grid">
-
 
                             <div class="field-group">
 
@@ -525,7 +574,9 @@
                                        type="text"
                                        name="username"
                                        maxlength="50"
-                                       th:value="${modoEdicion ? usuario.username : ''}"
+                                       th:value="${modoEdicion
+                                           ? usuario.username
+                                           : ''}"
                                        required
                                        placeholder="Nombre de usuario">
 
@@ -542,8 +593,8 @@
                                        type="password"
                                        name="password"
                                        th:placeholder="${modoEdicion
-                                       ? 'Dejar vacío para conservar la actual'
-                                       : 'Contraseña'}"
+                                           ? 'Dejar vacío para conservar la actual'
+                                           : 'Contraseña'}"
                                        th:required="${!modoEdicion}">
 
                             </div>
@@ -563,11 +614,13 @@
                                         Seleccione un rol
                                     </option>
 
+
                                     <option th:each="rol : ${roles}"
                                             th:value="${rol.id_rol}"
                                             th:text="${rol.nombre}"
                                             th:selected="${modoEdicion
                                             && usuario.id_rol == rol.id_rol}">
+
                                     </option>
 
                                 </select>
@@ -586,13 +639,20 @@
                                         required>
 
                                     <option value="true"
-                                            th:selected="${modoEdicion && usuario.estado}">
+                                            th:selected="${modoEdicion
+                                            && usuario.estado}">
+
                                         Activa
+
                                     </option>
 
+
                                     <option value="false"
-                                            th:selected="${modoEdicion && !usuario.estado}">
+                                            th:selected="${modoEdicion
+                                            && !usuario.estado}">
+
                                         Inactiva
+
                                     </option>
 
                                 </select>
@@ -614,6 +674,7 @@
                             Cancelar
 
                         </a>
+
 
                         <button type="submit"
                                 class="btn btn-primary"
@@ -648,12 +709,12 @@
                             Información del proveedor
                         </h2>
 
+
                         <div class="form-section-divider">
                         </div>
 
 
                         <div class="form-grid">
-
 
                             <div class="field-group">
 
@@ -667,7 +728,9 @@
                                        maxlength="100"
                                        required
                                        placeholder="Nombre del proveedor"
-                                       th:value="${proveedor != null ? proveedor.nombre : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.nombre
+                                           : ''}">
 
                             </div>
 
@@ -683,7 +746,9 @@
                                        name="nombre_contacto"
                                        maxlength="100"
                                        placeholder="Persona de contacto"
-                                       th:value="${proveedor != null ? proveedor.nombre_contacto : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.nombre_contacto
+                                           : ''}">
 
                             </div>
 
@@ -699,7 +764,9 @@
                                        name="nit"
                                        maxlength="20"
                                        placeholder="NIT"
-                                       th:value="${proveedor != null ? proveedor.nit : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.nit
+                                           : ''}">
 
                             </div>
 
@@ -715,7 +782,9 @@
                                        name="telefono"
                                        maxlength="20"
                                        placeholder="Teléfono"
-                                       th:value="${proveedor != null ? proveedor.telefono : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.telefono
+                                           : ''}">
 
                             </div>
 
@@ -731,7 +800,9 @@
                                        name="correo"
                                        maxlength="100"
                                        placeholder="correo@ejemplo.com"
-                                       th:value="${proveedor != null ? proveedor.correo : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.correo
+                                           : ''}">
 
                             </div>
 
@@ -747,7 +818,9 @@
                                        name="direccion"
                                        maxlength="150"
                                        placeholder="Dirección"
-                                       th:value="${proveedor != null ? proveedor.direccion : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.direccion
+                                           : ''}">
 
                             </div>
 
@@ -763,7 +836,9 @@
                                        name="tipo_productos_suministrados"
                                        maxlength="200"
                                        placeholder="Ej: Medicamentos, productos de aseo"
-                                       th:value="${proveedor != null ? proveedor.tipo_productos_suministrados : ''}">
+                                       th:value="${proveedor != null
+                                           ? proveedor.tipo_productos_suministrados
+                                           : ''}">
 
                             </div>
 
@@ -781,13 +856,18 @@
                                             th:selected="${proveedor == null
                                             || proveedor.estado == null
                                             || proveedor.estado == 'ACTIVO'}">
+
                                         Activo
+
                                     </option>
+
 
                                     <option value="INACTIVO"
                                             th:selected="${proveedor != null
                                             && proveedor.estado == 'INACTIVO'}">
+
                                         Inactivo
+
                                     </option>
 
                                 </select>
@@ -807,6 +887,7 @@
                             Cancelar
 
                         </a>
+
 
                         <button type="submit"
                                 class="btn btn-primary">
@@ -839,8 +920,10 @@
         document.getElementById("formCliente")
             .style.display = "none";
 
+
         document.getElementById("formEmpleado")
             .style.display = "none";
+
 
         document.getElementById("formProveedor")
             .style.display = "none";

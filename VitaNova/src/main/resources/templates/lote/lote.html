@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(${pageTitle})}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside th:replace="~{fragments/layout :: sidebar('lotes')}">
+    </aside>
+
+
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header th:replace="~{fragments/layout :: topbar}">
+        </header>
+
+
+        <main class="dashboard-content">
+
+            <!-- ENCABEZADO -->
+            <section class="page-header">
+
+                <div class="page-title">
+
+                    <h1 th:text="${pageTitle}">
+                        Gestión de Lotes
+                    </h1>
+
+                    <p th:text="${pageSubtitle}">
+                        Consulta y seguimiento de los lotes de productos.
+                    </p>
+
+                </div>
+
+
+                <div class="page-actions">
+
+                    <a th:href="@{/view/lotes/form}"
+                       class="btn btn-primary">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <span>
+                            Nuevo lote
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- MENSAJE -->
+            <div th:if="${success}"
+                 class="alert-banner success"
+                 th:text="${success}">
+            </div>
+
+
+            <!-- TABLA -->
+            <section class="table-card surface">
+
+                <div class="table-header">
+
+                    <span class="card-title">
+                        Consulta y Seguimiento
+                    </span>
+
+
+                    <form method="get"
+                          th:action="@{/view/lotes}"
+                          class="search-form">
+
+                        <input name="search"
+                               type="search"
+                               th:value="${search}"
+                               placeholder="Buscar por lote o producto"
+                               class="search-input search-field">
+
+                        <button type="submit"
+                                class="btn btn-white nowrap">
+
+                            Buscar
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <div class="overflow-x-auto">
+
+                    <table class="custom-table">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                Lote
+                            </th>
+
+                            <th>
+                                Producto
+                            </th>
+
+                            <th>
+                                Fabricación
+                            </th>
+
+                            <th>
+                                Vencimiento
+                            </th>
+
+                            <th>
+                                Cantidad
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <!-- LOTES -->
+                        <tr th:each="lote : ${lotes}">
+
+                            <!-- LOTE -->
+                            <td>
+
+                                <div class="med-cell">
+
+                                    <div class="med-icon">
+
+                                        <i class="fa-solid fa-box"></i>
+
+                                    </div>
+
+                                    <span class="med-name"
+                                          th:text="${lote.numero_lote != null ? lote.numero_lote : 'Sin número'}">
+
+                                        AC001
+
+                                    </span>
+
+                                </div>
+
+                                <span class="text-muted text-small"
+                                      th:text="'ID: ' + ${lote.id_lote}">
+
+                                    ID: 1
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- PRODUCTO -->
+                            <td>
+
+                                <span th:if="${lote.producto != null}"
+                                      th:text="${lote.producto.nombre}">
+
+                                    Acetaminofén 500 mg
+
+                                </span>
+
+                                <span th:unless="${lote.producto != null}"
+                                      class="text-muted">
+
+                                    Sin producto
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- FABRICACIÓN -->
+                            <td>
+
+                                <span th:if="${lote.fecha_fabricacion != null}"
+                                      th:text="${#temporals.format(lote.fecha_fabricacion, 'dd/MM/yyyy')}">
+
+                                    01/01/2026
+
+                                </span>
+
+                                <span th:unless="${lote.fecha_fabricacion != null}"
+                                      class="text-muted">
+
+                                    —
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- VENCIMIENTO -->
+                            <td>
+
+                                <span th:if="${lote.fecha_vencimiento != null}"
+                                      th:text="${#temporals.format(lote.fecha_vencimiento, 'dd/MM/yyyy')}">
+
+                                    17/11/2026
+
+                                </span>
+
+                                <span th:unless="${lote.fecha_vencimiento != null}"
+                                      class="text-muted">
+
+                                    —
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- CANTIDAD -->
+                            <td>
+
+                                <strong th:text="${lote.cantidad}">
+                                    50
+                                </strong>
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+                            <td>
+
+                                <span th:text="${lote.estado}">
+                                    ACTIVO
+                                </span>
+
+                            </td>
+
+
+                            <!-- ACCIONES -->
+                            <td class="user-table-actions">
+
+                                <div class="table-actions-row">
+
+                                    <a th:href="@{'/view/lotes/edit/' + ${lote.id_lote}}"
+                                       class="btn btn-white">
+
+                                        Editar
+
+                                    </a>
+
+
+                                    <form method="post"
+                                          th:action="@{'/view/lotes/delete/' + ${lote.id_lote}}"
+                                          class="action-form">
+
+                                        <button type="submit"
+                                                class="btn btn-white"
+                                                onclick="return confirm('¿Eliminar este lote?')">
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- SIN LOTES -->
+                        <tr th:if="${#lists.isEmpty(lotes)}">
+
+                            <td colspan="7"
+                                class="table-empty">
+
+                                No existen lotes registrados.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- FOOTER -->
+                <div class="table-footer">
+
+                    Total lotes:
+
+                    <span th:text="${#lists.size(lotes)}">
+                        0
+                    </span>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

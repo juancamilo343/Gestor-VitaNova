@@ -112,8 +112,12 @@
 
                                 <input id="fecha"
                                        type="date"
-                                       th:field="*{fecha}"
-                                       required>
+                                       th:value="${compra.fecha}"
+                                       readonly>
+
+                                <small>
+                                    La fecha se genera automáticamente.
+                                </small>
 
                             </div>
 
@@ -248,6 +252,56 @@
                                            step="0.01"
                                            min="0"
                                            value="0"
+                                           required>
+
+                                </div>
+
+
+                                <!-- LOTE -->
+
+                                <div class="field-group">
+
+                                    <label>
+                                        Número de lote
+                                    </label>
+
+                                    <input type="text"
+                                           name="lote_numeros[]"
+                                           class="lote-input"
+                                           maxlength="50"
+                                           placeholder="Ej. AC001"
+                                           required>
+
+                                </div>
+
+
+                                <!-- FECHA FABRICACIÓN -->
+
+                                <div class="field-group">
+
+                                    <label>
+                                        Fecha de fabricación
+                                    </label>
+
+                                    <input type="date"
+                                           name="fechas_fabricacion[]"
+                                           class="fecha-fabricacion-input"
+                                           required>
+
+                                </div>
+
+
+                                <!-- FECHA VENCIMIENTO -->
+
+                                <div class="field-group">
+
+                                    <label>
+                                        Fecha de vencimiento
+                                    </label>
+
+                                    <input type="date"
+                                           name="fechas_vencimiento[]"
+                                           class="fecha-vencimiento-input"
                                            required>
 
                                 </div>
@@ -449,6 +503,7 @@
 
                         precio.value =
                             precioProducto;
+
                     }
 
                     calcularFila(row);
@@ -474,6 +529,68 @@
 
                 }
             );
+
+
+            const fechaFabricacion =
+                row.querySelector(
+                    ".fecha-fabricacion-input"
+                );
+
+            const fechaVencimiento =
+                row.querySelector(
+                    ".fecha-vencimiento-input"
+                );
+
+
+            fechaFabricacion.addEventListener(
+                "change",
+                function () {
+
+                    if (
+                        fechaFabricacion.value !== "" &&
+                        fechaVencimiento.value !== ""
+                    ) {
+
+                        if (
+                            fechaVencimiento.value <
+                            fechaFabricacion.value
+                        ) {
+
+                            fechaVencimiento.value = "";
+
+                            alert(
+                                "La fecha de vencimiento no puede ser anterior a la fecha de fabricación."
+                            );
+                        }
+                    }
+                }
+            );
+
+
+            fechaVencimiento.addEventListener(
+                "change",
+                function () {
+
+                    if (
+                        fechaFabricacion.value !== "" &&
+                        fechaVencimiento.value !== ""
+                    ) {
+
+                        if (
+                            fechaVencimiento.value <
+                            fechaFabricacion.value
+                        ) {
+
+                            fechaVencimiento.value = "";
+
+                            alert(
+                                "La fecha de vencimiento no puede ser anterior a la fecha de fabricación."
+                            );
+                        }
+                    }
+                }
+            );
+
         }
 
 
@@ -520,6 +637,27 @@
 
                 nuevaFila
                     .querySelector(
+                        ".lote-input"
+                    )
+                    .value = "";
+
+
+                nuevaFila
+                    .querySelector(
+                        ".fecha-fabricacion-input"
+                    )
+                    .value = "";
+
+
+                nuevaFila
+                    .querySelector(
+                        ".fecha-vencimiento-input"
+                    )
+                    .value = "";
+
+
+                nuevaFila
+                    .querySelector(
                         ".subtotal-input"
                     )
                     .value = "0";
@@ -528,6 +666,7 @@
                 container.appendChild(
                     nuevaFila
                 );
+
 
                 configurarFila(
                     nuevaFila
@@ -545,4 +684,3 @@
 
 </body>
 </html>
-

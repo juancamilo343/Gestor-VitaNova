@@ -50,7 +50,9 @@
 
                 <div class="page-actions">
 
-                    <a th:href="@{/view/compras/form}"
+                    <!-- NUEVA COMPRA -->
+                    <a th:if="${puedeModificar}"
+                       th:href="@{/view/compras/form}"
                        class="btn btn-primary">
 
                         <i class="fa-solid fa-cart-shopping"></i>
@@ -67,11 +69,17 @@
 
 
             <!-- =================================================
-                 MENSAJE
+                 MENSAJES
             ================================================== -->
+
             <div th:if="${success}"
                  class="alert-banner success"
                  th:text="${success}">
+            </div>
+
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
             </div>
 
 
@@ -169,7 +177,9 @@
 
                                     <span class="med-name"
                                           th:text="'Compra #' + ${compra.id_compra}">
+
                                         Compra #1
+
                                     </span>
 
                                 </div>
@@ -193,7 +203,9 @@
                                 <span th:text="${compra.proveedor != null
                                     ? compra.proveedor.nombre
                                     : '—'}">
+
                                     Proveedor
+
                                 </span>
 
                             </td>
@@ -258,7 +270,7 @@
 
                                 <div class="table-actions-row">
 
-                                    <!-- VER DETALLES -->
+                                    <!-- VER DETALLES: TODOS -->
                                     <a th:href="@{'/view/compras/'
                                         + ${compra.id_compra}
                                         + '/detalles'}"
@@ -271,8 +283,9 @@
                                     </a>
 
 
-                                    <!-- EDITAR -->
-                                    <a th:href="@{'/view/compras/edit/'
+                                    <!-- EDITAR: ADMIN + FARMACÉUTICO -->
+                                    <a th:if="${puedeModificar}"
+                                       th:href="@{'/view/compras/edit/'
                                         + ${compra.id_compra}}"
                                        class="btn btn-white">
 
@@ -281,8 +294,9 @@
                                     </a>
 
 
-                                    <!-- ELIMINAR -->
-                                    <form method="post"
+                                    <!-- ELIMINAR: ADMIN + FARMACÉUTICO -->
+                                    <form th:if="${puedeModificar}"
+                                          method="post"
                                           th:action="@{'/view/compras/delete/'
                                             + ${compra.id_compra}}"
                                           class="action-form">
@@ -296,6 +310,15 @@
                                         </button>
 
                                     </form>
+
+
+                                    <!-- SOLO LECTURA -->
+                                    <span th:unless="${puedeModificar}"
+                                          class="status-pill">
+
+                                        Solo lectura
+
+                                    </span>
 
                                 </div>
 

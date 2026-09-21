@@ -10,11 +10,17 @@ import java.util.Optional;
 public interface InventarioRepository extends JpaRepository<Inventario, Long> {
 
     @Query(value = """
-            SELECT *
-            FROM inventario
-            WHERE id_producto = :idProducto
-            FOR UPDATE
-            """, nativeQuery = true)
+        SELECT *
+        FROM inventario
+        WHERE id_producto = :idProducto
+        FOR UPDATE
+        """, nativeQuery = true)
     Optional<Inventario> buscarPorProductoParaActualizar(
-            @Param("idProducto") Long idProducto);
+            @Param("idProducto") Long idProducto
+    );
+
+    @Query("SELECT i FROM Inventario i WHERE i.id_producto = :idProducto")
+    Optional<Inventario> buscarPorProducto(
+            @Param("idProducto") Long idProducto
+    );
 }

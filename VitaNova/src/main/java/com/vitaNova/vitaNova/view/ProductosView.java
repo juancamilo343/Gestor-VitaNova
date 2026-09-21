@@ -5,6 +5,7 @@ import com.vitaNova.vitaNova.repository.ProductosRepository;
 import com.vitaNova.vitaNova.repository.CategoriaRepository;
 import com.vitaNova.vitaNova.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,32 +26,22 @@ public class ProductosView {
     @Autowired
     private ProveedorRepository proveedorRepository;
 
-    // =========================
-    // LISTA
-    // Vista: productos/productos.html
-    // =========================
+
+    // ==========================================================
+    // LISTA DE PRODUCTOS
+    // TODOS LOS ROLES PUEDEN VISUALIZAR
+    // ==========================================================
     @GetMapping
-    public String lista(Model model) {
+    public String lista(
+            Model model,
+            Authentication authentication
+    ) {
 
-        model.addAttribute(
-                "productos",
-                productosRepository.findAll()
-        );
+        model.addAttribute("productos", productosRepository.findAll());
 
-        model.addAttribute(
-                "activeMenu",
-                "productos"
-        );
-
-        model.addAttribute(
-                "userName",
-                "Administrador"
-        );
-
-        model.addAttribute(
-                "userRole",
-                "Farmacia Central"
-        );
+        model.addAttribute("activeMenu", "productos");
+        model.addAttribute("userName", "Administrador");
+        model.addAttribute("userRole", "Farmacia Central");
 
         model.addAttribute(
                 "pageTitle",
@@ -62,14 +53,35 @@ public class ProductosView {
                 "Consulta y seguimiento de productos de la farmacia."
         );
 
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificar(authentication)
+        );
+
         return "productos/productos";
     }
 
-    // =========================
+
+    // ==========================================================
     // FORMULARIO NUEVO PRODUCTO
-    // =========================
+    // SOLO ADMINISTRADOR Y FARMACÉUTICO
+    // ==========================================================
     @GetMapping("/form")
-    public String form(Model model) {
+    public String form(
+            Model model,
+            Authentication authentication,
+            RedirectAttributes ra
+    ) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para crear productos."
+            );
+
+            return "redirect:/view/productos";
+        }
 
         Productos producto = new Productos();
 
@@ -110,24 +122,37 @@ public class ProductosView {
         return "productos/productosForm";
     }
 
-    // =========================
+
+    // ==========================================================
     // EDITAR PRODUCTO
-    // =========================
+    // SOLO ADMINISTRADOR Y FARMACÉUTICO
+    // ==========================================================
     @GetMapping("/edit/{id}")
     public String edit(
             @PathVariable Long id,
             Model model,
-            RedirectAttributes ra) {
+            Authentication authentication,
+            RedirectAttributes ra
+    ) {
 
-        Productos producto = productosRepository
-                .findById(id)
-                .orElse(null);
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para editar productos."
+            );
+
+            return "redirect:/view/productos";
+        }
+
+        Productos producto =
+                productosRepository.findById(id).orElse(null);
 
         if (producto == null) {
 
             ra.addFlashAttribute(
-                    "success",
-                    "Producto no encontrado"
+                    "error",
+                    "Producto no encontrado."
             );
 
             return "redirect:/view/productos";
@@ -166,18 +191,33 @@ public class ProductosView {
         return "productos/productosForm";
     }
 
-    // =========================
-    // GUARDAR / ACTUALIZAR
-    // =========================
+
+    // ==========================================================
+    // GUARDAR PRODUCTO
+    // SOLO ADMINISTRADOR Y FARMACÉUTICO
+    // ==========================================================
     @PostMapping("/save")
     public String save(
             @ModelAttribute Productos producto,
-            RedirectAttributes ra) {
+            Authentication authentication,
+            RedirectAttributes ra
+    ) {
 
-        boolean nuevo = producto.getId_producto() == null;
+        if (!puedeModificar(authentication)) {
 
-        if (producto.getEstado() == null ||
-                producto.getEstado().isBlank()) {
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para modificar productos."
+            );
+
+            return "redirect:/view/productos";
+        }
+
+        boolean nuevo =
+                producto.getId_producto() == null;
+
+        if (producto.getEstado() == null
+                || producto.getEstado().isBlank()) {
 
             producto.setEstado("ACTIVO");
         }
@@ -202,13 +242,27 @@ public class ProductosView {
         return "redirect:/view/productos";
     }
 
-    // =========================
+
+    // ==========================================================
     // ELIMINAR PRODUCTO
-    // =========================
+    // SOLO ADMINISTRADOR Y FARMACÉUTICO
+    // ==========================================================
     @PostMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id,
-            RedirectAttributes ra) {
+            Authentication authentication,
+            RedirectAttributes ra
+    ) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar productos."
+            );
+
+            return "redirect:/view/productos";
+        }
 
         if (productosRepository.existsById(id)) {
 
@@ -222,11 +276,34 @@ public class ProductosView {
         } else {
 
             ra.addFlashAttribute(
-                    "success",
+                    "error",
                     "Producto no encontrado"
             );
         }
 
         return "redirect:/view/productos";
+    }
+
+
+    // ==========================================================
+    // VALIDAR PERMISOS DE MODIFICACIÓN
+    // ADMINISTRADOR + FARMACÉUTICO
+    // ==========================================================
+    private boolean puedeModificar(
+            Authentication authentication
+    ) {
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMINISTRADOR")
+                                || authority.getAuthority().equals("ROLE_FARMACEUTICO")
+                );
     }
 }

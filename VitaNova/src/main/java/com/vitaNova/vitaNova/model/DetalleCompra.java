@@ -7,27 +7,13 @@ import java.math.BigDecimal;
 @Table(name = "detalle_compra")
 public class DetalleCompra {
 
-    // =====================================================
-    // ID DETALLE COMPRA
-    // =====================================================
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_detalle_compra")
     private Long id_detalle_compra;
 
-
-    // =====================================================
-    // CANTIDAD
-    // =====================================================
-
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
-
-
-    // =====================================================
-    // PRECIO
-    // =====================================================
 
     @Column(
             name = "precio",
@@ -37,11 +23,6 @@ public class DetalleCompra {
     )
     private BigDecimal precio;
 
-
-    // =====================================================
-    // SUBTOTAL
-    // =====================================================
-
     @Column(
             name = "subtotal",
             nullable = false,
@@ -50,34 +31,25 @@ public class DetalleCompra {
     )
     private BigDecimal subtotal;
 
-
-    // =====================================================
-    // ID COMPRA
-    // =====================================================
-
     @Column(name = "id_compra")
     private Long id_compra;
-
-
-    // =====================================================
-    // ID PRODUCTO
-    // =====================================================
 
     @Column(name = "id_producto")
     private Long id_producto;
 
+    @Column(name = "id_lote")
+    private Long id_lote;
 
-    // =====================================================
-    // CONSTRUCTOR VACÍO
-    // =====================================================
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(
+            name = "id_lote",
+            insertable = false,
+            updatable = false
+    )
+    private Lote lote;
 
     public DetalleCompra() {
     }
-
-
-    // =====================================================
-    // GETTER Y SETTER - ID DETALLE COMPRA
-    // =====================================================
 
     public Long getId_detalle_compra() {
         return id_detalle_compra;
@@ -87,11 +59,6 @@ public class DetalleCompra {
         this.id_detalle_compra = id_detalle_compra;
     }
 
-
-    // =====================================================
-    // GETTER Y SETTER - CANTIDAD
-    // =====================================================
-
     public Integer getCantidad() {
         return cantidad;
     }
@@ -99,11 +66,6 @@ public class DetalleCompra {
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
     }
-
-
-    // =====================================================
-    // GETTER Y SETTER - PRECIO
-    // =====================================================
 
     public BigDecimal getPrecio() {
         return precio;
@@ -113,11 +75,6 @@ public class DetalleCompra {
         this.precio = precio;
     }
 
-
-    // =====================================================
-    // GETTER Y SETTER - SUBTOTAL
-    // =====================================================
-
     public BigDecimal getSubtotal() {
         return subtotal;
     }
@@ -125,11 +82,6 @@ public class DetalleCompra {
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
-
-
-    // =====================================================
-    // GETTER Y SETTER - ID COMPRA
-    // =====================================================
 
     public Long getId_compra() {
         return id_compra;
@@ -139,16 +91,27 @@ public class DetalleCompra {
         this.id_compra = id_compra;
     }
 
-
-    // =====================================================
-    // GETTER Y SETTER - ID PRODUCTO
-    // =====================================================
-
     public Long getId_producto() {
         return id_producto;
     }
 
     public void setId_producto(Long id_producto) {
         this.id_producto = id_producto;
+    }
+
+    public Long getId_lote() {
+        return id_lote;
+    }
+
+    public void setId_lote(Long id_lote) {
+        this.id_lote = id_lote;
+    }
+
+    public Lote getLote() {
+        return lote;
+    }
+
+    public void setLote(Lote lote) {
+        this.lote = lote;
     }
 }

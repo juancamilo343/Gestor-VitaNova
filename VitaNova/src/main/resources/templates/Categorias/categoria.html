@@ -5,6 +5,7 @@
 <head th:replace="~{fragments/layout :: head(${pageTitle})}">
 </head>
 
+
 <body>
 
 <div class="app-shell">
@@ -22,6 +23,7 @@
 
 
     <main class="dashboard-content">
+
 
       <!-- ENCABEZADO -->
       <section class="page-header">
@@ -41,7 +43,9 @@
 
         <div class="page-actions">
 
-          <a th:href="@{/view/categorias/form}"
+          <!-- SOLO ADMINISTRADOR Y FARMACÉUTICO -->
+          <a th:if="${puedeModificar}"
+             th:href="@{/view/categorias/form}"
              class="btn btn-primary">
 
             <i class="fa-solid fa-folder-plus"></i>
@@ -57,15 +61,23 @@
       </section>
 
 
-      <!-- MENSAJE -->
+      <!-- MENSAJE ÉXITO -->
       <div th:if="${success}"
            class="alert-banner success"
            th:text="${success}">
       </div>
 
 
+      <!-- MENSAJE ERROR -->
+      <div th:if="${error}"
+           class="alert-banner error"
+           th:text="${error}">
+      </div>
+
+
       <!-- TABLA -->
       <section class="table-card surface">
+
 
         <div class="table-header">
 
@@ -84,6 +96,7 @@
                    placeholder="Buscar por nombre"
                    class="search-input search-field">
 
+
             <button type="submit"
                     class="btn btn-white nowrap">
 
@@ -99,6 +112,7 @@
         <div class="overflow-x-auto">
 
           <table class="custom-table">
+
 
             <thead>
 
@@ -123,7 +137,9 @@
 
             <tbody>
 
+
             <tr th:each="categoria : ${categorias}">
+
 
               <td>
 
@@ -135,16 +151,22 @@
 
                   </div>
 
+
                   <span class="med-name"
                         th:text="${categoria.nombre}">
+
                                         Medicamentos
+
                                     </span>
 
                 </div>
 
+
                 <span class="text-muted text-small"
                       th:text="'ID: ' + ${categoria.id_categoria}">
+
                                     ID: 1
+
                                 </span>
 
               </td>
@@ -153,7 +175,9 @@
               <td>
 
                                 <span th:text="${categoria.descripcion != null ? categoria.descripcion : '—'}">
+
                                     Descripción de la categoría
+
                                 </span>
 
               </td>
@@ -161,7 +185,11 @@
 
               <td class="user-table-actions">
 
-                <div class="table-actions-row">
+
+                <!-- ADMINISTRADOR Y FARMACÉUTICO -->
+                <div th:if="${puedeModificar}"
+                     class="table-actions-row">
+
 
                   <a th:href="@{'/view/categorias/edit/' + ${categoria.id_categoria}}"
                      class="btn btn-white">
@@ -185,7 +213,18 @@
 
                   </form>
 
+
                 </div>
+
+
+                <!-- VENDEDOR Y AUXILIAR -->
+                <span th:unless="${puedeModificar}"
+                      class="text-muted text-small">
+
+                                    Solo lectura
+
+                                </span>
+
 
               </td>
 
@@ -203,6 +242,7 @@
 
             </tr>
 
+
             </tbody>
 
           </table>
@@ -215,12 +255,16 @@
           Total categorías:
 
           <span th:text="${#lists.size(categorias)}">
+
                         0
+
                     </span>
 
         </div>
 
+
       </section>
+
 
     </main>
 
@@ -229,4 +273,5 @@
 </div>
 
 </body>
+
 </html>

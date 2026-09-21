@@ -9,20 +9,26 @@
 
 <div class="app-shell">
 
+
     <!-- SIDEBAR -->
     <aside th:replace="~{fragments/layout :: sidebar('inventario')}">
     </aside>
 
+
     <div class="main-wrapper">
+
 
         <!-- TOPBAR -->
         <header th:replace="~{fragments/layout :: topbar}">
         </header>
 
+
         <main class="dashboard-content">
+
 
             <!-- ENCABEZADO -->
             <section class="page-header">
+
 
                 <div class="page-title">
 
@@ -30,13 +36,16 @@
                         Nuevo Inventario
                     </h1>
 
+
                     <p th:text="${pageSubtitle}">
                         Registre el inventario de un producto existente.
                     </p>
 
                 </div>
 
+
                 <div class="page-actions">
+
 
                     <a th:href="@{/view/inventario}"
                        class="btn btn-white">
@@ -49,17 +58,27 @@
 
                     </a>
 
+
                 </div>
 
             </section>
 
 
+            <!-- MENSAJE ERROR -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
+
+
             <section class="form-box">
+
 
                 <form th:action="@{/view/inventario/save}"
                       th:object="${inventario}"
                       method="post"
                       novalidate>
+
 
                     <input type="hidden"
                            th:field="*{id_inventario}">
@@ -68,38 +87,57 @@
                     <!-- PRODUCTO -->
                     <div class="form-section">
 
+
                         <h2 class="form-section-title">
+
                             Producto
+
                         </h2>
+
 
                         <div class="form-section-divider">
                         </div>
 
+
                         <div class="form-grid">
+
 
                             <div class="field-group wide">
 
+
                                 <label for="id_producto">
+
                                     Producto
+
                                 </label>
+
 
                                 <select id="id_producto"
                                         th:field="*{id_producto}"
                                         required>
 
+
                                     <option value="">
+
                                         Seleccione un producto
+
                                     </option>
+
 
                                     <option th:each="producto : ${productos}"
                                             th:value="${producto.id_producto}"
                                             th:text="${producto.nombre}">
+
                                         Producto
+
                                     </option>
+
 
                                 </select>
 
+
                             </div>
+
 
                         </div>
 
@@ -109,20 +147,30 @@
                     <!-- STOCK -->
                     <div class="form-section">
 
+
                         <h2 class="form-section-title">
+
                             Control de existencias
+
                         </h2>
+
 
                         <div class="form-section-divider">
                         </div>
 
+
                         <div class="form-grid">
+
 
                             <div class="field-group">
 
+
                                 <label for="stock_actual">
+
                                     Stock actual
+
                                 </label>
+
 
                                 <input id="stock_actual"
                                        type="number"
@@ -130,14 +178,19 @@
                                        th:field="*{stock_actual}"
                                        required>
 
+
                             </div>
 
 
                             <div class="field-group">
 
+
                                 <label for="stock_minimo">
+
                                     Stock mínimo
+
                                 </label>
+
 
                                 <input id="stock_minimo"
                                        type="number"
@@ -145,14 +198,19 @@
                                        th:field="*{stock_minimo}"
                                        required>
 
+
                             </div>
 
 
                             <div class="field-group">
 
+
                                 <label for="stock_maximo">
+
                                     Stock máximo
+
                                 </label>
+
 
                                 <input id="stock_maximo"
                                        type="number"
@@ -160,7 +218,9 @@
                                        th:field="*{stock_maximo}"
                                        required>
 
+
                             </div>
+
 
                         </div>
 
@@ -170,12 +230,14 @@
                     <!-- ACCIONES -->
                     <div class="form-actions">
 
+
                         <a th:href="@{/view/inventario}"
                            class="btn btn-white">
 
                             Cancelar
 
                         </a>
+
 
                         <button type="submit"
                                 class="btn btn-primary">
@@ -184,11 +246,15 @@
 
                         </button>
 
+
                     </div>
+
 
                 </form>
 
+
             </section>
+
 
         </main>
 
@@ -197,4 +263,5 @@
 </div>
 
 </body>
+
 </html>

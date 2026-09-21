@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Iniciar sesión | VitaNova</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          referrerpolicy="no-referrer">
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="login-page">
+
+    <div class="login-card">
+
+        <div class="login-brand">
+
+            <div class="login-brand-mark">
+                <i class="fa-solid fa-briefcase-medical"></i>
+            </div>
+
+            <div>
+                <div class="login-brand-name">
+                    VitaNova
+                </div>
+
+                <div class="login-brand-tag">
+                    PHARMA ERP
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="login-header">
+
+            <h1>Bienvenido</h1>
+
+            <p>
+                Inicia sesión para acceder al sistema.
+            </p>
+
+        </div>
+
+
+        <div class="login-alert login-alert-error"
+             th:if="${param.error}">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+                Usuario o contraseña incorrectos.
+            </span>
+
+        </div>
+
+
+        <div class="login-alert login-alert-success"
+             th:if="${param.logout}">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                Has cerrado sesión correctamente.
+            </span>
+
+        </div>
+
+
+        <div class="login-alert login-alert-success"
+             th:if="${param.registro}">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                Cuenta creada correctamente. Ya puedes iniciar sesión.
+            </span>
+
+        </div>
+
+
+        <form th:action="@{/login}"
+              method="post"
+              class="login-form">
+
+
+            <div class="login-field">
+
+                <label for="username">
+                    Usuario
+                </label>
+
+                <div class="login-input-wrapper">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Ingresa tu usuario"
+                            autocomplete="username"
+                            required>
+
+                </div>
+
+            </div>
+
+
+            <div class="login-field">
+
+                <label for="password">
+                    Contraseña
+                </label>
+
+                <div class="login-input-wrapper">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Ingresa tu contraseña"
+                            autocomplete="current-password"
+                            required>
+
+                </div>
+
+            </div>
+
+
+            <button type="submit"
+                    class="login-button">
+
+                <i class="fa-solid fa-right-to-bracket"></i>
+
+                Iniciar sesión
+
+            </button>
+
+        </form>
+
+
+        <div class="login-register">
+
+            <span>
+                ¿No tienes una cuenta?
+            </span>
+
+            <a th:href="@{/registro}">
+                Regístrate aquí
+            </a>
+
+        </div>
+
+
+        <div class="login-footer">
+
+            <span>
+                VitaNova PHARMA ERP
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

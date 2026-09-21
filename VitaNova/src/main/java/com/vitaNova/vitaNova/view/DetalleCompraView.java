@@ -8,6 +8,7 @@ import com.vitaNova.vitaNova.repository.DetalleCompraRepository;
 import com.vitaNova.vitaNova.repository.InventarioRepository;
 import com.vitaNova.vitaNova.repository.ProductosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -41,6 +42,7 @@ public class DetalleCompraView {
     public String detalles(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
 
         Compra compra =
@@ -57,7 +59,6 @@ public class DetalleCompraView {
 
             return "redirect:/view/compras";
         }
-
 
         model.addAttribute(
                 "compra",
@@ -102,6 +103,11 @@ public class DetalleCompraView {
                 "Productos incluidos en la compra seleccionada."
         );
 
+        model.addAttribute(
+                "puedeModificar",
+                puedeModificar(authentication)
+        );
+
         return "compras/detalleCompra";
     }
 
@@ -114,7 +120,18 @@ public class DetalleCompraView {
     public String form(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para agregar productos a una compra."
+            );
+
+            return "redirect:/view/compras/" + id + "/detalles";
+        }
 
         Compra compra =
                 compraRepository
@@ -131,7 +148,6 @@ public class DetalleCompraView {
             return "redirect:/view/compras";
         }
 
-
         DetalleCompra detalle =
                 new DetalleCompra();
 
@@ -139,7 +155,6 @@ public class DetalleCompraView {
         detalle.setCantidad(1);
         detalle.setPrecio(BigDecimal.ZERO);
         detalle.setSubtotal(BigDecimal.ZERO);
-
 
         model.addAttribute(
                 "compra",
@@ -189,7 +204,18 @@ public class DetalleCompraView {
             @PathVariable Long id,
             @PathVariable Long detalleId,
             Model model,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para editar productos de una compra."
+            );
+
+            return "redirect:/view/compras/" + id + "/detalles";
+        }
 
         Compra compra =
                 compraRepository
@@ -205,7 +231,6 @@ public class DetalleCompraView {
 
             return "redirect:/view/compras";
         }
-
 
         DetalleCompra detalle =
                 detalleCompraRepository
@@ -224,6 +249,17 @@ public class DetalleCompraView {
                     + "/detalles";
         }
 
+        if (!id.equals(detalle.getId_compra())) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "El detalle de compra no pertenece a esta compra."
+            );
+
+            return "redirect:/view/compras/"
+                    + id
+                    + "/detalles";
+        }
 
         model.addAttribute(
                 "compra",
@@ -273,7 +309,18 @@ public class DetalleCompraView {
     public String save(
             @PathVariable Long id,
             @ModelAttribute DetalleCompra detalle,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para agregar o modificar productos de una compra."
+            );
+
+            return "redirect:/view/compras/" + id + "/detalles";
+        }
 
         Compra compra =
                 compraRepository
@@ -475,7 +522,18 @@ public class DetalleCompraView {
     public String delete(
             @PathVariable Long id,
             @PathVariable Long detalleId,
+            Authentication authentication,
             RedirectAttributes ra) {
+
+        if (!puedeModificar(authentication)) {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "No tiene permisos para eliminar productos de una compra."
+            );
+
+            return "redirect:/view/compras/" + id + "/detalles";
+        }
 
         DetalleCompra detalle =
                 detalleCompraRepository
@@ -592,6 +650,28 @@ public class DetalleCompraView {
 
 
     // =========================================================
+    // PERMISOS
+    // =========================================================
+
+    private boolean puedeModificar(
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority()
+                                .equals("ROLE_ADMINISTRADOR")
+                                || authority.getAuthority()
+                                .equals("ROLE_FARMACEUTICO")
+                );
+    }
+
+
+    // =========================================================
     // VERIFICAR ESTADO RECIBIDA
     // =========================================================
 
@@ -613,11 +693,6 @@ public class DetalleCompraView {
     private String ajustarInventario(
             DetalleCompra detalleAnterior,
             DetalleCompra detalleNuevo) {
-
-
-        // =====================================================
-        // VALIDACIONES
-        // =====================================================
 
         if (detalleNuevo.getId_producto() == null) {
 
@@ -653,7 +728,6 @@ public class DetalleCompraView {
 
                 return "El stock actual del producto no está definido.";
             }
-
 
             inventarioNuevo.setStock_actual(
                     inventarioNuevo.getStock_actual()
@@ -700,24 +774,14 @@ public class DetalleCompraView {
                             - detalleAnterior.getCantidad();
 
 
-            // -------------------------------------------------
-            // AUMENTÓ LA CANTIDAD COMPRADA
-            // -------------------------------------------------
-
             if (diferencia > 0) {
 
                 inventario.setStock_actual(
                         inventario.getStock_actual()
                                 + diferencia
                 );
-            }
 
-
-            // -------------------------------------------------
-            // DISMINUYÓ LA CANTIDAD COMPRADA
-            // -------------------------------------------------
-
-            else if (diferencia < 0) {
+            } else if (diferencia < 0) {
 
                 int cantidadARetirar =
                         Math.abs(diferencia);
@@ -775,9 +839,9 @@ public class DetalleCompraView {
         }
 
 
-        // -----------------------------------------------------
-        // VALIDAR QUE SE PUEDA RETIRAR EL PRODUCTO ANTERIOR
-        // -----------------------------------------------------
+        // =====================================================
+        // VALIDAR PRODUCTO ANTERIOR
+        // =====================================================
 
         if (inventarioAnterior.getStock_actual()
                 < detalleAnterior.getCantidad()) {
@@ -786,9 +850,9 @@ public class DetalleCompraView {
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // DEVOLVER PRODUCTO ANTERIOR
-        // -----------------------------------------------------
+        // =====================================================
 
         inventarioAnterior.setStock_actual(
                 inventarioAnterior.getStock_actual()
@@ -796,9 +860,9 @@ public class DetalleCompraView {
         );
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // AGREGAR NUEVO PRODUCTO
-        // -----------------------------------------------------
+        // =====================================================
 
         inventarioNuevo.setStock_actual(
                 inventarioNuevo.getStock_actual()
@@ -806,9 +870,9 @@ public class DetalleCompraView {
         );
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // GUARDAR INVENTARIOS
-        // -----------------------------------------------------
+        // =====================================================
 
         inventarioRepository.save(
                 inventarioAnterior
@@ -858,4 +922,3 @@ public class DetalleCompraView {
         );
     }
 }
-
