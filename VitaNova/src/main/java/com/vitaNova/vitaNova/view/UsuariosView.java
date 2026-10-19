@@ -61,6 +61,10 @@ public class UsuariosView {
             @RequestParam(required = false) String error
     ) {
 
+        if (!puedeModificarUsuarios()) {
+            return "redirect:/view/dashboard?error=sinPermisos";
+        }
+
         List<Usuarios> usuarios;
 
         if (search != null && !search.trim().isEmpty()) {
@@ -431,7 +435,7 @@ public class UsuariosView {
                         .orElseThrow(() ->
                                 new RuntimeException(
                                         "Usuario no encontrado"
-                                )
+                                    )
                         );
 
         if (!puedeAdministrarUsuario(usuario)) {
@@ -629,8 +633,6 @@ public class UsuariosView {
                 .anyMatch(authority ->
                         authority.getAuthority()
                                 .equals("ROLE_ADMINISTRADOR")
-                                || authority.getAuthority()
-                                .equals("ROLE_FARMACEUTICO")
                 );
     }
 

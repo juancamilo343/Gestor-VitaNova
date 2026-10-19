@@ -40,10 +40,6 @@ public class CurrentUserAdvice {
             if ("ROLE_VENDEDOR".equals(rol)) {
                 return "Vendedor";
             }
-
-            if ("ROLE_AUXILIAR_FARMACIA".equals(rol)) {
-                return "Auxiliar de farmacia";
-            }
         }
 
         return "Usuario";

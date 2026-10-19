@@ -30,6 +30,11 @@ public class RolView {
             Model model,
             @RequestParam(required = false) String error) {
 
+        // Solo el ADMINISTRADOR puede acceder a la gestión de roles
+        if (!puedeModificarRoles()) {
+            return "redirect:/view/dashboard?error=sinPermisos";
+        }
+
         model.addAttribute(
                 "roles",
                 rolRepository.findAll()

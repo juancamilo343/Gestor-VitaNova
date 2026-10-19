@@ -165,27 +165,27 @@ public class RegistroController {
         }
 
         /*
-         * Buscar el rol AUXILIAR_FARMACIA.
+         * Buscar el rol VENDEDOR.
          *
          * El usuario NO puede escoger el rol.
          */
-        Rol rolAuxiliar = rolRepository.findAll()
+        Rol rolVendedor = rolRepository.findAll()
                 .stream()
                 .filter(rol ->
                         rol.getNombre() != null
                                 && rol.getNombre()
                                 .equalsIgnoreCase(
-                                        "AUXILIAR_FARMACIA"
+                                        "VENDEDOR"
                                 )
                 )
                 .findFirst()
                 .orElse(null);
 
-        if (rolAuxiliar == null) {
+        if (rolVendedor == null) {
 
             model.addAttribute(
                     "error",
-                    "No se encontró el rol AUXILIAR_FARMACIA en el sistema."
+                    "No se encontró el rol VENDEDOR en el sistema."
             );
 
             return "registro";
@@ -207,10 +207,10 @@ public class RegistroController {
 
         /*
          * Rol automático:
-         * AUXILIAR_FARMACIA
+         * VENDEDOR
          */
         usuario.setId_rol(
-                rolAuxiliar.getId_rol()
+                rolVendedor.getId_rol()
         );
 
         /*

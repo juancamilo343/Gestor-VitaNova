@@ -36,140 +36,177 @@ public class SecurityConfig {
 
 
                         // ==========================
-                        // TODOS LOS EMPLEADOS
-                        // PUEDEN VISUALIZAR
-                        // ==========================
-
-                        // EMPLEADOS
-                        .requestMatchers(
-                                "/view/empleados/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // USUARIOS
-                        .requestMatchers(
-                                "/view/usuarios/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // ROLES
-                        .requestMatchers(
-                                "/view/rol/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // CLIENTES
-                        .requestMatchers(
-                                "/view/clientes/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // PRODUCTOS
-                        .requestMatchers(
-                                "/view/productos/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // CATEGORÍAS
-                        .requestMatchers(
-                                "/view/categorias/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // INVENTARIO
-                        .requestMatchers(
-                                "/view/inventario/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // VENTAS
-                        .requestMatchers(
-                                "/view/ventas/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // COMPRAS
-                        .requestMatchers(
-                                "/view/compras/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // PROVEEDORES
-                        .requestMatchers(
-                                "/view/proveedores/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
-                        // REPORTES
-                        .requestMatchers(
-                                "/view/reportes/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
-                        )
-
-
                         // DASHBOARD
+                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // ==========================
                         .requestMatchers(
-                                "/view/dashboard"
+                                "/view",
+                                "/view/",
+                                "/view/dashboard",
+                                "/view/dashboard/**"
                         ).hasAnyRole(
                                 "ADMINISTRADOR",
                                 "FARMACEUTICO",
-                                "VENDEDOR",
-                                "AUXILIAR_FARMACIA"
+                                "VENDEDOR"
                         )
+
+
+                        // ==========================
+                        // VENTAS
+                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // ==========================
+                        .requestMatchers(
+                                "/view/ventas/**",
+                                "/api/ventas/**",
+                                "/api/detalles-venta/**",
+                                "/legacy/ventas/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO",
+                                "VENDEDOR"
+                        )
+
+
+                        // ==========================
+                        // CLIENTES
+                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // ==========================
+                        .requestMatchers(
+                                "/view/clientes/**",
+                                "/api/clientes/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO",
+                                "VENDEDOR"
+                        )
+
+
+                        // ==========================
+                        // PRODUCTOS
+                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // (El vendedor puede consultar productos para ventas)
+                        // ==========================
+                        .requestMatchers(
+                                "/view/productos/**",
+                                "/api/productos/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO",
+                                "VENDEDOR"
+                        )
+
+
+                        // ==========================
+                        // INVENTARIO
+                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // (El vendedor consulta disponibilidad de stock)
+                        // ==========================
+                        .requestMatchers(
+                                "/view/inventario/**",
+                                "/api/inventario/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO",
+                                "VENDEDOR"
+                        )
+
+
+                        // ==========================
+                        // LOTES (INVENTARIO)
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/lotes/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // CATEGORÍAS
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/categorias/**",
+                                "/api/categorias/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // COMPRAS
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/compras/**",
+                                "/api/compras/**",
+                                "/api/detalles-compra/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // PROVEEDORES
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/proveedores/**",
+                                "/api/proveedores/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // REPORTES
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/reportes/**",
+                                "/api/reportes/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // EMPLEADOS
+                        // Acceso: Administrador, Farmacéutico
+                        // ==========================
+                        .requestMatchers(
+                                "/view/empleados/**",
+                                "/api/empleados/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "FARMACEUTICO"
+                        )
+
+
+                        // ==========================
+                        // USUARIOS
+                        // Exclusivo: Administrador
+                        // ==========================
+                        .requestMatchers(
+                                "/view/usuarios/**",
+                                "/api/usuarios/**"
+                        ).hasRole("ADMINISTRADOR")
+
+
+                        // ==========================
+                        // ROLES
+                        // Exclusivo: Administrador
+                        // ==========================
+                        .requestMatchers(
+                                "/view/rol/**",
+                                "/api/roles/**"
+                        ).hasRole("ADMINISTRADOR")
 
 
                         // ==========================

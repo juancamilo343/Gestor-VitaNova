@@ -90,7 +90,7 @@
     <nav class="sidebar-nav">
 
         <!-- DASHBOARD -->
-        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR','AUXILIAR_FARMACIA')"
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
            th:href="@{/view/dashboard}"
            class="nav-link"
            th:classappend="${activeMenu == 'dashboard'} ? ' active'">
@@ -105,7 +105,7 @@
 
 
         <!-- CLIENTES -->
-        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR','AUXILIAR_FARMACIA')"
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
            th:href="@{/view/clientes}"
            class="nav-link"
            th:classappend="${activeMenu == 'clientes'} ? ' active'">
@@ -120,7 +120,7 @@
 
 
         <!-- PRODUCTOS -->
-        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','AUXILIAR_FARMACIA')"
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
            th:href="@{/view/productos}"
            class="nav-link"
            th:classappend="${activeMenu == 'productos'} ? ' active'">
@@ -150,7 +150,7 @@
 
 
         <!-- INVENTARIO -->
-        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','AUXILIAR_FARMACIA')"
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
            th:href="@{/view/inventario}"
            class="nav-link"
            th:classappend="${activeMenu == 'inventario'} ? ' active'">
@@ -210,7 +210,7 @@
 
 
         <!-- EMPLEADOS -->
-        <a sec:authorize="hasRole('ADMINISTRADOR')"
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO')"
            th:href="@{/view/empleados}"
            class="nav-link"
            th:classappend="${activeMenu == 'empleados'} ? ' active'">
