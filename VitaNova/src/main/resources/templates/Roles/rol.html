@@ -32,7 +32,7 @@
                 </h1>
 
                 <p th:text="${pageSubtitle}">
-                    Administre los roles, cargos y salarios de acceso del sistema.
+                    Administre los roles, permisos parametrizables y salarios del sistema.
                 </p>
 
             </div>
@@ -84,7 +84,7 @@
                     </span>
 
                     <p class="chart-subtitle">
-                        Lista de roles, cargos y salarios disponibles en VitaNova.
+                        Lista de roles, cargos, salarios y permisos disponibles en VitaNova.
                     </p>
 
                 </div>
@@ -114,6 +114,7 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
+                        <th>Permisos Parametrizados</th>
                         <th>Salario</th>
                         <th>Acciones</th>
 
@@ -173,6 +174,28 @@
                         </td>
 
 
+                        <!-- PERMISOS PARAMETRIZADOS -->
+                        <td>
+
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 320px;">
+
+                                <span th:each="perm : ${permisosPorRol[rol.id_rol]}"
+                                      class="status-pill"
+                                      style="font-size: 0.72rem; padding: 2px 7px; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;"
+                                      th:text="${perm.replace('PERM_', '')}">
+                                    VENTAS
+                                </span>
+
+                                <span th:if="${permisosPorRol[rol.id_rol] == null or #sets.isEmpty(permisosPorRol[rol.id_rol])}"
+                                      class="text-muted text-small">
+                                    Sin permisos asignados
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
                         <!-- SALARIO -->
                         <td>
 
@@ -200,13 +223,14 @@
                             <div class="table-actions-row"
                                  th:if="${puedeModificar}">
 
-                                <!-- EDITAR -->
+                                <!-- EDITAR / PARAMETRIZAR PERMISOS -->
                                 <a th:href="@{'/view/rol/edit/' + ${rol.id_rol}}"
-                                   class="btn btn-white">
+                                   class="btn btn-white"
+                                   title="Editar rol y parametrizar permisos">
 
-                                    <i class="fa-solid fa-pen"></i>
+                                    <i class="fa-solid fa-key"></i>
 
-                                    Editar
+                                    Permisos
 
                                 </a>
 
@@ -222,7 +246,7 @@
 
                                         <i class="fa-solid fa-trash"></i>
 
-                                        Eliminar
+                                        ¿Eliminar
 
                                     </button>
 
@@ -247,7 +271,7 @@
                     <!-- SIN ROLES -->
                     <tr th:if="${#lists.isEmpty(roles)}">
 
-                        <td colspan="5"
+                        <td colspan="6"
                             class="table-empty">
 
                             <i class="fa-solid fa-shield-halved"></i>

@@ -31,182 +31,179 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/favicon.ico"
+                                "/uploads/**"
                         ).permitAll()
 
 
                         // ==========================
                         // DASHBOARD
-                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // Acceso: Administrador o usuarios con PERM_DASHBOARD
                         // ==========================
                         .requestMatchers(
                                 "/view",
                                 "/view/",
                                 "/view/dashboard",
                                 "/view/dashboard/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_DASHBOARD"
                         )
 
 
                         // ==========================
                         // VENTAS
-                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // Acceso: Administrador o usuarios con PERM_VENTAS
                         // ==========================
                         .requestMatchers(
                                 "/view/ventas/**",
                                 "/api/ventas/**",
                                 "/api/detalles-venta/**",
                                 "/legacy/ventas/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_VENTAS"
                         )
 
 
                         // ==========================
                         // CLIENTES
-                        // Acceso: Administrador, Farmacéutico, Vendedor
+                        // Acceso: Administrador o usuarios con PERM_CLIENTES
                         // ==========================
                         .requestMatchers(
                                 "/view/clientes/**",
                                 "/api/clientes/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_CLIENTES"
                         )
 
 
                         // ==========================
                         // PRODUCTOS
-                        // Acceso: Administrador, Farmacéutico, Vendedor
-                        // (El vendedor puede consultar productos para ventas)
+                        // Acceso: Administrador o usuarios con PERM_PRODUCTOS
                         // ==========================
                         .requestMatchers(
                                 "/view/productos/**",
                                 "/api/productos/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_PRODUCTOS"
                         )
 
 
                         // ==========================
                         // INVENTARIO
-                        // Acceso: Administrador, Farmacéutico, Vendedor
-                        // (El vendedor consulta disponibilidad de stock)
+                        // Acceso: Administrador o usuarios con PERM_INVENTARIO
                         // ==========================
                         .requestMatchers(
                                 "/view/inventario/**",
                                 "/api/inventario/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO",
-                                "VENDEDOR"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_INVENTARIO"
                         )
 
 
                         // ==========================
                         // LOTES (INVENTARIO)
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_LOTES
                         // ==========================
                         .requestMatchers(
                                 "/view/lotes/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_LOTES"
                         )
 
 
                         // ==========================
                         // CATEGORÍAS
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_CATEGORIAS
                         // ==========================
                         .requestMatchers(
                                 "/view/categorias/**",
                                 "/api/categorias/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_CATEGORIAS"
                         )
 
 
                         // ==========================
                         // COMPRAS
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_COMPRAS
                         // ==========================
                         .requestMatchers(
                                 "/view/compras/**",
                                 "/api/compras/**",
                                 "/api/detalles-compra/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_COMPRAS"
                         )
 
 
                         // ==========================
                         // PROVEEDORES
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_PROVEEDORES
                         // ==========================
                         .requestMatchers(
                                 "/view/proveedores/**",
                                 "/api/proveedores/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_PROVEEDORES"
                         )
 
 
                         // ==========================
                         // REPORTES
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_REPORTES
                         // ==========================
                         .requestMatchers(
                                 "/view/reportes/**",
                                 "/api/reportes/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_REPORTES"
                         )
 
 
                         // ==========================
                         // EMPLEADOS
-                        // Acceso: Administrador, Farmacéutico
+                        // Acceso: Administrador o usuarios con PERM_EMPLEADOS
                         // ==========================
                         .requestMatchers(
                                 "/view/empleados/**",
                                 "/api/empleados/**"
-                        ).hasAnyRole(
-                                "ADMINISTRADOR",
-                                "FARMACEUTICO"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR",
+                                "PERM_EMPLEADOS"
                         )
 
 
                         // ==========================
                         // USUARIOS
-                        // Exclusivo: Administrador
+                        // Exclusivo: Administrador con PERM_USUARIOS
                         // ==========================
                         .requestMatchers(
                                 "/view/usuarios/**",
                                 "/api/usuarios/**"
-                        ).hasRole("ADMINISTRADOR")
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR"
+                        )
 
 
                         // ==========================
                         // ROLES
-                        // Exclusivo: Administrador
+                        // Exclusivo: Administrador con PERM_ROLES
                         // ==========================
                         .requestMatchers(
                                 "/view/rol/**",
                                 "/api/roles/**"
-                        ).hasRole("ADMINISTRADOR")
+                        ).hasAnyAuthority(
+                                "ROLE_ADMINISTRADOR"
+                        )
 
 
                         // ==========================

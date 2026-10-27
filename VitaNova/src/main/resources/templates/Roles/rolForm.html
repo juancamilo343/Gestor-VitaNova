@@ -28,11 +28,11 @@
             <div class="page-title">
 
                 <h1 th:text="${pageTitle}">
-                    Nuevo Rol
+                    Editar Rol y Permisos
                 </h1>
 
                 <p th:text="${pageSubtitle}">
-                    Configure la información del rol del sistema.
+                    Configure la información y los permisos de acceso del rol.
                 </p>
 
             </div>
@@ -67,11 +67,11 @@
                        th:field="*{id_rol}">
 
 
-                <!-- INFORMACIÓN -->
+                <!-- INFORMACIÓN GENERAL -->
                 <div class="form-section">
 
                     <h2 class="form-section-title">
-                        Información del rol
+                        Información general del rol
                     </h2>
 
                     <div class="form-section-divider">
@@ -117,7 +117,7 @@
                                    placeholder="Ej: 2500000">
 
                             <span class="text-muted text-small">
-                                Déjelo vacío si este rol no tiene salario.
+                                Déjelo vacío si este rol no tiene salario fijo.
                             </span>
 
                         </div>
@@ -132,8 +132,8 @@
 
                             <textarea id="descripcion"
                                       th:field="*{descripcion}"
-                                      placeholder="Descripción del rol..."
-                                      rows="4"
+                                      placeholder="Descripción de responsabilidades del rol..."
+                                      rows="3"
                                       maxlength="150"></textarea>
 
                         </div>
@@ -143,8 +143,61 @@
                 </div>
 
 
+                <!-- PARAMETRIZACIÓN DE PERMISOS -->
+                <div class="form-section" style="margin-top: 25px;">
+
+                    <h2 class="form-section-title">
+                        <i class="fa-solid fa-sliders" style="margin-right: 8px;"></i>
+                        Parametrización de Permisos del Rol
+                    </h2>
+
+                    <p class="text-muted text-small" style="margin-bottom: 15px;">
+                        Active o desactive los módulos y operaciones autorizados para este rol. Los cambios se persisten inmediatamente.
+                    </p>
+
+                    <div class="form-section-divider">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 15px;">
+
+                        <div th:each="permisoEntry : ${catalogoPermisos}"
+                             style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; transition: background 0.15s;">
+
+                            <input type="checkbox"
+                                   name="permisos"
+                                   th:value="${permisoEntry.key}"
+                                   th:id="${'perm_' + permisoEntry.key}"
+                                   th:checked="${permisosAsignados != null and permisosAsignados.contains(permisoEntry.key)}"
+                                   style="margin-top: 3px; width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
+
+                            <label th:for="${'perm_' + permisoEntry.key}" style="cursor: pointer; display: flex; flex-direction: column;">
+                                <strong style="font-size: 0.92rem; color: #1e293b;" th:text="${permisoEntry.value}">
+                                    Nombre Permiso
+                                </strong>
+                                <span class="text-muted text-small" style="font-family: monospace; font-size: 0.78rem;" th:text="${permisoEntry.key}">
+                                    PERM_KEY
+                                </span>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <div th:if="${roles.nombre != null and #strings.containsIgnoreCase(roles.nombre, 'ADMINISTRADOR')}"
+                         class="alert-banner info"
+                         style="margin-top: 18px;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>
+                            <strong>Seguridad del Administrador:</strong>
+                            <span> El rol <strong>ADMINISTRADOR</strong> conserva siempre acceso irrestricto y control sobre roles y usuarios para evitar el bloqueo del sistema.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
                 <!-- BOTONES -->
-                <div class="form-actions">
+                <div class="form-actions" style="margin-top: 25px;">
 
                     <a th:href="@{/view/rol}"
                        class="btn btn-white">
@@ -159,7 +212,7 @@
 
                         <i class="fa-solid fa-save"></i>
 
-                        Guardar rol
+                        Guardar rol y permisos
 
                     </button>
 

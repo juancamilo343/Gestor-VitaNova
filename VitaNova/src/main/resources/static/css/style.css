@@ -1508,3 +1508,44 @@ textarea:focus,
     gap: 17px;
   }
 }
+
+/* =========================================================
+   ALERTAS Y NOTIFICACIONES UNIFICADAS (VitaNova PHARMA ERP)
+========================================================= */
+.alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.alert-banner i {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.alert-banner.success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.alert-banner.warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.alert-banner.info {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}

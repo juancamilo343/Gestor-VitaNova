@@ -213,7 +213,7 @@
                                     </div>
 
                                     <span class="med-name"
-                                          th:text="${detalle.producto != null ? detalle.producto.nombre : 'Producto'}">
+                                          th:text="${detalle.producto != null ? detalle.producto.nombre : (nombresProductos != null && nombresProductos[detalle.id_producto] != null ? nombresProductos[detalle.id_producto] : 'Producto #' + detalle.id_producto)}">
 
                                         Producto
 
@@ -235,7 +235,7 @@
 
                             <td>
 
-                                <span th:text="'$ ' + ${detalle.precio_compra}">
+                                <span th:text="'$ ' + ${detalle.precio}">
                                     $ 0.00
                                 </span>
 
@@ -273,9 +273,9 @@
 
                                         <button type="submit"
                                                 class="btn btn-white"
-                                                onclick="return confirm('¿Eliminar este producto de la compra?')">
+                                                onclick="return confirm('¿¿Eliminar este producto de la compra?')">
 
-                                            Eliminar
+                                            ¿Eliminar
 
                                         </button>
 

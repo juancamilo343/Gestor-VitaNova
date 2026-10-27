@@ -78,6 +78,16 @@ public class DetalleCompraView {
                         .toList()
         );
 
+        java.util.Map<Long, String> nombresProductos = productosRepository.findAll()
+                .stream()
+                .filter(p -> p.getId_producto() != null && p.getNombre() != null)
+                .collect(java.util.stream.Collectors.toMap(
+                        com.vitaNova.vitaNova.model.Productos::getId_producto,
+                        com.vitaNova.vitaNova.model.Productos::getNombre,
+                        (a, b) -> a
+                ));
+        model.addAttribute("nombresProductos", nombresProductos);
+
         model.addAttribute(
                 "activeMenu",
                 "compras"
@@ -108,7 +118,7 @@ public class DetalleCompraView {
                 puedeModificar(authentication)
         );
 
-        return "compras/detalleCompra";
+        return "Compras/detalleCompra";
     }
 
 

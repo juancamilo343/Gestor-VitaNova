@@ -2,23 +2,25 @@ package com.vitaNova.vitaNova.view;
 
 import com.vitaNova.vitaNova.model.Rol;
 import com.vitaNova.vitaNova.repository.RolRepository;
+import com.vitaNova.vitaNova.service.RolPermisosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.*;
 
 @Controller
 public class RolView {
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private RolPermisosService rolPermisosService;
 
 
     // =========================================================
@@ -35,10 +37,15 @@ public class RolView {
             return "redirect:/view/dashboard?error=sinPermisos";
         }
 
-        model.addAttribute(
-                "roles",
-                rolRepository.findAll()
-        );
+        List<Rol> roles = rolRepository.findAll();
+        Map<Long, Set<String>> permisosPorRol = new HashMap<>();
+        for (Rol r : roles) {
+            permisosPorRol.put(r.getId_rol(), rolPermisosService.obtenerPermisos(r.getNombre(), r.getId_rol()));
+        }
+
+        model.addAttribute("roles", roles);
+        model.addAttribute("permisosPorRol", permisosPorRol);
+        model.addAttribute("catalogoPermisos", rolPermisosService.getCatalogoPermisos());
 
         model.addAttribute(
                 "pageTitle",
@@ -47,7 +54,7 @@ public class RolView {
 
         model.addAttribute(
                 "pageSubtitle",
-                "Administre los roles, cargos y salarios de acceso del sistema."
+                "Administre los roles, permisos parametrizables y salarios del sistema."
         );
 
         model.addAttribute(
@@ -69,7 +76,7 @@ public class RolView {
             );
         }
 
-        return "roles/rol";
+        return "Roles/rol";
     }
 
 
@@ -80,7 +87,6 @@ public class RolView {
     @GetMapping("/view/rol/form")
     public String form(Model model) {
 
-        // Solo el ADMINISTRADOR puede modificar roles
         if (!puedeModificarRoles()) {
             return "redirect:/view/rol?error=sinPermisos";
         }
@@ -90,6 +96,9 @@ public class RolView {
                 new Rol()
         );
 
+        model.addAttribute("catalogoPermisos", rolPermisosService.getCatalogoPermisos());
+        model.addAttribute("permisosAsignados", Collections.emptySet());
+
         model.addAttribute(
                 "pageTitle",
                 "Nuevo Rol"
@@ -97,7 +106,7 @@ public class RolView {
 
         model.addAttribute(
                 "pageSubtitle",
-                "Configure la información, cargo y salario del nuevo rol."
+                "Configure la información, cargo, salario y permisos del nuevo rol."
         );
 
         model.addAttribute(
@@ -105,29 +114,30 @@ public class RolView {
                 "roles"
         );
 
-        return "roles/rolForm";
+        return "Roles/rolForm";
     }
 
 
     // =========================================================
-    // GUARDAR / ACTUALIZAR ROL
+    // GUARDAR / ACTUALIZAR ROL CON PERMISOS
     // =========================================================
 
     @PostMapping("/view/rol/save")
     public String save(
             @ModelAttribute("roles") Rol rol,
+            @RequestParam(name = "permisos", required = false) List<String> permisos,
             RedirectAttributes ra) {
 
-        // Protección backend
         if (!puedeModificarRoles()) {
             return "redirect:/view/rol?error=sinPermisos";
         }
 
-        rolRepository.save(rol);
+        Rol guardado = rolRepository.save(rol);
+        rolPermisosService.guardarPermisosParaRol(guardado.getId_rol(), guardado.getNombre(), permisos);
 
         ra.addFlashAttribute(
                 "success",
-                "Rol registrado exitosamente"
+                "Rol y permisos guardados exitosamente."
         );
 
         return "redirect:/view/rol";
@@ -135,7 +145,7 @@ public class RolView {
 
 
     // =========================================================
-    // EDITAR ROL
+    // EDITAR ROL Y PERMISOS
     // =========================================================
 
     @GetMapping("/view/rol/edit/{id}")
@@ -143,7 +153,6 @@ public class RolView {
             @PathVariable Long id,
             Model model) {
 
-        // Protección backend
         if (!puedeModificarRoles()) {
             return "redirect:/view/rol?error=sinPermisos";
         }
@@ -161,14 +170,17 @@ public class RolView {
                 rol
         );
 
+        model.addAttribute("catalogoPermisos", rolPermisosService.getCatalogoPermisos());
+        model.addAttribute("permisosAsignados", rolPermisosService.obtenerPermisos(rol.getNombre(), rol.getId_rol()));
+
         model.addAttribute(
                 "pageTitle",
-                "Editar Rol"
+                "Editar Rol y Permisos"
         );
 
         model.addAttribute(
                 "pageSubtitle",
-                "Configure la información, cargo y salario del rol."
+                "Parametrice los permisos de acceso y funciones del rol."
         );
 
         model.addAttribute(
@@ -176,7 +188,7 @@ public class RolView {
                 "roles"
         );
 
-        return "roles/rolForm";
+        return "Roles/rolForm";
     }
 
 
@@ -189,7 +201,6 @@ public class RolView {
             @PathVariable Long id,
             RedirectAttributes ra) {
 
-        // Protección backend
         if (!puedeModificarRoles()) {
             return "redirect:/view/rol?error=sinPermisos";
         }

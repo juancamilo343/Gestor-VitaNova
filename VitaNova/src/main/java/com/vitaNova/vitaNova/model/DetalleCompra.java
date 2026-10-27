@@ -48,6 +48,14 @@ public class DetalleCompra {
     )
     private Lote lote;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(
+            name = "id_producto",
+            insertable = false,
+            updatable = false
+    )
+    private Productos producto;
+
     public DetalleCompra() {
     }
 
@@ -113,5 +121,17 @@ public class DetalleCompra {
 
     public void setLote(Lote lote) {
         this.lote = lote;
+    }
+
+    public Productos getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Productos producto) {
+        this.producto = producto;
+    }
+
+    public BigDecimal getPrecio_compra() {
+        return this.precio;
     }
 }

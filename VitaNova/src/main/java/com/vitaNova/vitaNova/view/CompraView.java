@@ -700,7 +700,7 @@ public class CompraView {
 
             ra.addFlashAttribute(
                     "success",
-                    "Compra registrada correctamente. El lote y el inventario fueron actualizados."
+                    "Compra registrada satisfactoriamente."
             );
 
             return "redirect:/view/compras/"

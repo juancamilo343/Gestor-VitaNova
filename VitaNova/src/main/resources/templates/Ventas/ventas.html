@@ -95,6 +95,37 @@
                  TARJETA DE VENTAS
             ================================================== -->
 
+            
+                <!-- =================================================
+                     FILTRO / BUSCADOR DEL HISTORIAL DE VENTAS
+                ================================================== -->
+                <form id="filtroHistorialVentas" method="get" th:action="@{/view/ventas}" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; padding: 14px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                    <div style="flex: 2; min-width: 200px;">
+                        <input type="text" name="buscar" th:value="${buscar}" placeholder="Buscar venta por cliente o ID..." class="form-control" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;">
+                    </div>
+                    <div style="flex: 1; min-width: 130px;">
+                        <input type="date" name="fechaInicio" th:value="${fechaInicio}" class="form-control" title="Fecha inicio" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
+                    </div>
+                    <div style="flex: 1; min-width: 130px;">
+                        <input type="date" name="fechaFin" th:value="${fechaFin}" class="form-control" title="Fecha fin" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                        <select name="estado" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
+                            <option value="TODOS" th:selected="${estadoSeleccionado == null or estadoSeleccionado == '' or estadoSeleccionado == 'TODOS'}">Todos los estados</option>
+                            <option value="PAGADA" th:selected="${estadoSeleccionado == 'PAGADA'}">Pagada</option>
+                            <option value="PENDIENTE" th:selected="${estadoSeleccionado == 'PENDIENTE'}">Pendiente</option>
+                            <option value="ANULADA" th:selected="${estadoSeleccionado == 'ANULADA'}">Anulada</option>
+                            <option value="DEVUELTA" th:selected="${estadoSeleccionado == 'DEVUELTA'}">Devuelta</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
+                        <i class="fa-solid fa-filter"></i> Filtrar
+                    </button>
+                    <a th:href="@{/view/ventas}" class="btn btn-white" style="padding: 8px 14px; font-size: 0.9rem;" th:if="${(buscar != null and !buscar.isEmpty()) or fechaInicio != null or fechaFin != null or (estadoSeleccionado != null and !estadoSeleccionado.isEmpty() and estadoSeleccionado != 'TODOS')}">
+                        <i class="fa-solid fa-xmark"></i> Limpiar
+                    </a>
+                </form>
+
             <section class="table-card surface">
 
 
@@ -229,7 +260,7 @@
 
                                     <span class="med-name"
                                           th:if="${venta.id_cliente != null}"
-                                          th:text="${'Cliente #' + venta.id_cliente}">
+                                          th:text="${nombresClientes != null && nombresClientes[venta.id_cliente] != null ? nombresClientes[venta.id_cliente] : 'Cliente #' + venta.id_cliente}">
 
                                         Cliente #1
 
@@ -252,7 +283,7 @@
                             <td>
 
                                 <span th:if="${venta.id_empleado != null}"
-                                      th:text="${'Empleado #' + venta.id_empleado}">
+                                      th:text="${nombresEmpleados != null && nombresEmpleados[venta.id_empleado] != null ? nombresEmpleados[venta.id_empleado] : \'Empleado #\' + venta.id_empleado}">
 
                                     Empleado #1
 
@@ -273,7 +304,7 @@
                             <td>
 
                                 <span th:if="${venta.id_metodo_pago != null}"
-                                      th:text="${'Método #' + venta.id_metodo_pago}">
+                                      th:text="${nombresMetodosPago != null && nombresMetodosPago[venta.id_metodo_pago] != null ? nombresMetodosPago[venta.id_metodo_pago] : \'Método #\' + venta.id_metodo_pago}">
 
                                     Método #1
 
@@ -415,7 +446,7 @@
                                                 th:disabled="${venta.estado != null
                                                     && (venta.estado.name() == 'ANULADA'
                                                     || venta.estado.name() == 'DEVUELTA')}"
-                                                onclick="return confirm('¿Está seguro de anular esta venta? El inventario se restaurará una sola vez.')">
+                                                onclick="return confirm('¿Está seguro de anular esta venta? El inventario se restauraráá una sola vez.')">
 
                                             <i class="fa-solid fa-ban"></i>
 
@@ -439,7 +470,7 @@
 
                                             <i class="fa-solid fa-trash"></i>
 
-                                            Eliminar
+                                            ¿Eliminar
 
                                         </button>
 

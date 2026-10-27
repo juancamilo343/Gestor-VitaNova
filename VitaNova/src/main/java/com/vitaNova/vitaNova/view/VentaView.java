@@ -1,6 +1,11 @@
 package com.vitaNova.vitaNova.view;
 
+import com.vitaNova.vitaNova.model.Clientes;
 import com.vitaNova.vitaNova.model.DetalleVenta;
+import com.vitaNova.vitaNova.model.MetodoPago;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 import com.vitaNova.vitaNova.model.DetalleVentaLote;
 import com.vitaNova.vitaNova.model.Empleados;
 import com.vitaNova.vitaNova.model.Inventario;
@@ -79,45 +84,111 @@ public class VentaView {
     // LISTAR VENTAS
     // =========================================================
 
+    private Map<Long, String> cargarMapaClientes() {
+        return clientesRepository.findAll().stream()
+                .filter(c -> c.getId_cliente() != null)
+                .collect(Collectors.toMap(
+                        Clientes::getId_cliente,
+                        c -> {
+                            String nom = c.getNombres() != null ? c.getNombres().trim() : "";
+                            String ape = c.getApellidos() != null && !c.getApellidos().isBlank() ? " " + c.getApellidos().trim() : "";
+                            return (nom + ape).isBlank() ? "Cliente #" + c.getId_cliente() : (nom + ape);
+                        },
+                        (a, b) -> a
+                ));
+    }
+
+    private Map<Long, String> cargarMapaEmpleados() {
+        return empleadosRepository.findAll().stream()
+                .filter(e -> e.getId_empleado() != null)
+                .collect(Collectors.toMap(
+                        Empleados::getId_empleado,
+                        e -> {
+                            String nom = e.getNombres() != null ? e.getNombres().trim() : "";
+                            String ape = e.getApellidos() != null && !e.getApellidos().isBlank() ? " " + e.getApellidos().trim() : "";
+                            return (nom + ape).isBlank() ? "Empleado #" + e.getId_empleado() : (nom + ape);
+                        },
+                        (a, b) -> a
+                ));
+    }
+
+    private Map<Long, String> cargarMapaMetodosPago() {
+        return metodoPagoRepository.findAll().stream()
+                .filter(m -> m.getId_metodo_pago() != null && m.getNombre() != null)
+                .collect(Collectors.toMap(
+                        MetodoPago::getId_metodo_pago,
+                        MetodoPago::getNombre,
+                        (a, b) -> a
+                ));
+    }
+
     @GetMapping
     public String listar(
+            @RequestParam(required = false) String buscar,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaFin,
+            @RequestParam(required = false) String estado,
             Model model,
             Authentication authentication) {
 
-        model.addAttribute(
-                "ventas",
-                ventaRepository.findAll()
-        );
+        Map<Long, String> nombresClientes = cargarMapaClientes();
+        Map<Long, String> nombresEmpleados = cargarMapaEmpleados();
+        Map<Long, String> nombresMetodosPago = cargarMapaMetodosPago();
 
-        model.addAttribute(
-                "pageTitle",
-                "Gestión de Ventas"
-        );
+        List<Venta> todas = ventaRepository.findAll();
+        List<Venta> filtradas = todas.stream().filter(v -> {
+            if (estado != null && !estado.isBlank() && !estado.equalsIgnoreCase("TODOS")) {
+                if (v.getEstado() == null || !v.getEstado().name().equalsIgnoreCase(estado.trim())) {
+                    return false;
+                }
+            }
+            if (fechaInicio != null && v.getFecha() != null) {
+                if (v.getFecha().toLocalDate().isBefore(fechaInicio)) {
+                    return false;
+                }
+            }
+            if (fechaFin != null && v.getFecha() != null) {
+                if (v.getFecha().toLocalDate().isAfter(fechaFin)) {
+                    return false;
+                }
+            }
+            if (buscar != null && !buscar.isBlank()) {
+                String b = buscar.trim().toLowerCase();
+                String idStr = v.getId_venta() != null ? String.valueOf(v.getId_venta()) : "";
+                String cliNombre = (v.getId_cliente() != null && nombresClientes.containsKey(v.getId_cliente()))
+                        ? nombresClientes.get(v.getId_cliente()).toLowerCase() : "";
+                if (!idStr.contains(b) && !cliNombre.contains(b)) {
+                    return false;
+                }
+            }
+            return true;
+        }).sorted((v1, v2) -> {
+            if (v1.getFecha() == null) return 1;
+            if (v2.getFecha() == null) return -1;
+            return v2.getFecha().compareTo(v1.getFecha());
+        }).toList();
 
-        model.addAttribute(
-                "pageSubtitle",
-                "Consulta y seguimiento de las ventas de la farmacia."
-        );
+        BigDecimal totalRecaudado = filtradas.stream()
+                .filter(v -> v.getEstado() != Venta.Estado.ANULADA && v.getTotal() != null)
+                .map(Venta::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        model.addAttribute(
-                "activeMenu",
-                "ventas"
-        );
-
-        model.addAttribute(
-                "userName",
-                "Administrador"
-        );
-
-        model.addAttribute(
-                "userRole",
-                "Farmacia Central"
-        );
-
-        model.addAttribute(
-                "puedeModificar",
-                puedeModificar(authentication)
-        );
+        model.addAttribute("ventas", filtradas);
+        model.addAttribute("nombresClientes", nombresClientes);
+        model.addAttribute("nombresEmpleados", nombresEmpleados);
+        model.addAttribute("nombresMetodosPago", nombresMetodosPago);
+        model.addAttribute("buscar", buscar != null ? buscar : "");
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+        model.addAttribute("estadoSeleccionado", estado != null ? estado : "");
+        model.addAttribute("totalVentas", filtradas.size());
+        model.addAttribute("totalRecaudado", totalRecaudado);
+        model.addAttribute("pageTitle", "Gestión de Ventas");
+        model.addAttribute("pageSubtitle", "Historial y seguimiento de ventas de la farmacia.");
+        model.addAttribute("activeMenu", "ventas");
+        model.addAttribute("userName", "Administrador");
+        model.addAttribute("userRole", "Farmacia Central");
+        model.addAttribute("puedeModificar", puedeModificar(authentication));
 
         return "Ventas/ventas";
     }
@@ -301,7 +372,7 @@ public class VentaView {
 
         ra.addFlashAttribute(
                 "success",
-                "Venta registrada correctamente. El inventario y los lotes fueron actualizados."
+                "Venta realizada satisfactoriamente."
         );
 
         return "redirect:/view/ventas/"
@@ -718,6 +789,10 @@ public class VentaView {
                         );
             }
         }
+
+        model.addAttribute("nombresClientes", cargarMapaClientes());
+        model.addAttribute("nombresEmpleados", cargarMapaEmpleados());
+        model.addAttribute("nombresMetodosPago", cargarMapaMetodosPago());
 
         model.addAttribute(
                 "venta",

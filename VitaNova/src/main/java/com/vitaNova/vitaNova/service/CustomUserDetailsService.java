@@ -5,7 +5,6 @@ import com.vitaNova.vitaNova.model.Usuarios;
 import com.vitaNova.vitaNova.repository.EmpleadosRepository;
 import com.vitaNova.vitaNova.repository.UsuariosRepository;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,11 +18,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UsuariosRepository usuariosRepository;
     private final EmpleadosRepository empleadosRepository;
+    private final RolPermisosService rolPermisosService;
 
     public CustomUserDetailsService(UsuariosRepository usuariosRepository,
-                                    EmpleadosRepository empleadosRepository) {
+                                    EmpleadosRepository empleadosRepository,
+                                    RolPermisosService rolPermisosService) {
         this.usuariosRepository = usuariosRepository;
         this.empleadosRepository = empleadosRepository;
+        this.rolPermisosService = rolPermisosService;
     }
 
     @Override
@@ -55,13 +57,17 @@ public class CustomUserDetailsService implements UserDetailsService {
                 ? usuario.getRol().getNombre()
                 : "Usuario";
 
-        GrantedAuthority authority =
-                new SimpleGrantedAuthority("ROLE_" + nombreRol.toUpperCase());
+        Long idRol = usuario.getRol() != null
+                ? usuario.getRol().getId_rol()
+                : null;
+
+        List<GrantedAuthority> authorities =
+                rolPermisosService.construirAutoridades(nombreRol, idRol);
 
         return User.builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
-                .authorities(List.of(authority))
+                .authorities(authorities)
                 .build();
     }
 }
