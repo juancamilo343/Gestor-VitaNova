@@ -191,6 +191,7 @@
 
                         <tr>
                             <th>Producto</th>
+                            <th>Presentación</th>
                             <th>Cantidad</th>
                             <th>Precio unitario</th>
                             <th>Subtotal</th>
@@ -209,6 +210,13 @@
                                         ? 'Producto #' + detalle.id_producto
                                         : 'Producto no especificado')}">
                                 Producto
+                            </td>
+
+                            <td>
+                                <span class="badge" style="font-size: 11px; padding: 2px 8px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 12px; font-weight: 600;"
+                                      th:text="${(detalle.nombre_presentacion != null ? detalle.nombre_presentacion : 'Unidad') + (detalle.factor_unidades != null && detalle.factor_unidades > 1 ? ' (x' + detalle.factor_unidades + ')' : '')}">
+                                    Unidad
+                                </span>
                             </td>
 
                             <td th:text="${detalle.cantidad}">
@@ -233,7 +241,7 @@
 
                         <tr th:if="${#lists.isEmpty(detalles)}">
 
-                            <td colspan="4"
+                            <td colspan="5"
                                 class="table-empty">
 
                                 Esta venta no tiene productos registrados.

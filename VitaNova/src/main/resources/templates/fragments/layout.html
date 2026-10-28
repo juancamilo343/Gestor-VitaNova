@@ -166,7 +166,7 @@
 
         <!-- VENTAS -->
         <a sec:authorize="hasAnyRole('ADMINISTRADOR','FARMACEUTICO','VENDEDOR')"
-           th:href="@{/view/ventas}"
+           th:href="@{/view/ventas/form}"
            class="nav-link"
            th:classappend="${activeMenu == 'ventas'} ? ' active'">
 
@@ -301,23 +301,6 @@
 
 <header th:fragment="topbar"
         class="topbar">
-
-    <div class="topbar-left">
-
-        <div>
-
-            <h1 th:text="${pageTitle != null ? pageTitle : 'VitaNova PHARMA ERP'}">
-                VitaNova PHARMA ERP
-            </h1>
-
-            <p th:if="${pageSubtitle != null}"
-               th:text="${pageSubtitle}">
-            </p>
-
-        </div>
-
-    </div>
-
 </header>
 
 

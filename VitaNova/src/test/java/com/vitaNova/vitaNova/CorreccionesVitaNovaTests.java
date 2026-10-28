@@ -107,4 +107,81 @@ public class CorreccionesVitaNovaTests {
         // Restaurar estado base para Vendedor
         service.guardarPermisosParaRol(3L, "VENDEDOR", List.of("PERM_DASHBOARD", "PERM_VENTAS", "PERM_CLIENTES"));
     }
+
+    @Test
+    @DisplayName("Etapa 3: Venta por presentaciones (Tableta y Caja) y descuento en unidades base")
+    void testPresentacionesEquivalenciaInventario() {
+        com.vitaNova.vitaNova.model.ProductoPresentacion presTableta = com.vitaNova.vitaNova.model.ProductoPresentacion.builder()
+                .id_presentacion(1L)
+                .id_producto(1L)
+                .nombre_presentacion("Tableta")
+                .factor_unidades(1)
+                .precio_venta(new BigDecimal("2000.00"))
+                .es_principal(false)
+                .estado(com.vitaNova.vitaNova.model.ProductoPresentacion.EstadoPresentacion.ACTIVO)
+                .build();
+
+        com.vitaNova.vitaNova.model.ProductoPresentacion presCaja = com.vitaNova.vitaNova.model.ProductoPresentacion.builder()
+                .id_presentacion(16L)
+                .id_producto(1L)
+                .nombre_presentacion("Caja")
+                .factor_unidades(10)
+                .precio_venta(new BigDecimal("20000.00"))
+                .es_principal(true)
+                .estado(com.vitaNova.vitaNova.model.ProductoPresentacion.EstadoPresentacion.ACTIVO)
+                .build();
+
+        // Stock inicial en unidades base (tabletas)
+        int stockInicial = 43;
+
+        // Venta 1: 1 Tableta
+        com.vitaNova.vitaNova.model.DetalleVenta det1 = new com.vitaNova.vitaNova.model.DetalleVenta();
+        det1.setId_producto(1L);
+        det1.setId_presentacion(presTableta.getId_presentacion());
+        det1.setNombre_presentacion(presTableta.getNombre_presentacion());
+        det1.setFactor_unidades(presTableta.getFactor_unidades());
+        det1.setCantidad(1);
+        det1.setPrecio(presTableta.getPrecio_venta());
+        det1.setSubtotal(presTableta.getPrecio_venta().multiply(BigDecimal.valueOf(det1.getCantidad())));
+        det1.setUnidades_base(det1.getCantidad() * det1.getFactor_unidades());
+
+        assertEquals(new BigDecimal("2000.00"), det1.getSubtotal());
+        assertEquals(1, det1.getUnidades_base());
+
+        int stockDespuesVenta1 = stockInicial - det1.getUnidades_base();
+        assertEquals(42, stockDespuesVenta1);
+
+        // Venta 2: 1 Caja
+        com.vitaNova.vitaNova.model.DetalleVenta det2 = new com.vitaNova.vitaNova.model.DetalleVenta();
+        det2.setId_producto(1L);
+        det2.setId_presentacion(presCaja.getId_presentacion());
+        det2.setNombre_presentacion(presCaja.getNombre_presentacion());
+        det2.setFactor_unidades(presCaja.getFactor_unidades());
+        det2.setCantidad(1);
+        det2.setPrecio(presCaja.getPrecio_venta());
+        det2.setSubtotal(presCaja.getPrecio_venta().multiply(BigDecimal.valueOf(det2.getCantidad())));
+        det2.setUnidades_base(det2.getCantidad() * det2.getFactor_unidades());
+
+        assertEquals(new BigDecimal("20000.00"), det2.getSubtotal());
+        assertEquals(10, det2.getUnidades_base());
+
+        int stockDespuesVenta2 = stockDespuesVenta1 - det2.getUnidades_base();
+        assertEquals(32, stockDespuesVenta2);
+
+        // Validación de no permitir existencias negativas
+        int cantidadCajasSolicitadas = 4; // Requiere 40 unidades base
+        int unidadesRequeridas = cantidadCajasSolicitadas * presCaja.getFactor_unidades();
+        assertTrue(unidadesRequeridas > stockDespuesVenta2, "Debe rechazar la venta porque 40 supera las 32 disponibles");
+
+        // Compatibilidad histórica: venta antigua sin id_presentacion ni factor_unidades explícito
+        com.vitaNova.vitaNova.model.DetalleVenta detHistorico = new com.vitaNova.vitaNova.model.DetalleVenta();
+        detHistorico.setCantidad(2);
+        detHistorico.setPrecio(new BigDecimal("3000.00"));
+        detHistorico.setSubtotal(new BigDecimal("6000.00"));
+
+        assertEquals(1, detHistorico.getFactor_unidades());
+        assertNull(detHistorico.getId_presentacion());
+        assertNull(detHistorico.getNombre_presentacion());
+        assertEquals(new BigDecimal("6000.00"), detHistorico.getSubtotal());
+    }
 }

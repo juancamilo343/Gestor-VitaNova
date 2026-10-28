@@ -55,6 +55,14 @@ public class Productos {
     @Column(name = "id_proveedor")
     private Long id_proveedor;
 
+    @Column(name = "permite_fraccionamiento")
+    @Builder.Default
+    private Boolean permite_fraccionamiento = false;
+
+    @Column(name = "unidad_base", length = 50)
+    @Builder.Default
+    private String unidad_base = "Unidad";
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_categoria", insertable = false, updatable = false)
     private Categoria categoria;
