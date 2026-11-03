@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Tirilla Venta #' + venta.id_venta + ' | VitaNova PHARMA'}">Comprobante de Venta POS - VitaNova PHARMA</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            --ticket-width: 80mm;
+            --ticket-bg: #ffffff;
+            --text-color: #111827;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        /* BARRA SUPERIOR DE ACCIONES (NO IMPRIMIBLE) */
+        .actions-toolbar {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            border: none;
+        }
+
+        .btn-print {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-print:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* CONTENEDOR DE LA TIRILLA TÉRMICA (80mm) */
+        .ticket-wrapper {
+            width: 100%;
+            max-width: 380px;
+            background: var(--ticket-bg);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 6px;
+            padding: 16px 14px;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .ticket-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .ticket-logo {
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .ticket-sublogo {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .ticket-info {
+            font-size: 11px;
+            color: #334155;
+            margin-bottom: 2px;
+        }
+
+        .ticket-divider-double {
+            border-top: 2px dashed #334155;
+            margin: 8px 0;
+        }
+
+        .ticket-divider-single {
+            border-top: 1px dashed #64748b;
+            margin: 6px 0;
+        }
+
+        .ticket-meta {
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .ticket-meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .ticket-meta-label {
+            font-weight: 700;
+        }
+
+        /* TABLA DE PRODUCTOS */
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+            margin: 6px 0;
+        }
+
+        .ticket-table th {
+            text-align: left;
+            padding: 4px 2px;
+            border-bottom: 1px dashed #334155;
+            font-weight: 700;
+        }
+
+        .ticket-table td {
+            padding: 4px 2px;
+            vertical-align: top;
+        }
+
+        .col-cant {
+            width: 12%;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .col-desc {
+            width: 50%;
+        }
+
+        .col-precio {
+            width: 18%;
+            text-align: right;
+        }
+
+        .col-total {
+            width: 20%;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .item-pres-tag {
+            font-size: 10px;
+            color: #475569;
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* TOTALES */
+        .ticket-totals {
+            font-size: 11.5px;
+            margin-top: 4px;
+        }
+
+        .ticket-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .ticket-grand-total {
+            font-size: 16px;
+            font-weight: 800;
+            padding: 6px 0;
+            margin: 6px 0;
+            border-top: 2px dashed #0f172a;
+            border-bottom: 2px dashed #0f172a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* PIE DE PÁGINA */
+        .ticket-footer {
+            text-align: center;
+            font-size: 10.5px;
+            color: #475569;
+            margin-top: 10px;
+            line-height: 1.3;
+        }
+
+        .ticket-legal-notice {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        /* REGLAS ESTRICTAS DE IMPRESIÓN TÉRMICA */
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .ticket-wrapper {
+                max-width: 80mm !important;
+                width: 80mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 4mm !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR DE ACCIONES (NO SE IMPRIME) -->
+    <div class="actions-toolbar no-print">
+        <button type="button" class="btn-action btn-print" onclick="window.print();">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimir Tirilla (Ctrl + P)</span>
+        </button>
+
+        <a th:href="@{/view/ventas/form}" class="btn-action btn-secondary" title="Abrir Punto de Venta">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Nueva Venta (POS)</span>
+        </a>
+
+        <a th:href="@{/view/ventas/{id}/detalles(id=${venta.id_venta})}" class="btn-action btn-secondary" title="Ver auditoría de la venta">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Ver Detalle</span>
+        </a>
+
+        <a th:href="@{/view/ventas}" class="btn-action btn-secondary" title="Volver al historial">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Historial</span>
+        </a>
+    </div>
+
+    <!-- FORMATO DE TIRILLA TÉRMICA DE VENTA -->
+    <div class="ticket-wrapper">
+
+        <!-- CABECERA DE LA DROGUERÍA / ESTABLECIMIENTO -->
+        <div class="ticket-header">
+            <div class="ticket-logo">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                <span>VitaNova PHARMA</span>
+            </div>
+            <div class="ticket-sublogo">Droguería y Farmacia Central</div>
+            <div class="ticket-info">NIT: 900.876.543-1 · Régimen Común</div>
+            <div class="ticket-info">Dir: Carrera 15 # 45-67, Bogotá D.C.</div>
+            <div class="ticket-info">Tel: (601) 345-6789 · Cel: 310-9876543</div>
+        </div>
+
+        <div class="ticket-divider-double"></div>
+
+        <!-- METADATOS DEL COMPROBANTE -->
+        <div class="ticket-meta">
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">COMPROBANTE POS:</span>
+                <strong th:text="${'#VTA-' + #numbers.formatInteger(venta.id_venta, 6)}">#VTA-000001</strong>
+            </div>
+
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">FECHA Y HORA:</span>
+                <span th:text="${venta.fecha != null ? #temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm:ss') : '-'}">28/10/2026 14:30:00</span>
+            </div>
+
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">CAJERO / RESP.:</span>
+                <span th:text="${empleado != null ? (empleado.nombres + ' ' + (empleado.apellidos != null ? empleado.apellidos : '')) : 'Cajero Central'}">Empleado</span>
+            </div>
+
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">MEDIO DE PAGO:</span>
+                <strong th:text="${metodoPago != null ? metodoPago.nombre : 'Efectivo'}">Efectivo</strong>
+            </div>
+
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">ESTADO VENTA:</span>
+                <span th:text="${venta.estado != null ? venta.estado.name() : 'PAGADA'}">PAGADA</span>
+            </div>
+
+            <!-- DATOS DEL CLIENTE (ÚNICAMENTE SI CORRESPONDE O CONSUMIDOR FINAL) -->
+            <div class="ticket-divider-single"></div>
+
+            <div class="ticket-meta-row">
+                <span class="ticket-meta-label">CLIENTE:</span>
+                <span th:text="${cliente != null ? (cliente.nombres + ' ' + (cliente.apellidos != null ? cliente.apellidos : '')) : 'Consumidor Final'}">Consumidor Final</span>
+            </div>
+
+            <div class="ticket-meta-row" th:if="${cliente != null && cliente.documento != null && !cliente.documento.isBlank()}">
+                <span class="ticket-meta-label">DOC / NIT:</span>
+                <span th:text="${cliente.documento}">123456789</span>
+            </div>
+
+            <div class="ticket-meta-row" th:if="${cliente != null && cliente.telefono != null && !cliente.telefono.isBlank()}">
+                <span class="ticket-meta-label">TELÉFONO:</span>
+                <span th:text="${cliente.telefono}">3001234567</span>
+            </div>
+        </div>
+
+        <div class="ticket-divider-double"></div>
+
+        <!-- LISTA TABULAR DE PRODUCTOS Y PRESENTACIONES -->
+        <table class="ticket-table">
+            <thead>
+                <tr>
+                    <th class="col-cant">CNT</th>
+                    <th class="col-desc">DESCRIPCIÓN</th>
+                    <th class="col-precio">P.UNIT</th>
+                    <th class="col-total">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="d : ${detalles}">
+                    <td class="col-cant" th:text="${d.cantidad}">1</td>
+                    <td class="col-desc">
+                        <span th:text="${d.id_producto != null && nombresProductos[d.id_producto] != null ? nombresProductos[d.id_producto] : 'Medicamento'}">Medicamento</span>
+                        <span class="item-pres-tag" th:text="'[' + (d.nombre_presentacion != null ? d.nombre_presentacion : 'Unidad') + (d.factor_unidades != null && d.factor_unidades > 1 ? ' x' + d.factor_unidades : '') + ']'">[Caja]</span>
+                    </td>
+                    <td class="col-precio" th:text="${d.precio != null ? #numbers.formatDecimal(d.precio, 1, 'POINT', 0, 'COMMA') : '0'}">0</td>
+                    <td class="col-total" th:text="${d.subtotal != null ? #numbers.formatDecimal(d.subtotal, 1, 'POINT', 0, 'COMMA') : '0'}">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ticket-divider-single"></div>
+
+        <!-- TOTALES Y DESCUENTOS -->
+        <div class="ticket-totals">
+            <div class="ticket-total-row">
+                <span>SUBTOTAL BRUTO:</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(subtotalBruto != null ? subtotalBruto : 0, 1, 'POINT', 2, 'COMMA')}">$ 0.00</strong>
+            </div>
+
+            <div class="ticket-total-row" th:if="${venta.descuento != null && venta.descuento.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <span>DESCUENTO APLICADO:</span>
+                <strong style="color: #b91c1c;" th:text="${'- $ ' + #numbers.formatDecimal(venta.descuento, 1, 'POINT', 2, 'COMMA')}">- $ 0.00</strong>
+            </div>
+
+            <div class="ticket-total-row">
+                <span>IMPUESTOS (IVA 19%):</span>
+                <span th:text="${'$ ' + #numbers.formatDecimal(venta.impuestos != null ? venta.impuestos : 0, 1, 'POINT', 2, 'COMMA')}">$ 0.00</span>
+            </div>
+
+            <!-- TOTAL FINAL A PAGAR -->
+            <div class="ticket-grand-total">
+                <span>TOTAL A PAGAR:</span>
+                <span th:text="${'$ ' + #numbers.formatDecimal(venta.total != null ? venta.total : 0, 1, 'POINT', 2, 'COMMA')}">$ 0.00</span>
+            </div>
+        </div>
+
+        <!-- PIE DE TIRILLA Y NOTAS LEGALES -->
+        <div class="ticket-footer">
+            <div class="ticket-legal-notice">*** COMPROBANTE DE VENTA POS ***</div>
+            <div>Documento de control interno de operación.</div>
+            <div style="margin: 4px 0; font-size: 9.5px; color: #64748b;">
+                Este comprobante no reemplaza la factura electrónica fiscal según resolución DIAN.
+            </div>
+            <div class="ticket-divider-single"></div>
+            <div style="font-weight: 700; margin-top: 4px;">¡Gracias por confiar en VitaNova PHARMA!</div>
+            <div>Cuide su salud con medicamentos de calidad garantizada.</div>
+            <div style="margin-top: 4px; font-size: 9px; color: #94a3b8;">
+                Conserve esta tirilla para cualquier trámite o garantía médica.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT DE AUTO-IMPRESIÓN SI SE INDICA autoPrint=true -->
+    <script th:if="${autoPrint}">
+        window.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                window.print();
+            }, 350);
+        });
+    </script>
+
+</body>
+</html>
