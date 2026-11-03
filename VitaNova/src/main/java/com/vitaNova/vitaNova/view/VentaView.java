@@ -387,7 +387,7 @@ public class VentaView {
 
         return "redirect:/view/ventas/"
                 + nuevaVenta.getId_venta()
-                + "/detalles";
+                + "/comprobante?autoPrint=true";
     }
 
 
@@ -860,6 +860,58 @@ public class VentaView {
 
 
     // =========================================================
+    // COMPROBANTE DE VENTA E IMPRESIÓN DE TIRILLA (ETAPA 5)
+    // DOCUMENTO DE CONTROL INTERNO POS (NO FACTURA ELECTRÓNICA DIAN)
+    // =========================================================
+    @GetMapping("/{id}/comprobante")
+    public String comprobante(
+            @PathVariable Long id,
+            @RequestParam(value = "autoPrint", required = false, defaultValue = "false") boolean autoPrint,
+            Model model,
+            RedirectAttributes ra,
+            Authentication authentication) {
+
+        Venta venta = ventaRepository.findById(id).orElse(null);
+        if (venta == null) {
+            ra.addFlashAttribute("error", "Venta no encontrada.");
+            return "redirect:/view/ventas";
+        }
+
+        List<DetalleVenta> detalles = detallesDeVenta(id);
+        Map<Long, String> nombresProductos = new HashMap<>();
+        for (Productos p : productosRepository.findAll()) {
+            nombresProductos.put(p.getId_producto(), p.getNombre());
+        }
+
+        Clientes cliente = (venta.getId_cliente() != null)
+                ? clientesRepository.findById(venta.getId_cliente()).orElse(null) : null;
+        Empleados empleado = (venta.getId_empleado() != null)
+                ? empleadosRepository.findById(venta.getId_empleado()).orElse(null) : null;
+        MetodoPago metodoPago = (venta.getId_metodo_pago() != null)
+                ? metodoPagoRepository.findById(venta.getId_metodo_pago()).orElse(null) : null;
+
+        BigDecimal subtotalBruto = BigDecimal.ZERO;
+        for (DetalleVenta d : detalles) {
+            if (d.getSubtotal() != null) {
+                subtotalBruto = subtotalBruto.add(d.getSubtotal());
+            }
+        }
+
+        model.addAttribute("venta", venta);
+        model.addAttribute("detalles", detalles);
+        model.addAttribute("nombresProductos", nombresProductos);
+        model.addAttribute("subtotalBruto", subtotalBruto);
+        model.addAttribute("cliente", cliente);
+        model.addAttribute("empleado", empleado);
+        model.addAttribute("metodoPago", metodoPago);
+        model.addAttribute("autoPrint", autoPrint);
+        model.addAttribute("pageTitle", "Comprobante POS #" + venta.getId_venta());
+
+        return "Ventas/comprobanteVenta";
+    }
+
+
+    // =========================================================
     // EL FLUJO DE PRODUCTOS YA NO SE REGISTRA DESDE DETALLES
     // =========================================================
 
@@ -1046,7 +1098,7 @@ public class VentaView {
         Map<Long, List<ProductoPresentacion>> presentacionesPorProducto = new HashMap<>();
         List<ProductoPresentacion> todasPresentaciones = productoPresentacionRepository.findAll();
         for (ProductoPresentacion pres : todasPresentaciones) {
-            if (pres.getEstado() == ProductoPresentacion.EstadoPresentacion.ACTIVO) {
+            if (pres.getEstado() == ProductoPresentacion.EstadoPresentacion.ACTIVO && Boolean.TRUE.equals(pres.getPermite_venta())) {
                 presentacionesPorProducto.computeIfAbsent(pres.getId_producto(), k -> new ArrayList<>()).add(pres);
             }
         }
@@ -1318,7 +1370,7 @@ public class VentaView {
             }
 
             if (pres == null) {
-                List<ProductoPresentacion> activas = productoPresentacionRepository.findActivasPorProducto(producto.getId_producto());
+                List<ProductoPresentacion> activas = productoPresentacionRepository.findActivasVentaPorProducto(producto.getId_producto());
                 if (!activas.isEmpty()) {
                     pres = activas.get(0);
                 }

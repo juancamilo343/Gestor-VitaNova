@@ -172,7 +172,7 @@
             -
         </td>
 
-        <td th:text="${inventario.stock_actual}">
+        <td th:text="${inventario.stock_actual} + ' ' + (${inventario.producto != null && inventario.producto.unidad_base != null ? inventario.producto.unidad_base : 'unid.'})">
             0
         </td>
 

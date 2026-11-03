@@ -14,6 +14,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import com.vitaNova.vitaNova.model.ProductoPresentacion;
+import com.vitaNova.vitaNova.repository.ProductoPresentacionRepository;
 
 @Controller
 @RequestMapping("/view/inventario")
@@ -27,6 +32,9 @@ public class InventarioView {
 
     @Autowired
     private LoteRepository loteRepository;
+
+    @Autowired
+    private ProductoPresentacionRepository productoPresentacionRepository;
 
 
     // =========================
@@ -89,6 +97,57 @@ public class InventarioView {
          */
         inventarios =
                 inventarioRepository.findAll();
+
+        Map<Long, String> desglosesInventario = new HashMap<>();
+        List<ProductoPresentacion> todasPresentaciones = productoPresentacionRepository.findAll();
+        Map<Long, List<ProductoPresentacion>> presPorProd = new HashMap<>();
+        for (ProductoPresentacion pr : todasPresentaciones) {
+            if (pr.getEstado() == ProductoPresentacion.EstadoPresentacion.ACTIVO) {
+                presPorProd.computeIfAbsent(pr.getId_producto(), k -> new ArrayList<>()).add(pr);
+            }
+        }
+        for (List<ProductoPresentacion> l : presPorProd.values()) {
+            l.sort((a, b) -> Integer.compare(
+                    b.getFactor_unidades() != null ? b.getFactor_unidades() : 1,
+                    a.getFactor_unidades() != null ? a.getFactor_unidades() : 1
+            ));
+        }
+
+        for (Inventario inv : inventarios) {
+            if (inv.getId_producto() == null) continue;
+            int stock = inv.getStock_actual() != null ? inv.getStock_actual() : 0;
+            String uBase = (inv.getProducto() != null && inv.getProducto().getUnidad_base() != null)
+                    ? inv.getProducto().getUnidad_base() : "unid.";
+
+            List<ProductoPresentacion> list = presPorProd.get(inv.getId_producto());
+            if (list != null && !list.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                int rem = stock;
+                boolean tieneEmpaques = false;
+                for (ProductoPresentacion pr : list) {
+                    int factor = pr.getFactor_unidades() != null ? pr.getFactor_unidades() : 1;
+                    if (factor > 1) {
+                        int paquetes = rem / factor;
+                        if (paquetes > 0) {
+                            if (tieneEmpaques) sb.append(", ");
+                            sb.append(paquetes).append(" ").append(pr.getNombre_presentacion());
+                            tieneEmpaques = true;
+                            rem %= factor;
+                        }
+                    }
+                }
+                if (rem > 0 || !tieneEmpaques) {
+                    if (tieneEmpaques) sb.append(" + ");
+                    sb.append(rem).append(" ").append(uBase);
+                }
+                desglosesInventario.put(inv.getId_producto(), sb.toString());
+            }
+        }
+
+        model.addAttribute(
+                "desglosesInventario",
+                desglosesInventario
+        );
 
         model.addAttribute(
                 "inventarios",

@@ -22,6 +22,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.math.RoundingMode;
+import com.vitaNova.vitaNova.model.Productos;
+import com.vitaNova.vitaNova.model.ProductoPresentacion;
+import com.vitaNova.vitaNova.repository.ProductoPresentacionRepository;
 
 @Controller
 @RequestMapping("/view/compras")
@@ -44,6 +50,9 @@ public class CompraView {
 
     @Autowired
     private LoteRepository loteRepository;
+
+    @Autowired
+    private ProductoPresentacionRepository productoPresentacionRepository;
 
 
     // =========================================================
@@ -99,6 +108,63 @@ public class CompraView {
     // NUEVA COMPRA
     // =========================================================
 
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\"", "\\\"");
+    }
+
+    private String generarPresentacionesCompraJson(List<Productos> productos) {
+        List<ProductoPresentacion> todas = productoPresentacionRepository.findAll();
+        Map<Long, List<ProductoPresentacion>> porProducto = new HashMap<>();
+        for (ProductoPresentacion pres : todas) {
+            if (pres.getEstado() == ProductoPresentacion.EstadoPresentacion.ACTIVO && Boolean.TRUE.equals(pres.getPermite_compra())) {
+                porProducto.computeIfAbsent(pres.getId_producto(), k -> new ArrayList<>()).add(pres);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder("{");
+        boolean firstProd = true;
+        for (Productos p : productos) {
+            List<ProductoPresentacion> list = porProducto.get(p.getId_producto());
+            if (!firstProd) sb.append(",");
+            firstProd = false;
+            sb.append("\"").append(p.getId_producto()).append("\":{");
+            sb.append("\"unidadBase\":\"").append(escapeJson(p.getUnidad_base() != null ? p.getUnidad_base() : "Unidad")).append("\",");
+            sb.append("\"codigo\":\"").append(escapeJson(p.getCodigo_interno() != null ? p.getCodigo_interno() : "")).append("\",");
+            sb.append("\"precioCompraBase\":").append(p.getPrecio_compra() != null ? p.getPrecio_compra() : BigDecimal.ZERO).append(",");
+            sb.append("\"presentaciones\":[");
+            if (list != null && !list.isEmpty()) {
+                boolean firstPres = true;
+                for (ProductoPresentacion pr : list) {
+                    if (!firstPres) sb.append(",");
+                    firstPres = false;
+
+                    int factor = pr.getFactor_unidades() != null && pr.getFactor_unidades() > 0 ? pr.getFactor_unidades() : 1;
+                    BigDecimal costo = (pr.getCosto_compra() != null && pr.getCosto_compra().compareTo(BigDecimal.ZERO) > 0)
+                            ? pr.getCosto_compra()
+                            : (p.getPrecio_compra() != null
+                                    ? p.getPrecio_compra().multiply(BigDecimal.valueOf(factor))
+                                    : BigDecimal.ZERO);
+
+                    sb.append("{\"id\":").append(pr.getId_presentacion())
+                      .append(",\"nombre\":\"").append(escapeJson(pr.getNombre_presentacion())).append("\"")
+                      .append(",\"factor\":").append(factor)
+                      .append(",\"costo\":").append(costo)
+                      .append(",\"esPrincipal\":").append(Boolean.TRUE.equals(pr.getEs_principal()))
+                      .append("}");
+                }
+            } else {
+                sb.append("{\"id\":null,\"nombre\":\"")
+                  .append(escapeJson(p.getUnidad_base() != null ? p.getUnidad_base() : "Unidad"))
+                  .append("\",\"factor\":1,\"costo\":").append(p.getPrecio_compra() != null ? p.getPrecio_compra() : BigDecimal.ZERO)
+                  .append(",\"esPrincipal\":true}");
+            }
+            sb.append("]}");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
     @GetMapping("/form")
     public String form(
             Model model,
@@ -131,9 +197,14 @@ public class CompraView {
                 proveedorRepository.findAll()
         );
 
+        List<Productos> listaProductos = productosRepository.findAll();
         model.addAttribute(
                 "productos",
-                productosRepository.findAll()
+                listaProductos
+        );
+        model.addAttribute(
+                "presentacionesCompraJson",
+                generarPresentacionesCompraJson(listaProductos)
         );
 
         model.addAttribute(
@@ -201,9 +272,14 @@ public class CompraView {
                 proveedorRepository.findAll()
         );
 
+        List<Productos> listaProductos = productosRepository.findAll();
         model.addAttribute(
                 "productos",
-                productosRepository.findAll()
+                listaProductos
+        );
+        model.addAttribute(
+                "presentacionesCompraJson",
+                generarPresentacionesCompraJson(listaProductos)
         );
 
         model.addAttribute(
@@ -269,6 +345,12 @@ public class CompraView {
                     required = false
             )
             List<LocalDate> fechasVencimiento,
+
+            @RequestParam(
+                    value = "id_presentaciones[]",
+                    required = false
+            )
+            List<Long> idPresentaciones,
 
             Authentication authentication,
             RedirectAttributes ra) {
@@ -569,9 +651,46 @@ public class CompraView {
                                 )
                         );
 
+                // -------------------------------------------------
+                // RESOLVER PRESENTACIÓN Y CONVERSIÓN A UNIDAD BASE
+                // -------------------------------------------------
+                Long idPresentacion = (idPresentaciones != null && i < idPresentaciones.size())
+                        ? idPresentaciones.get(i) : null;
+
+                Productos productoObj = productosRepository.findById(idProducto).orElse(null);
+                String unidadBase = productoObj != null && productoObj.getUnidad_base() != null
+                        ? productoObj.getUnidad_base() : "Unidad";
+
+                ProductoPresentacion pres = null;
+                if (idPresentacion != null) {
+                    pres = productoPresentacionRepository.findById(idPresentacion).orElse(null);
+                }
+
+                int factor = 1;
+                String nombrePresentacion = unidadBase;
+
+                if (pres != null) {
+                    factor = (pres.getFactor_unidades() != null && pres.getFactor_unidades() > 0)
+                            ? pres.getFactor_unidades() : 1;
+                    nombrePresentacion = pres.getNombre_presentacion();
+                } else {
+                    List<ProductoPresentacion> presList = productoPresentacionRepository.findActivasCompraPorProducto(idProducto);
+                    if (!presList.isEmpty()) {
+                        pres = presList.get(0);
+                        factor = (pres.getFactor_unidades() != null && pres.getFactor_unidades() > 0)
+                                ? pres.getFactor_unidades() : 1;
+                        nombrePresentacion = pres.getNombre_presentacion();
+                        idPresentacion = pres.getId_presentacion();
+                    }
+                }
+
+                int unidadesBase = cantidad * factor;
+                BigDecimal costoUnitarioBase = factor > 0
+                        ? precio.divide(BigDecimal.valueOf(factor), 4, RoundingMode.HALF_UP)
+                        : precio;
 
                 // -------------------------------------------------
-                // CREAR LOTE
+                // CREAR LOTE (EN UNIDADES BASE FÍSICAS)
                 // -------------------------------------------------
 
                 Lote lote =
@@ -590,7 +709,7 @@ public class CompraView {
                 );
 
                 lote.setCantidad(
-                        cantidad
+                        unidadesBase
                 );
 
                 lote.setEstado(
@@ -625,6 +744,26 @@ public class CompraView {
 
                 detalle.setId_lote(
                         loteGuardado.getId_lote()
+                );
+
+                detalle.setId_presentacion(
+                        idPresentacion
+                );
+
+                detalle.setNombre_presentacion(
+                        nombrePresentacion
+                );
+
+                detalle.setFactor_unidades(
+                        factor
+                );
+
+                detalle.setUnidades_base(
+                        unidadesBase
+                );
+
+                detalle.setCosto_unitario_base(
+                        costoUnitarioBase
                 );
 
                 detalle.setCantidad(
@@ -1064,6 +1203,10 @@ public class CompraView {
                             )
                             .orElse(null);
 
+            int unidadesBase = (detalle.getUnidades_base() != null && detalle.getUnidades_base() > 0)
+                    ? detalle.getUnidades_base()
+                    : (detalle.getCantidad() != null ? detalle.getCantidad() : 0);
+
             if (inventario == null) {
 
                 inventario =
@@ -1074,7 +1217,7 @@ public class CompraView {
                 );
 
                 inventario.setStock_actual(
-                        detalle.getCantidad()
+                        unidadesBase
                 );
 
                 inventario.setStock_minimo(0);
@@ -1089,7 +1232,7 @@ public class CompraView {
 
                 inventario.setStock_actual(
                         inventario.getStock_actual()
-                                + detalle.getCantidad()
+                                + unidadesBase
                 );
             }
 
@@ -1133,6 +1276,10 @@ public class CompraView {
                             )
                             .orElse(null);
 
+            int unidadesBaseVal = (detalle.getUnidades_base() != null && detalle.getUnidades_base() > 0)
+                    ? detalle.getUnidades_base()
+                    : (detalle.getCantidad() != null ? detalle.getCantidad() : 0);
+
             if (inventario == null
                     || inventario.getStock_actual() == null) {
 
@@ -1140,13 +1287,17 @@ public class CompraView {
             }
 
             if (inventario.getStock_actual()
-                    < detalle.getCantidad()) {
+                    < unidadesBaseVal) {
 
                 return "No se puede revertir la compra porque parte del stock ya fue utilizado.";
             }
         }
 
         for (DetalleCompra detalle : detalles) {
+
+            int unidadesBase = (detalle.getUnidades_base() != null && detalle.getUnidades_base() > 0)
+                    ? detalle.getUnidades_base()
+                    : (detalle.getCantidad() != null ? detalle.getCantidad() : 0);
 
             Inventario inventario =
                     inventarioRepository
@@ -1157,7 +1308,7 @@ public class CompraView {
 
             inventario.setStock_actual(
                     inventario.getStock_actual()
-                            - detalle.getCantidad()
+                            - unidadesBase
             );
 
             inventarioRepository.save(

@@ -601,8 +601,12 @@ public class DetalleCompraView {
             }
 
 
+            int unidadesBase = detalle.getUnidades_base() != null && detalle.getUnidades_base() > 0
+                    ? detalle.getUnidades_base()
+                    : (detalle.getCantidad() != null ? detalle.getCantidad() : 0);
+
             if (inventario.getStock_actual()
-                    < detalle.getCantidad()) {
+                    < unidadesBase) {
 
                 ra.addFlashAttribute(
                         "error",
@@ -617,7 +621,7 @@ public class DetalleCompraView {
 
             inventario.setStock_actual(
                     inventario.getStock_actual()
-                            - detalle.getCantidad()
+                            - unidadesBase
             );
 
             inventarioRepository.save(

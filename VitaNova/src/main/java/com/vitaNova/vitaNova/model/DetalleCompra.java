@@ -40,6 +40,21 @@ public class DetalleCompra {
     @Column(name = "id_lote")
     private Long id_lote;
 
+    @Column(name = "id_presentacion")
+    private Long id_presentacion;
+
+    @Column(name = "nombre_presentacion", length = 50)
+    private String nombre_presentacion;
+
+    @Column(name = "factor_unidades", nullable = false)
+    private Integer factor_unidades = 1;
+
+    @Column(name = "unidades_base")
+    private Integer unidades_base;
+
+    @Column(name = "costo_unitario_base", precision = 10, scale = 2)
+    private BigDecimal costo_unitario_base;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "id_lote",
@@ -113,6 +128,46 @@ public class DetalleCompra {
 
     public void setId_lote(Long id_lote) {
         this.id_lote = id_lote;
+    }
+
+    public Long getId_presentacion() {
+        return id_presentacion;
+    }
+
+    public void setId_presentacion(Long id_presentacion) {
+        this.id_presentacion = id_presentacion;
+    }
+
+    public String getNombre_presentacion() {
+        return nombre_presentacion;
+    }
+
+    public void setNombre_presentacion(String nombre_presentacion) {
+        this.nombre_presentacion = nombre_presentacion;
+    }
+
+    public Integer getFactor_unidades() {
+        return factor_unidades != null ? factor_unidades : 1;
+    }
+
+    public void setFactor_unidades(Integer factor_unidades) {
+        this.factor_unidades = factor_unidades;
+    }
+
+    public Integer getUnidades_base() {
+        return unidades_base;
+    }
+
+    public void setUnidades_base(Integer unidades_base) {
+        this.unidades_base = unidades_base;
+    }
+
+    public BigDecimal getCosto_unitario_base() {
+        return costo_unitario_base;
+    }
+
+    public void setCosto_unitario_base(BigDecimal costo_unitario_base) {
+        this.costo_unitario_base = costo_unitario_base;
     }
 
     public Lote getLote() {

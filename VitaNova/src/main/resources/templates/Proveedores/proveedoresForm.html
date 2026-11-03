@@ -37,6 +37,21 @@
 
         </div>
 
+        <div class="page-actions">
+
+          <a th:href="@{/view/proveedores}"
+             class="btn btn-white">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            <span>
+              Volver
+            </span>
+
+          </a>
+
+        </div>
+
       </section>
 
       <!-- MENSAJE ERROR -->
@@ -46,7 +61,7 @@
       </div>
 
       <!-- FORMULARIO -->
-      <section class="table-card surface form-card">
+      <section class="form-box">
 
         <form th:action="@{/view/proveedores/save}"
               th:object="${proveedor}"
@@ -56,152 +71,190 @@
           <input type="hidden"
                  th:field="*{id_proveedor}">
 
-          <h3 class="mb-3">
-            Información del proveedor
-          </h3>
+          <!-- SECCIÓN 1: DATOS DE LA EMPRESA -->
+          <div class="form-section">
 
-          <div class="row">
+            <h2 class="form-section-title">
+              <i class="fa-solid fa-building" style="color: var(--primary); margin-right: 8px;"></i>
+              Información de la Empresa
+            </h2>
 
-            <!-- NOMBRE -->
-            <div class="col-md-6 mb-3">
+            <div class="form-section-divider"></div>
 
-              <label class="form-label">
-                Nombre del proveedor
-              </label>
+            <div class="form-grid">
 
-              <input type="text"
-                     th:field="*{nombre}"
-                     class="form-control"
-                     maxlength="100"
-                     required>
+              <!-- NOMBRE -->
+              <div class="field-group">
 
-            </div>
+                <label for="nombre">
+                  Nombre del proveedor o Razón Social <span style="color: #ef4444;">*</span>
+                </label>
 
-            <!-- CONTACTO -->
-            <div class="col-md-6 mb-3">
+                <input id="nombre"
+                       type="text"
+                       th:field="*{nombre}"
+                       maxlength="100"
+                       required
+                       placeholder="Ej: Laboratorios Baxter S.A.S.">
 
-              <label class="form-label">
-                Nombre de contacto
-              </label>
+              </div>
 
-              <input type="text"
-                     th:field="*{nombre_contacto}"
-                     class="form-control"
-                     maxlength="100">
+              <!-- NIT -->
+              <div class="field-group">
 
-            </div>
+                <label for="nit">
+                  NIT o Identificación Tributaria
+                </label>
 
-            <!-- NIT -->
-            <div class="col-md-6 mb-3">
+                <input id="nit"
+                       type="text"
+                       th:field="*{nit}"
+                       maxlength="20"
+                       placeholder="Ej: 900.123.456-7">
 
-              <label class="form-label">
-                NIT
-              </label>
+              </div>
 
-              <input type="text"
-                     th:field="*{nit}"
-                     class="form-control"
-                     maxlength="20">
+              <!-- TIPO PRODUCTOS -->
+              <div class="field-group wide">
 
-            </div>
+                <label for="tipo_productos_suministrados">
+                  Tipo de productos suministrados
+                </label>
 
-            <!-- TELÉFONO -->
-            <div class="col-md-6 mb-3">
+                <input id="tipo_productos_suministrados"
+                       type="text"
+                       th:field="*{tipo_productos_suministrados}"
+                       maxlength="200"
+                       placeholder="Ej: Medicamentos genéricos, analgésicos, material de curación">
 
-              <label class="form-label">
-                Teléfono
-              </label>
+              </div>
 
-              <input type="text"
-                     th:field="*{telefono}"
-                     class="form-control"
-                     maxlength="20">
+              <!-- ESTADO -->
+              <div class="field-group">
 
-            </div>
+                <label for="estado">
+                  Estado comercial
+                </label>
 
-            <!-- CORREO -->
-            <div class="col-md-6 mb-3">
+                <select id="estado"
+                        th:field="*{estado}">
 
-              <label class="form-label">
-                Correo electrónico
-              </label>
+                  <option value="ACTIVO">
+                    Activo (Habilitado para compras)
+                  </option>
 
-              <input type="email"
-                     th:field="*{correo}"
-                     class="form-control"
-                     maxlength="100">
+                  <option value="INACTIVO">
+                    Inactivo (Suspendido)
+                  </option>
 
-            </div>
+                </select>
 
-            <!-- DIRECCIÓN -->
-            <div class="col-md-6 mb-3">
-
-              <label class="form-label">
-                Dirección
-              </label>
-
-              <input type="text"
-                     th:field="*{direccion}"
-                     class="form-control"
-                     maxlength="150">
-
-            </div>
-
-            <!-- TIPO PRODUCTOS -->
-            <div class="col-12 mb-3">
-
-              <label class="form-label">
-                Tipo de productos suministrados
-              </label>
-
-              <input type="text"
-                     th:field="*{tipo_productos_suministrados}"
-                     class="form-control"
-                     maxlength="200">
-
-            </div>
-
-            <!-- ESTADO -->
-            <div class="col-md-6 mb-3">
-
-              <label class="form-label">
-                Estado
-              </label>
-
-              <select th:field="*{estado}"
-                      class="form-select">
-
-                <option value="ACTIVO">
-                  Activo
-                </option>
-
-                <option value="INACTIVO">
-                  Inactivo
-                </option>
-
-              </select>
+              </div>
 
             </div>
 
           </div>
 
-          <div class="mt-3">
+          <!-- SECCIÓN 2: CONTACTO Y UBICACIÓN -->
+          <div class="form-section">
 
-            <button type="submit"
-                    class="btn btn-primary">
+            <h2 class="form-section-title">
+              <i class="fa-solid fa-address-book" style="color: var(--primary); margin-right: 8px;"></i>
+              Contacto y Ubicación
+            </h2>
 
-                            <span th:text="${editMode ? 'Actualizar proveedor' : 'Guardar proveedor'}">
-                                Guardar proveedor
-                            </span>
+            <div class="form-section-divider"></div>
 
-            </button>
+            <div class="form-grid">
+
+              <!-- CONTACTO -->
+              <div class="field-group">
+
+                <label for="nombre_contacto">
+                  Nombre de la persona de contacto
+                </label>
+
+                <input id="nombre_contacto"
+                       type="text"
+                       th:field="*{nombre_contacto}"
+                       maxlength="100"
+                       placeholder="Ej: Andrea Moreno">
+
+              </div>
+
+              <!-- TELÉFONO -->
+              <div class="field-group">
+
+                <label for="telefono">
+                  Teléfono o PBX de contacto
+                </label>
+
+                <input id="telefono"
+                       type="text"
+                       th:field="*{telefono}"
+                       maxlength="20"
+                       placeholder="Ej: (601) 745-0000 / 310-000-0000">
+
+              </div>
+
+              <!-- CORREO -->
+              <div class="field-group">
+
+                <label for="correo">
+                  Correo electrónico comercial
+                </label>
+
+                <input id="correo"
+                       type="email"
+                       th:field="*{correo}"
+                       maxlength="100"
+                       placeholder="Ej: pedidos@proveedor.com">
+
+              </div>
+
+              <!-- DIRECCIÓN -->
+              <div class="field-group">
+
+                <label for="direccion">
+                  Dirección comercial / Bodega
+                </label>
+
+                <input id="direccion"
+                       type="text"
+                       th:field="*{direccion}"
+                       maxlength="150"
+                       placeholder="Ej: Calle 26 # 68C-61 Edificio Central">
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="form-actions">
 
             <a th:href="@{/view/proveedores}"
                class="btn btn-white">
 
-              Cancelar
+              <i class="fa-solid fa-xmark"></i>
+
+              <span>
+                Cancelar
+              </span>
 
             </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+              <i class="fa-solid fa-floppy-disk"></i>
+
+              <span th:text="${editMode ? 'Actualizar proveedor' : 'Guardar proveedor'}">
+                Guardar proveedor
+              </span>
+
+            </button>
 
           </div>
 

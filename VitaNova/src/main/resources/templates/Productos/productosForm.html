@@ -163,23 +163,22 @@
           </div>
 
 
-          <!-- PRECIOS -->
+          <!-- PRECIOS Y UNIDADES BASE -->
           <div class="form-section">
 
             <h2 class="form-section-title">
-              Información comercial
+              Información comercial y Unidad base
             </h2>
 
             <div class="form-section-divider">
             </div>
-
 
             <div class="form-grid">
 
               <div class="field-group">
 
                 <label for="precio_compra">
-                  Precio de compra
+                  Precio de compra base
                 </label>
 
                 <input id="precio_compra"
@@ -191,11 +190,10 @@
 
               </div>
 
-
               <div class="field-group">
 
                 <label for="precio_venta">
-                  Precio de venta
+                  Precio de venta base
                 </label>
 
                 <input id="precio_venta"
@@ -207,11 +205,53 @@
 
               </div>
 
+              <div class="field-group">
+
+                <label for="unidad_base">
+                  Unidad base de inventario
+                </label>
+
+                <select id="unidad_base"
+                        th:field="*{unidad_base}"
+                        required>
+                  <option value="Unidad">Unidad</option>
+                  <option value="Tableta">Tableta</option>
+                  <option value="Cápsula">Cápsula</option>
+                  <option value="Mililitro">Mililitro (ml)</option>
+                  <option value="Gramo">Gramo (g)</option>
+                  <option value="Frasco">Frasco</option>
+                  <option value="Sobre">Sobre</option>
+                  <option value="Ampolla">Ampolla</option>
+                  <option value="Blíster">Blíster</option>
+                  <option value="Caja">Caja</option>
+                </select>
+                <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+                  Unidad física mínima en la que se cuenta el stock.
+                </small>
+
+              </div>
 
               <div class="field-group">
 
+                <label for="permite_fraccionamiento">
+                  ¿Permite fraccionamiento?
+                </label>
+
+                <select id="permite_fraccionamiento"
+                        th:field="*{permite_fraccionamiento}">
+                  <option th:value="true">Sí (permite vender unidades individuales)</option>
+                  <option th:value="false">No (solo empaque completo)</option>
+                </select>
+                <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+                  Habilita la venta fraccionada en el POS.
+                </small>
+
+              </div>
+
+              <div class="field-group wide">
+
                 <label for="ubicacion">
-                  Ubicación
+                  Ubicación física en farmacia
                 </label>
 
                 <input id="ubicacion"
@@ -225,6 +265,114 @@
 
           </div>
 
+          <!-- PRESENTACIONES COMERCIALES Y EMPAQUES -->
+          <div class="form-section">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h2 class="form-section-title" style="margin-bottom: 4px;">
+                  Presentaciones comerciales y empaques
+                </h2>
+                <p style="color: #6b7280; font-size: 13px; margin: 0;">
+                  Defina las presentaciones para compras y ventas. El factor indica cuántas <strong id="base-unit-tag" style="color: #2563eb;">unidades</strong> contiene cada presentación.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" id="btn-add-pres" class="btn btn-white" style="border: 1px solid #2563eb; color: #2563eb; font-weight: 500; display: flex; align-items: center; gap: 8px; background: #eff6ff;">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Agregar presentación</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- BARRA DE PLANTILLAS RÁPIDAS DIDÁCTICAS -->
+            <div style="background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <span style="font-weight: 600; font-size: 13px; color: #1e293b;">⚡ Plantillas rápidas sugeridas:</span>
+                  <span style="font-size: 12px; color: #64748b; margin-left: 4px;">(Preconfigure presentaciones estándar con un solo clic)</span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-preset" data-preset="tabletas" style="background: #ffffff; border: 1px solid #93c5fd; color: #1d4ed8; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>💊</span> <span>Tabletas / Cápsulas</span>
+                  </button>
+                  <button type="button" class="btn-preset" data-preset="liquidos" style="background: #ffffff; border: 1px solid #86efac; color: #15803d; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>🧴</span> <span>Jarabes / Sueros</span>
+                  </button>
+                  <button type="button" class="btn-preset" data-preset="sobres" style="background: #ffffff; border: 1px solid #fde047; color: #854d0e; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>✉️</span> <span>Sobres / Polvos</span>
+                  </button>
+                  <button type="button" class="btn-preset" data-preset="ampollas" style="background: #ffffff; border: 1px solid #fca5a5; color: #b91c1c; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>💉</span> <span>Inyectables / Ampollas</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section-divider"></div>
+
+            <div class="table-responsive" style="overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+              <table class="custom-table" style="width: 100%; border-collapse: collapse; font-size: 13px;" id="tabla-presentaciones">
+                <thead>
+                  <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; text-align: left;">
+                    <th style="padding: 10px 12px;">Presentación</th>
+                    <th style="padding: 10px 12px;">Contenido (Factor)</th>
+                    <th style="padding: 10px 12px;">Precio Venta ($)</th>
+                    <th style="padding: 10px 12px;">Costo Compra ($)</th>
+                    <th style="padding: 10px 12px; text-align: center;">¿Venta POS?</th>
+                    <th style="padding: 10px 12px; text-align: center;">¿Compra?</th>
+                    <th style="padding: 10px 12px; text-align: center;" title="Presentación seleccionada por defecto">Principal</th>
+                    <th style="padding: 10px 12px;">Estado</th>
+                    <th style="padding: 10px 12px; text-align: center;">Quitar</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-presentaciones">
+                  <tr th:each="pres, stat : ${presentaciones}" class="pres-row" style="border-bottom: 1px solid #f3f4f6;">
+                    <input type="hidden" name="pres_id[]" th:value="${pres.id_presentacion}">
+                    <td style="padding: 8px 12px;">
+                      <input type="text" class="input-nombre" name="pres_nombre[]" th:value="${pres.nombre_presentacion}" required placeholder="Ej: Caja x 10" style="width: 100%; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </td>
+                    <td style="padding: 8px 12px;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="number" class="input-factor" name="pres_factor[]" th:value="${pres.factor_unidades}" min="1" required style="width: 75px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        <span class="factor-unit-suffix" th:text="${producto.unidad_base}">unid.</span>
+                      </div>
+                    </td>
+                    <td style="padding: 8px 12px;">
+                      <input type="number" class="input-pventa" step="0.01" min="0" name="pres_precio_venta[]" th:value="${pres.precio_venta}" required style="width: 110px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </td>
+                    <td style="padding: 8px 12px;">
+                      <input type="number" class="input-ccompra" step="0.01" min="0" name="pres_costo_compra[]" th:value="${pres.costo_compra}" required style="width: 110px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </td>
+                    <td style="padding: 8px 12px; text-align: center;">
+                      <input type="hidden" name="pres_permite_venta[]" class="hidden-pv" th:value="${pres.permite_venta}">
+                      <input type="checkbox" class="cb-pv" th:checked="${pres.permite_venta}" style="width: 18px; height: 18px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 8px 12px; text-align: center;">
+                      <input type="hidden" name="pres_permite_compra[]" class="hidden-pc" th:value="${pres.permite_compra}">
+                      <input type="checkbox" class="cb-pc" th:checked="${pres.permite_compra}" style="width: 18px; height: 18px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 8px 12px; text-align: center;">
+                      <input type="radio" name="pres_es_principal" th:value="${stat.index}" th:checked="${pres.es_principal}" style="cursor: pointer; width: 18px; height: 18px;">
+                    </td>
+                    <td style="padding: 8px 12px;">
+                      <select name="pres_estado[]" style="padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        <option value="ACTIVO" th:selected="${pres.estado.name() == 'ACTIVO'}">Activo</option>
+                        <option value="INACTIVO" th:selected="${pres.estado.name() == 'INACTIVO'}">Inactivo</option>
+                      </select>
+                    </td>
+                    <td style="padding: 8px 12px; text-align: center;">
+                      <button type="button" class="btn-remove-row" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px;">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
 
           <!-- CLASIFICACIÓN -->
           <div class="form-section">
@@ -434,5 +582,231 @@
 
 </script>
 
+<!-- GESTIÓN DINÁMICA DE PRESENTACIONES -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const unidadBaseSelect = document.getElementById("unidad_base");
+    const permiteFraccSelect = document.getElementById("permite_fraccionamiento");
+    const baseUnitTag = document.getElementById("base-unit-tag");
+    const tbody = document.getElementById("tbody-presentaciones");
+    const btnAdd = document.getElementById("btn-add-pres");
+    const form = document.querySelector("form");
+    const inputPrecioVentaBase = document.getElementById("precio_venta");
+    const inputPrecioCompraBase = document.getElementById("precio_compra");
+
+    function getBasePrice() {
+      return parseFloat(inputPrecioVentaBase ? inputPrecioVentaBase.value : 0) || 0;
+    }
+
+    function getBaseCost() {
+      return parseFloat(inputPrecioCompraBase ? inputPrecioCompraBase.value : 0) || 0;
+    }
+
+    function updateBaseUnitLabels() {
+      const u = unidadBaseSelect ? (unidadBaseSelect.value || "Unidad") : "Unidad";
+      if (baseUnitTag) baseUnitTag.textContent = u;
+      document.querySelectorAll(".factor-unit-suffix").forEach(el => el.textContent = u);
+    }
+
+    if (unidadBaseSelect) {
+      unidadBaseSelect.addEventListener("change", function () {
+        updateBaseUnitLabels();
+        // Si hay una fila con factor 1 cuyo nombre coincida con la unidad previa o sea genérico, actualizar su nombre
+        const firstRow = tbody.querySelector("tr.pres-row");
+        if (firstRow) {
+          const factorInput = firstRow.querySelector(".input-factor");
+          const nameInput = firstRow.querySelector(".input-nombre");
+          if (factorInput && parseInt(factorInput.value, 10) === 1 && nameInput) {
+            nameInput.value = unidadBaseSelect.value;
+          }
+        }
+      });
+      updateBaseUnitLabels();
+    }
+
+    function syncCheckboxesAndRadios() {
+      const rows = tbody.querySelectorAll("tr.pres-row");
+      rows.forEach((row, idx) => {
+        const cbPv = row.querySelector(".cb-pv");
+        const hiddenPv = row.querySelector(".hidden-pv");
+        if (cbPv && hiddenPv) {
+          hiddenPv.value = cbPv.checked ? "true" : "false";
+          cbPv.onchange = () => hiddenPv.value = cbPv.checked ? "true" : "false";
+        }
+
+        const cbPc = row.querySelector(".cb-pc");
+        const hiddenPc = row.querySelector(".hidden-pc");
+        if (cbPc && hiddenPc) {
+          hiddenPc.value = cbPc.checked ? "true" : "false";
+          cbPc.onchange = () => hiddenPc.value = cbPc.checked ? "true" : "false";
+        }
+
+        const radio = row.querySelector("input[type='radio'][name='pres_es_principal']");
+        if (radio) {
+          radio.value = idx;
+        }
+
+        // Auto calcular sugerencia cuando cambia el factor
+        const factorInput = row.querySelector(".input-factor");
+        const pVentaInput = row.querySelector(".input-pventa");
+        const cCompraInput = row.querySelector(".input-ccompra");
+
+        if (factorInput && !factorInput.dataset.bound) {
+          factorInput.dataset.bound = "true";
+          factorInput.addEventListener("input", function () {
+            const factor = parseInt(this.value, 10) || 1;
+            const bPrice = getBasePrice();
+            const bCost = getBaseCost();
+
+            // Si el precio de venta o compra están en 0 o vacíos, autocompletar sugerido
+            if (pVentaInput && (!pVentaInput.value || parseFloat(pVentaInput.value) === 0)) {
+              pVentaInput.value = (bPrice * factor).toFixed(2);
+            }
+            if (cCompraInput && (!cCompraInput.value || parseFloat(cCompraInput.value) === 0)) {
+              cCompraInput.value = (bCost * factor).toFixed(2);
+            }
+          });
+        }
+
+        const btnRemove = row.querySelector(".btn-remove-row");
+        if (btnRemove) {
+          btnRemove.onclick = function () {
+            if (tbody.querySelectorAll("tr.pres-row").length <= 1) {
+              alert("Debe existir al menos una presentación comercial.");
+              return;
+            }
+            row.remove();
+            syncCheckboxesAndRadios();
+          };
+        }
+      });
+    }
+
+    function addRow(nombre, factor, precioVenta, costoCompra, pv, pc, esPrincipal, presId) {
+      const idx = tbody.querySelectorAll("tr.pres-row").length;
+      const currentUnit = unidadBaseSelect ? unidadBaseSelect.value : "Unidad";
+      const tr = document.createElement("tr");
+      tr.className = "pres-row";
+      tr.style.borderBottom = "1px solid #f3f4f6";
+
+      tr.innerHTML = `
+        <input type="hidden" name="pres_id[]" value="${presId || ''}">
+        <td style="padding: 8px 12px;">
+          <input type="text" class="input-nombre" name="pres_nombre[]" value="${nombre || ''}" required placeholder="Ej: Caja x 10" style="width: 100%; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+        </td>
+        <td style="padding: 8px 12px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" class="input-factor" name="pres_factor[]" value="${factor || 1}" min="1" required style="width: 75px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+            <span class="factor-unit-suffix">${currentUnit}</span>
+          </div>
+        </td>
+        <td style="padding: 8px 12px;">
+          <input type="number" class="input-pventa" step="0.01" min="0" name="pres_precio_venta[]" value="${precioVenta || 0}" required style="width: 110px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+        </td>
+        <td style="padding: 8px 12px;">
+          <input type="number" class="input-ccompra" step="0.01" min="0" name="pres_costo_compra[]" value="${costoCompra || 0}" required style="width: 110px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+        </td>
+        <td style="padding: 8px 12px; text-align: center;">
+          <input type="hidden" name="pres_permite_venta[]" class="hidden-pv" value="${pv ? 'true' : 'false'}">
+          <input type="checkbox" class="cb-pv" ${pv ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+        </td>
+        <td style="padding: 8px 12px; text-align: center;">
+          <input type="hidden" name="pres_permite_compra[]" class="hidden-pc" value="${pc ? 'true' : 'false'}">
+          <input type="checkbox" class="cb-pc" ${pc ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+        </td>
+        <td style="padding: 8px 12px; text-align: center;">
+          <input type="radio" name="pres_es_principal" value="${idx}" ${esPrincipal ? 'checked' : ''} style="cursor: pointer; width: 18px; height: 18px;">
+        </td>
+        <td style="padding: 8px 12px;">
+          <select name="pres_estado[]" style="padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+            <option value="ACTIVO" selected>Activo</option>
+            <option value="INACTIVO">Inactivo</option>
+          </select>
+        </td>
+        <td style="padding: 8px 12px; text-align: center;">
+          <button type="button" class="btn-remove-row" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px;">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+      syncCheckboxesAndRadios();
+      updateBaseUnitLabels();
+    }
+
+    // APLICAR PLANTILLAS PREDEFINIDAS
+    function applyPreset(presetType) {
+      const bPrice = getBasePrice();
+      const bCost = getBaseCost();
+
+      if (tbody.querySelectorAll("tr.pres-row").length > 0) {
+        if (!confirm("¿Desea aplicar esta plantilla de presentaciones? Se reconfigurarán las filas actuales con los empaques estándar.")) {
+          return;
+        }
+      }
+
+      tbody.innerHTML = "";
+
+      if (presetType === "tabletas") {
+        if (unidadBaseSelect) unidadBaseSelect.value = "Tableta";
+        if (permiteFraccSelect) permiteFraccSelect.value = "true";
+        addRow("Tableta", 1, bPrice, bCost, true, true, false);
+        addRow("Blíster x 10", 10, (bPrice * 10).toFixed(2), (bCost * 10).toFixed(2), true, true, false);
+        addRow("Caja x 100", 100, (bPrice * 100).toFixed(2), (bCost * 100).toFixed(2), true, true, true);
+      } else if (presetType === "liquidos") {
+        if (unidadBaseSelect) unidadBaseSelect.value = "Frasco";
+        if (permiteFraccSelect) permiteFraccSelect.value = "false";
+        addRow("Frasco", 1, bPrice, bCost, true, true, true);
+        addRow("Caja x 12", 12, (bPrice * 12).toFixed(2), (bCost * 12).toFixed(2), true, true, false);
+      } else if (presetType === "sobres") {
+        if (unidadBaseSelect) unidadBaseSelect.value = "Sobre";
+        if (permiteFraccSelect) permiteFraccSelect.value = "true";
+        addRow("Sobre", 1, bPrice, bCost, true, true, false);
+        addRow("Caja x 30", 30, (bPrice * 30).toFixed(2), (bCost * 30).toFixed(2), true, true, true);
+      } else if (presetType === "ampollas") {
+        if (unidadBaseSelect) unidadBaseSelect.value = "Ampolla";
+        if (permiteFraccSelect) permiteFraccSelect.value = "true";
+        addRow("Ampolla", 1, bPrice, bCost, true, true, false);
+        addRow("Caja x 5", 5, (bPrice * 5).toFixed(2), (bCost * 5).toFixed(2), true, true, true);
+      }
+
+      updateBaseUnitLabels();
+      syncCheckboxesAndRadios();
+    }
+
+    document.querySelectorAll(".btn-preset").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const preset = this.getAttribute("data-preset");
+        applyPreset(preset);
+      });
+    });
+
+    if (btnAdd) {
+      btnAdd.addEventListener("click", function () {
+        const u = unidadBaseSelect.value || "Unidad";
+        const bPrice = getBasePrice();
+        const bCost = getBaseCost();
+        addRow("Caja x 10", 10, (bPrice * 10).toFixed(2), (bCost * 10).toFixed(2), true, true, false);
+      });
+    }
+
+    // Si no hay filas (nuevo producto), inicializar con la unidad base
+    if (tbody && tbody.querySelectorAll("tr.pres-row").length === 0) {
+      const u = (unidadBaseSelect && unidadBaseSelect.value) ? unidadBaseSelect.value : "Unidad";
+      const bPrice = getBasePrice();
+      const bCost = getBaseCost();
+      addRow(u, 1, bPrice, bCost, true, true, true);
+    }
+
+    syncCheckboxesAndRadios();
+
+    if (form) {
+      form.addEventListener("submit", function () {
+        syncCheckboxesAndRadios();
+      });
+    }
+  });
+</script>
 </body>
 </html>

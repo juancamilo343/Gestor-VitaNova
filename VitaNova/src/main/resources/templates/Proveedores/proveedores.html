@@ -32,7 +32,7 @@
           </h1>
 
           <p th:text="${pageSubtitle}">
-            Consulta y seguimiento de los proveedores de la farmacia.
+            Directorio comercial interno de laboratorios y distribuidores farmacéuticos.
           </p>
 
         </div>
@@ -40,14 +40,14 @@
         <div class="page-actions">
 
           <a th:if="${puedeModificar}"
-             th:href="@{/view/usuarios/form}"
+             th:href="@{/view/proveedores/form}"
              class="btn btn-primary">
 
-            <i class="fa-solid fa-truck-field"></i>
+            <i class="fa-solid fa-truck-ramp-box"></i>
 
             <span>
-                            Nuevo proveedor
-                        </span>
+              Nuevo proveedor
+            </span>
 
           </a>
 
@@ -67,14 +67,58 @@
            th:text="${error}">
       </div>
 
-      <!-- TABLA -->
+      <!-- TARJETAS DE RESUMEN KPI -->
+      <section class="stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+
+        <!-- TOTAL PROVEEDORES -->
+        <div class="surface stat-card" style="padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(14, 165, 233, 0.1); color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <div>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Total Registrados</span>
+            <h3 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #0f172a;"
+                th:text="${#lists.size(proveedores)}">0</h3>
+          </div>
+        </div>
+
+        <!-- ACTIVOS -->
+        <div class="surface stat-card" style="padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(34, 197, 94, 0.1); color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Proveedores Activos</span>
+            <h3 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #16a34a;"
+                th:text="${#lists.size(proveedores.?[estado == 'ACTIVO'])}">0</h3>
+          </div>
+        </div>
+
+        <!-- INACTIVOS -->
+        <div class="surface stat-card" style="padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(245, 158, 11, 0.1); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Inactivos / Suspendidos</span>
+            <h3 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #d97706;"
+                th:text="${#lists.size(proveedores.?[estado != 'ACTIVO'])}">0</h3>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TABLA DE PROVEEDORES -->
       <section class="table-card surface">
 
         <div class="table-header">
 
-                    <span class="card-title">
-                        Consulta y Seguimiento
-                    </span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-boxes-packing" style="color: var(--primary);"></i>
+            <span class="card-title">
+              Catálogo de Proveedores
+            </span>
+          </div>
 
           <form method="get"
                 th:action="@{/view/proveedores}"
@@ -83,15 +127,21 @@
             <input name="search"
                    type="search"
                    th:value="${search}"
-                   placeholder="Buscar por proveedor o NIT"
+                   placeholder="Buscar por proveedor o NIT..."
                    class="search-input search-field">
 
             <button type="submit"
                     class="btn btn-white nowrap">
-
+              <i class="fa-solid fa-magnifying-glass"></i>
               Buscar
-
             </button>
+
+            <a th:if="${search != null and !search.trim().isEmpty()}"
+               th:href="@{/view/proveedores}"
+               class="btn btn-white"
+               title="Limpiar búsqueda">
+              <i class="fa-solid fa-xmark"></i>
+            </a>
 
           </form>
 
@@ -106,26 +156,26 @@
             <tr>
 
               <th>
-                Proveedor
+                Proveedor / Suministros
               </th>
 
               <th>
-                NIT
+                NIT / Razón Social
               </th>
 
               <th>
-                Contacto
+                Contacto Comercial
               </th>
 
               <th>
-                Teléfono
+                Ubicación
               </th>
 
               <th>
                 Estado
               </th>
 
-              <th>
+              <th style="text-align: right;">
                 Acciones
               </th>
 
@@ -142,79 +192,130 @@
 
                 <div class="med-cell">
 
-                  <div class="med-icon">
-
-                    <i class="fa-solid fa-truck"></i>
-
+                  <div class="med-icon" style="background: rgba(14, 165, 233, 0.1); color: #0284c7;">
+                    <i class="fa-solid fa-building-shield"></i>
                   </div>
 
-                  <span class="med-name"
-                        th:text="${proveedor.nombre}">
-                                        Proveedor
-                                    </span>
+                  <div>
+                    <span class="med-name"
+                          style="font-weight: 600; color: #0f172a; display: block;"
+                          th:text="${proveedor.nombre}">
+                      Proveedor
+                    </span>
+
+                    <span class="text-muted text-small"
+                          th:if="${proveedor.tipo_productos_suministrados != null and !proveedor.tipo_productos_suministrados.isBlank()}"
+                          th:text="${proveedor.tipo_productos_suministrados}"
+                          style="font-size: 0.8rem; color: #64748b;">
+                      Medicamentos
+                    </span>
+                  </div>
 
                 </div>
-
-                <span class="text-muted text-small"
-                      th:text="'ID: ' + ${proveedor.id_proveedor}">
-                                    ID: 1
-                                </span>
 
               </td>
 
               <!-- NIT -->
-              <td th:text="${proveedor.nit != null ? proveedor.nit : '—'}">
-                900123456-1
+              <td>
+                <span style="font-family: monospace; font-size: 0.88rem; font-weight: 600; color: #334155;"
+                      th:text="${proveedor.nit != null and !proveedor.nit.isBlank() ? proveedor.nit : '—'}">
+                  900.123.456-1
+                </span>
+                <div class="text-muted text-small" style="font-size: 0.75rem;"
+                     th:text="'ID: ' + ${proveedor.id_proveedor}">
+                  ID: 1
+                </div>
               </td>
 
               <!-- CONTACTO -->
-              <td th:text="${proveedor.nombre_contacto != null ? proveedor.nombre_contacto : '—'}">
-                Juan Pérez
+              <td>
+                <div th:if="${proveedor.nombre_contacto != null and !proveedor.nombre_contacto.isBlank()}"
+                     style="font-weight: 500; color: #1e293b; margin-bottom: 2px;">
+                  <i class="fa-regular fa-user" style="font-size: 0.8rem; color: #64748b; margin-right: 4px;"></i>
+                  <span th:text="${proveedor.nombre_contacto}">Juan Pérez</span>
+                </div>
+
+                <div th:if="${proveedor.telefono != null and !proveedor.telefono.isBlank()}"
+                     style="font-size: 0.82rem; color: #475569;">
+                  <i class="fa-solid fa-phone" style="font-size: 0.75rem; color: #0284c7; margin-right: 4px;"></i>
+                  <a th:href="'tel:' + ${proveedor.telefono}"
+                     th:text="${proveedor.telefono}"
+                     style="color: inherit; text-decoration: none;">
+                    3001234567
+                  </a>
+                </div>
+
+                <div th:if="${proveedor.correo != null and !proveedor.correo.isBlank()}"
+                     style="font-size: 0.82rem; color: #475569;">
+                  <i class="fa-regular fa-envelope" style="font-size: 0.75rem; color: #0284c7; margin-right: 4px;"></i>
+                  <a th:href="'mailto:' + ${proveedor.correo}"
+                     th:text="${proveedor.correo}"
+                     style="color: inherit; text-decoration: none;">
+                    correo@ejemplo.com
+                  </a>
+                </div>
+
+                <span th:if="${(proveedor.nombre_contacto == null or proveedor.nombre_contacto.isBlank()) and (proveedor.telefono == null or proveedor.telefono.isBlank()) and (proveedor.correo == null or proveedor.correo.isBlank())}"
+                      class="text-muted text-small">
+                  —
+                </span>
               </td>
 
-              <!-- TELÉFONO -->
-              <td th:text="${proveedor.telefono != null ? proveedor.telefono : '—'}">
-                3001234567
+              <!-- DIRECCIÓN -->
+              <td>
+                <div th:if="${proveedor.direccion != null and !proveedor.direccion.isBlank()}"
+                     style="font-size: 0.85rem; color: #334155;">
+                  <i class="fa-solid fa-location-dot" style="font-size: 0.78rem; color: #ef4444; margin-right: 4px;"></i>
+                  <span th:text="${proveedor.direccion}">Dirección</span>
+                </div>
+                <span th:unless="${proveedor.direccion != null and !proveedor.direccion.isBlank()}"
+                      class="text-muted text-small">
+                  —
+                </span>
               </td>
 
               <!-- ESTADO -->
               <td>
-
-                                <span th:if="${proveedor.estado == 'ACTIVO'}"
-                                      class="status-pill success">
-                                    Activo
-                                </span>
+                <span th:if="${proveedor.estado == 'ACTIVO'}"
+                      class="status-pill success">
+                  <i class="fa-solid fa-check" style="font-size: 0.7rem; margin-right: 3px;"></i>
+                  Activo
+                </span>
 
                 <span th:if="${proveedor.estado == 'INACTIVO'}"
                       class="status-pill warning">
-                                    Inactivo
-                                </span>
-
+                  <i class="fa-solid fa-ban" style="font-size: 0.7rem; margin-right: 3px;"></i>
+                  Inactivo
+                </span>
               </td>
 
               <!-- ACCIONES -->
-              <td class="user-table-actions">
+              <td class="user-table-actions" style="text-align: right;">
 
                 <div th:if="${puedeModificar}"
-                     class="table-actions-row">
+                     class="table-actions-row"
+                     style="justify-content: flex-end; gap: 6px;">
 
                   <a th:href="@{'/view/proveedores/edit/' + ${proveedor.id_proveedor}}"
-                     class="btn btn-white">
-
-                    Editar
-
+                     class="btn btn-white"
+                     style="padding: 6px 12px; font-size: 0.85rem;"
+                     title="Editar información del proveedor">
+                    <i class="fa-solid fa-pen-to-square" style="color: var(--primary);"></i>
+                    <span>Editar</span>
                   </a>
 
                   <form method="post"
                         th:action="@{'/view/proveedores/delete/' + ${proveedor.id_proveedor}}"
-                        class="action-form">
+                        class="action-form"
+                        style="display: inline;">
 
                     <button type="submit"
                             class="btn btn-white"
-                            onclick="return confirm('¿¿Eliminar este proveedor?')">
-
-                      ¿Eliminar
-
+                            style="padding: 6px 12px; font-size: 0.85rem; color: #dc2626;"
+                            onclick="return confirm('¿Está seguro de eliminar este proveedor?');"
+                            title="Eliminar proveedor">
+                      <i class="fa-solid fa-trash-can"></i>
+                      <span>Eliminar</span>
                     </button>
 
                   </form>
@@ -223,10 +324,8 @@
 
                 <span th:unless="${puedeModificar}"
                       class="text-muted text-small">
-
-                                    Solo lectura
-
-                                </span>
+                  Solo lectura
+                </span>
 
               </td>
 
@@ -236,9 +335,24 @@
             <tr th:if="${#lists.isEmpty(proveedores)}">
 
               <td colspan="6"
-                  class="table-empty">
+                  class="table-empty"
+                  style="padding: 3rem 1rem; text-align: center;">
 
-                No existen proveedores registrados.
+                <div style="font-size: 2.5rem; color: #94a3b8; margin-bottom: 0.5rem;">
+                  <i class="fa-solid fa-truck-ramp-box"></i>
+                </div>
+
+                <p style="font-size: 1rem; color: #475569; font-weight: 500; margin-bottom: 1rem;">
+                  No existen proveedores registrados en este momento.
+                </p>
+
+                <a th:if="${puedeModificar}"
+                   th:href="@{/view/proveedores/form}"
+                   class="btn btn-primary"
+                   style="display: inline-flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Registrar primer proveedor</span>
+                </a>
 
               </td>
 
@@ -251,13 +365,16 @@
         </div>
 
         <!-- FOOTER -->
-        <div class="table-footer">
+        <div class="table-footer" style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color);">
 
-          Total proveedores:
+          <div style="font-size: 0.88rem; color: #64748b;">
+            Total proveedores:
+            <strong style="color: #0f172a;" th:text="${#lists.size(proveedores)}">0</strong>
+          </div>
 
-          <span th:text="${#lists.size(proveedores)}">
-                        0
-                    </span>
+          <div style="font-size: 0.8rem; color: #94a3b8;">
+            VitaNova PHARMA ERP &bull; Directorio Comercial
+          </div>
 
         </div>
 

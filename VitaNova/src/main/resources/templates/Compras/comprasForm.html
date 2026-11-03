@@ -28,7 +28,7 @@
                     </h1>
 
                     <p th:text="${pageSubtitle}">
-                        Registre una nueva compra realizada a un proveedor.
+                        Registre la recepción de mercancía y empaques comerciales al inventario.
                     </p>
 
                 </div>
@@ -40,7 +40,7 @@
 
                         <i class="fa-solid fa-arrow-left"></i>
 
-                        Volver
+                        Volver al listado
 
                     </a>
 
@@ -48,39 +48,60 @@
 
             </section>
 
+            <!-- MENSAJES DE ALERTA -->
+            <div th:if="${error}"
+                 class="alert-banner error"
+                 th:text="${error}">
+            </div>
+
+            <div th:if="${success}"
+                 class="alert-banner success"
+                 th:text="${success}">
+            </div>
+
+            <div id="js-alert-banner"
+                 class="alert-banner error"
+                 style="display: none;">
+            </div>
 
             <section class="form-box">
 
                 <form th:action="@{/view/compras/save}"
                       th:object="${compra}"
-                      method="post">
+                      method="post"
+                      id="form-compra"
+                      novalidate>
 
                     <input type="hidden"
                            th:field="*{id_compra}">
 
+                    <input type="hidden"
+                           th:field="*{total}"
+                           id="totalHidden"
+                           value="0.00">
 
-                    <!-- =========================================
-                         INFORMACIÓN DE LA COMPRA
-                    ========================================== -->
-
+                    <!-- =========================================================
+                         PASO 1: INFORMACIÓN GENERAL
+                    ========================================================== -->
                     <div class="form-section">
 
-                        <h2 class="form-section-title">
-                            Información de la compra
-                        </h2>
-
-                        <div class="form-section-divider">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="background: #2563eb; color: #ffffff; font-weight: 700; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px;">1</span>
+                            <h2 class="form-section-title" style="margin: 0;">
+                                Información general de la compra
+                            </h2>
                         </div>
 
-                        <div class="form-grid">
+                        <div class="form-section-divider"></div>
 
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
 
                             <!-- PROVEEDOR -->
-
                             <div class="field-group">
 
                                 <label for="id_proveedor">
-                                    Proveedor
+                                    <i class="fa-solid fa-truck-field" style="color: #2563eb; margin-right: 6px;"></i>
+                                    Proveedor *
                                 </label>
 
                                 <select id="id_proveedor"
@@ -88,7 +109,7 @@
                                         required>
 
                                     <option value="">
-                                        Seleccione
+                                        Seleccione un proveedor...
                                     </option>
 
                                     <option th:each="proveedor : ${proveedores}"
@@ -101,70 +122,56 @@
 
                             </div>
 
-
                             <!-- FECHA -->
-
                             <div class="field-group">
 
                                 <label for="fecha">
-                                    Fecha
+                                    <i class="fa-solid fa-calendar-day" style="color: #2563eb; margin-right: 6px;"></i>
+                                    Fecha de la orden *
                                 </label>
 
                                 <input id="fecha"
                                        type="date"
-                                       th:value="${compra.fecha}"
-                                       readonly>
+                                       name="fecha"
+                                       th:value="${compra.fecha != null ? compra.fecha : #temporals.createToday()}"
+                                       required>
 
-                                <small>
-                                    La fecha se genera automáticamente.
+                                <small style="color: #64748b; font-size: 11px;">
+                                    Fecha contable del comprobante
                                 </small>
 
                             </div>
 
-
                             <!-- ESTADO -->
-
                             <div class="field-group">
 
                                 <label for="estado">
-                                    Estado
+                                    <i class="fa-solid fa-clipboard-check" style="color: #2563eb; margin-right: 6px;"></i>
+                                    Estado de la compra *
                                 </label>
 
                                 <select id="estado"
                                         th:field="*{estado}"
                                         required>
 
-                                    <option value="PENDIENTE">
-                                        Pendiente
-                                    </option>
-
                                     <option value="RECIBIDA">
-                                        Recibida
+                                        Recibida (Ingresa inventario y lotes)
                                     </option>
 
-                                    <option value="CANCELADA">
-                                        Cancelada
+                                    <option value="PENDIENTE">
+                                        Pendiente (Sin ingreso físico a stock)
+                                    </option>
+
+                                    <option value="CANCELADA"
+                                            th:if="${editMode}">
+                                        Cancelada (Revertir inventario)
                                     </option>
 
                                 </select>
 
-                            </div>
-
-
-                            <!-- TOTAL -->
-
-                            <div class="field-group">
-
-                                <label for="total">
-                                    Total
-                                </label>
-
-                                <input id="total"
-                                       type="number"
-                                       step="0.01"
-                                       min="0"
-                                       th:field="*{total}"
-                                       readonly>
+                                <small style="color: #64748b; font-size: 11px;">
+                                    El stock físico aumenta únicamente al estar Recibida
+                                </small>
 
                             </div>
 
@@ -172,227 +179,306 @@
 
                     </div>
 
+                    <!-- =========================================================
+                         PASO 2: AGREGAR PRODUCTOS Y LOTES (Solo en creación)
+                    ========================================================== -->
+                    <div class="form-section" th:if="${!editMode}">
 
-                    <!-- =========================================
-                         PRODUCTOS
-                    ========================================== -->
-
-                    <div class="form-section">
-
-                        <h2 class="form-section-title">
-                            Productos de la compra
-                        </h2>
-
-                        <div class="form-section-divider">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="background: #2563eb; color: #ffffff; font-weight: 700; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px;">2</span>
+                            <h2 class="form-section-title" style="margin: 0;">
+                                Entrada de medicamentos y presentaciones de compra
+                            </h2>
                         </div>
 
+                        <div class="form-section-divider"></div>
 
-                        <div id="productos-container">
+                        <!-- SCRIPT JSON DE PRESENTACIONES CON COSTOS SUGERIDOS -->
+                        <script id="presentaciones-compra-data"
+                                type="application/json"
+                                th:utext="${presentacionesCompraJson}">{}</script>
 
-                            <div class="form-grid producto-row">
+                        <!-- PANEL DIDÁCTICO DE CONSTRUCCIÓN DE LÍNEA -->
+                        <div class="producto-builder-card"
+                             style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
 
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                                <h3 style="margin: 0; font-size: 15px; color: #1e293b; display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                                    <i class="fa-solid fa-pills" style="color: #2563eb;"></i>
+                                    Seleccionar medicamento y empaque comercial
+                                </h3>
+                                <span style="font-size: 12px; color: #64748b;">
+                                    Configure el empaque y lote antes de agregarlo al pedido
+                                </span>
+                            </div>
+
+                            <div class="form-grid" style="grid-template-columns: 2fr 1.6fr 1fr 1.2fr; gap: 14px;">
 
                                 <!-- PRODUCTO -->
-
-                                <div class="field-group wide">
-
-                                    <label>
-                                        Producto
+                                <div class="field-group">
+                                    <label for="builder-producto">
+                                        Medicamento / Producto *
                                     </label>
-
-                                    <select name="id_productos[]"
-                                            class="producto-select"
-                                            required>
-
-                                        <option value="">
-                                            Seleccione un producto
-                                        </option>
-
+                                    <select id="builder-producto" style="width: 100%;">
+                                        <option value="">Buscar o seleccionar producto...</option>
                                         <option th:each="producto : ${productos}"
                                                 th:value="${producto.id_producto}"
-                                                th:data-precio="${producto.precio_compra}"
-                                                th:text="${producto.nombre}">
+                                                th:data-codigo="${producto.codigo_interno != null ? producto.codigo_interno : ''}"
+                                                th:data-unidad="${producto.unidad_base != null ? producto.unidad_base : 'Unidad'}"
+                                                th:text="${producto.nombre + (producto.codigo_interno != null && !producto.codigo_interno.isBlank() ? ' [' + producto.codigo_interno + ']' : '')}">
                                             Producto
                                         </option>
-
                                     </select>
-
                                 </div>
 
+                                <!-- PRESENTACIÓN DE COMPRA -->
+                                <div class="field-group">
+                                    <label for="builder-presentacion">
+                                        Presentación de compra *
+                                    </label>
+                                    <select id="builder-presentacion" style="width: 100%;">
+                                        <option value="">Seleccione primero un producto</option>
+                                    </select>
+                                </div>
 
                                 <!-- CANTIDAD -->
-
                                 <div class="field-group">
-
-                                    <label>
-                                        Cantidad
+                                    <label for="builder-cantidad">
+                                        Cantidad *
                                     </label>
-
                                     <input type="number"
-                                           name="cantidades[]"
-                                           class="cantidad-input"
+                                           id="builder-cantidad"
                                            min="1"
                                            value="1"
-                                           required>
-
+                                           style="width: 100%;">
                                 </div>
 
-
-                                <!-- PRECIO -->
-
+                                <!-- COSTO UNITARIO -->
                                 <div class="field-group">
-
-                                    <label>
-                                        Precio de compra
+                                    <label for="builder-costo">
+                                        Costo por empaque ($) *
                                     </label>
-
                                     <input type="number"
-                                           name="precios[]"
-                                           class="precio-input"
+                                           id="builder-costo"
                                            step="0.01"
                                            min="0"
-                                           value="0"
-                                           required>
-
-                                </div>
-
-
-                                <!-- LOTE -->
-
-                                <div class="field-group">
-
-                                    <label>
-                                        Número de lote
-                                    </label>
-
-                                    <input type="text"
-                                           name="lote_numeros[]"
-                                           class="lote-input"
-                                           maxlength="50"
-                                           placeholder="Ej. AC001"
-                                           required>
-
-                                </div>
-
-
-                                <!-- FECHA FABRICACIÓN -->
-
-                                <div class="field-group">
-
-                                    <label>
-                                        Fecha de fabricación
-                                    </label>
-
-                                    <input type="date"
-                                           name="fechas_fabricacion[]"
-                                           class="fecha-fabricacion-input"
-                                           required>
-
-                                </div>
-
-
-                                <!-- FECHA VENCIMIENTO -->
-
-                                <div class="field-group">
-
-                                    <label>
-                                        Fecha de vencimiento
-                                    </label>
-
-                                    <input type="date"
-                                           name="fechas_vencimiento[]"
-                                           class="fecha-vencimiento-input"
-                                           required>
-
-                                </div>
-
-
-                                <!-- SUBTOTAL -->
-
-                                <div class="field-group">
-
-                                    <label>
-                                        Subtotal
-                                    </label>
-
-                                    <input type="number"
-                                           class="subtotal-input"
-                                           step="0.01"
-                                           value="0"
-                                           readonly>
-
+                                           value="0.00"
+                                           style="width: 100%;">
                                 </div>
 
                             </div>
 
+                            <!-- FILA DE LOTE Y FECHAS -->
+                            <div class="form-grid" style="grid-template-columns: 1.5fr 1.2fr 1.2fr; gap: 14px; margin-top: 14px;">
+
+                                <div class="field-group">
+                                    <label for="builder-lote">
+                                        <i class="fa-solid fa-barcode" style="color: #64748b; margin-right: 4px;"></i>
+                                        Número de Lote *
+                                    </label>
+                                    <input type="text"
+                                           id="builder-lote"
+                                           placeholder="Ej: LOT-2026-A"
+                                           maxlength="50"
+                                           style="width: 100%;">
+                                </div>
+
+                                <div class="field-group">
+                                    <label for="builder-fecha-fab">
+                                        <i class="fa-solid fa-calendar-plus" style="color: #64748b; margin-right: 4px;"></i>
+                                        Fecha de fabricación *
+                                    </label>
+                                    <input type="date"
+                                           id="builder-fecha-fab"
+                                           style="width: 100%;">
+                                </div>
+
+                                <div class="field-group">
+                                    <label for="builder-fecha-venc">
+                                        <i class="fa-solid fa-calendar-xmark" style="color: #64748b; margin-right: 4px;"></i>
+                                        Fecha de vencimiento *
+                                    </label>
+                                    <input type="date"
+                                           id="builder-fecha-venc"
+                                           style="width: 100%;">
+                                </div>
+
+                            </div>
+
+                            <!-- BANNER DIDÁCTICO DE CONVERSIÓN EN VIVO -->
+                            <div id="builder-live-preview"
+                                 style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 18px; margin-top: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <i class="fa-solid fa-boxes-stacked" style="color: #2563eb; font-size: 22px;"></i>
+                                    <div>
+                                        <div style="font-weight: 700; color: #1e3a8a; font-size: 14px;"
+                                             id="preview-conversion-txt">
+                                            📦 Conversión: 1 Caja = 10 Tabletas
+                                        </div>
+                                        <div style="color: #475569; font-size: 12px; margin-top: 2px;"
+                                             id="preview-costo-base-txt">
+                                            Costo unitario equivalente: $ 2.500,00 por Tableta
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="text-align: right;">
+                                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700;">
+                                        Subtotal línea
+                                    </div>
+                                    <div style="font-size: 18px; font-weight: 800; color: #15803d;"
+                                         id="preview-subtotal-txt">
+                                        $ 0.00
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- BOTÓN PARA AGREGAR LA LÍNEA -->
+                            <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                                <button type="button"
+                                        id="btn-agregar-al-pedido"
+                                        class="btn btn-primary"
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; font-size: 14px; font-weight: 600;">
+                                    <i class="fa-solid fa-plus-circle"></i>
+                                    <span>Añadir medicamento a la orden</span>
+                                </button>
+                            </div>
+
                         </div>
 
+                        <!-- TABLA COMPACTA DE PRODUCTOS AGREGADOS -->
+                        <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-list-check" style="color: #2563eb;"></i>
+                                Medicamentos en esta orden de compra
+                            </h3>
+                            <span id="badge-contador-tabla"
+                                  style="font-size: 12px; background: #e2e8f0; color: #334155; padding: 3px 12px; border-radius: 12px; font-weight: 600;">
+                                0 productos
+                            </span>
+                        </div>
 
-                        <div class="form-actions">
+                        <div class="table-responsive"
+                             style="border: 1px solid #e2e8f0; border-radius: 10px; overflow-x: auto; background: #ffffff;">
 
-                            <button type="button"
-                                    id="agregar-producto"
-                                    class="btn btn-white">
+                            <table class="custom-table"
+                                   id="tabla-compras-lineas"
+                                   style="width: 100%; font-size: 13px;">
 
-                                <i class="fa-solid fa-plus"></i>
+                                <thead>
+                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-align: left;">
+                                    <th style="padding: 12px;">Producto</th>
+                                    <th style="padding: 12px;">Presentación</th>
+                                    <th style="padding: 12px; text-align: center;">Cant.</th>
+                                    <th style="padding: 12px;">Ingreso Físico</th>
+                                    <th style="padding: 12px; text-align: right;">Costo Empaque</th>
+                                    <th style="padding: 12px;">Lote y Vencimiento</th>
+                                    <th style="padding: 12px; text-align: right;">Subtotal</th>
+                                    <th style="padding: 12px; text-align: center;">Quitar</th>
+                                </tr>
+                                </thead>
 
-                                Agregar producto
+                                <tbody id="tbody-lineas-compra">
+                                <tr id="fila-vacia">
+                                    <td colspan="8"
+                                        style="text-align: center; color: #94a3b8; padding: 36px 16px;">
+                                        <i class="fa-solid fa-boxes-packing"
+                                           style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                                        No ha agregado ningún medicamento a esta orden.<br>
+                                        Seleccione un producto arriba y pulse <strong>"Añadir medicamento a la orden"</strong>.
+                                    </td>
+                                </tr>
+                                </tbody>
 
-                            </button>
+                            </table>
 
                         </div>
+
+                        <!-- CONTENEDOR DE INPUTS OCULTOS DE CADA LÍNEA -->
+                        <div id="hidden-inputs-wrapper"></div>
 
                     </div>
 
-
-                    <!-- =========================================
-                         TOTAL
-                    ========================================== -->
-
+                    <!-- =========================================================
+                         PASO 3: RESUMEN Y LIQUIDACIÓN
+                    ========================================================== -->
                     <div class="form-section">
 
-                        <div class="form-grid">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="background: #2563eb; color: #ffffff; font-weight: 700; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px;">3</span>
+                            <h2 class="form-section-title" style="margin: 0;">
+                                Resumen de liquidación
+                            </h2>
+                        </div>
 
-                            <div class="field-group">
+                        <div class="form-section-divider"></div>
 
-                                <label>
-                                    Total de la compra
-                                </label>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; align-items: center;">
 
-                                <input type="number"
-                                       id="totalCompra"
-                                       step="0.01"
-                                       value="0"
-                                       readonly>
+                            <div>
+                                <span style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                    Ítems en la orden
+                                </span>
+                                <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px;"
+                                     id="lbl-resumen-items">
+                                    0 líneas
+                                </div>
+                            </div>
 
+                            <div>
+                                <span style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                    Unidades base a ingresar
+                                </span>
+                                <div style="font-size: 18px; font-weight: 700; color: #2563eb; margin-top: 4px;"
+                                     id="lbl-resumen-unidades">
+                                    0 unidades
+                                </div>
+                            </div>
+
+                            <div>
+                                <span style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                    Subtotal de compra
+                                </span>
+                                <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px;"
+                                     id="lbl-resumen-subtotal">
+                                    $ 0.00
+                                </div>
+                            </div>
+
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 18px;">
+                                <span style="font-size: 12px; color: #166534; font-weight: 700; text-transform: uppercase;">
+                                    Total de la orden
+                                </span>
+                                <div style="font-size: 24px; font-weight: 800; color: #15803d; margin-top: 2px;"
+                                     id="lbl-resumen-total">
+                                    $ 0.00
+                                </div>
                             </div>
 
                         </div>
 
                     </div>
 
-
-                    <!-- =========================================
-                         ACCIONES
-                    ========================================== -->
-
-                    <div class="form-actions">
+                    <!-- ACCIONES DEL FORMULARIO -->
+                    <div class="form-actions"
+                         style="display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
 
                         <a th:href="@{/view/compras}"
                            class="btn btn-white">
-
+                            <i class="fa-solid fa-arrow-left"></i>
                             Cancelar
-
                         </a>
 
-
                         <button type="submit"
-                                class="btn btn-primary">
-
-                            <i class="fa-solid fa-save"></i>
-
-                            Guardar compra
-
+                                class="btn btn-primary"
+                                id="btn-submit-compra"
+                                style="font-size: 14px; padding: 10px 24px;">
+                            <i class="fa-solid fa-check"></i>
+                            <span th:text="${editMode ? 'Actualizar compra' : 'Confirmar y registrar compra'}">
+                                Registrar compra
+                            </span>
                         </button>
 
                     </div>
@@ -407,279 +493,442 @@
 
 </div>
 
-
-<script>
-
+<!-- JAVASCRIPT DINÁMICO DEL MÓDULO DE COMPRAS -->
+<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
-
-        const container =
-            document.getElementById("productos-container");
-
-        const agregarBtn =
-            document.getElementById("agregar-producto");
-
-        const totalCompra =
-            document.getElementById("totalCompra");
-
-        const totalHidden =
-            document.getElementById("total");
-
-
-        function calcularFila(row) {
-
-            const cantidad =
-                row.querySelector(".cantidad-input");
-
-            const precio =
-                row.querySelector(".precio-input");
-
-            const subtotal =
-                row.querySelector(".subtotal-input");
-
-            const cantidadValor =
-                parseFloat(cantidad.value) || 0;
-
-            const precioValor =
-                parseFloat(precio.value) || 0;
-
-            const resultado =
-                cantidadValor * precioValor;
-
-            subtotal.value =
-                resultado.toFixed(2);
-
-            calcularTotal();
+        const jsonEl = document.getElementById("presentaciones-compra-data");
+        let presentacionesData = {};
+        if (jsonEl && jsonEl.textContent.trim()) {
+            try {
+                presentacionesData = JSON.parse(jsonEl.textContent);
+            } catch (e) {
+                console.error("Error al parsear presentaciones de compra:", e);
+            }
         }
 
+        const builderProd = document.getElementById("builder-producto");
+        const builderPres = document.getElementById("builder-presentacion");
+        const builderCant = document.getElementById("builder-cantidad");
+        const builderCosto = document.getElementById("builder-costo");
+        const builderLote = document.getElementById("builder-lote");
+        const builderFechaFab = document.getElementById("builder-fecha-fab");
+        const builderFechaVenc = document.getElementById("builder-fecha-venc");
+        const btnAgregar = document.getElementById("btn-agregar-al-pedido");
 
-        function calcularTotal() {
+        const previewBox = document.getElementById("builder-live-preview");
+        const previewConversionTxt = document.getElementById("preview-conversion-txt");
+        const previewCostoBaseTxt = document.getElementById("preview-costo-base-txt");
+        const previewSubtotalTxt = document.getElementById("preview-subtotal-txt");
 
-            let total = 0;
+        const tbodyLineas = document.getElementById("tbody-lineas-compra");
+        const filaVacia = document.getElementById("fila-vacia");
+        const hiddenWrapper = document.getElementById("hidden-inputs-wrapper");
+        const badgeContador = document.getElementById("badge-contador-tabla");
 
-            document
-                .querySelectorAll(".subtotal-input")
-                .forEach(function (input) {
+        const lblItems = document.getElementById("lbl-resumen-items");
+        const lblUnidades = document.getElementById("lbl-resumen-unidades");
+        const lblSubtotal = document.getElementById("lbl-resumen-subtotal");
+        const lblTotal = document.getElementById("lbl-resumen-total");
+        const totalHidden = document.getElementById("totalHidden");
 
-                    total +=
-                        parseFloat(input.value) || 0;
+        const formCompra = document.getElementById("form-compra");
+        const jsAlertBanner = document.getElementById("js-alert-banner");
+        const isEditMode = /*[[${editMode}]]*/ false;
 
+        // Almacén en memoria de las líneas agregadas
+        let lineas = [];
+
+        function formatearMoneda(val) {
+            return Number(val || 0).toLocaleString("es-CO", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function mostrarErrorJs(msg) {
+            if (jsAlertBanner) {
+                jsAlertBanner.textContent = msg;
+                jsAlertBanner.style.display = "block";
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                alert(msg);
+            }
+        }
+
+        function ocultarErrorJs() {
+            if (jsAlertBanner) {
+                jsAlertBanner.style.display = "none";
+                jsAlertBanner.textContent = "";
+            }
+        }
+
+        // 1. Cuando cambia el producto seleccionado en el builder
+        if (builderProd) {
+            builderProd.addEventListener("change", function () {
+                ocultarErrorJs();
+                const prodId = builderProd.value;
+                builderPres.innerHTML = "";
+
+                if (!prodId || !presentacionesData[prodId]) {
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "Seleccione primero un producto...";
+                    builderPres.appendChild(opt);
+                    if (previewBox) previewBox.style.display = "none";
+                    return;
+                }
+
+                const info = presentacionesData[prodId];
+                const list = info.presentaciones || [];
+                let optPrincipal = null;
+
+                list.forEach(pr => {
+                    const opt = document.createElement("option");
+                    opt.value = pr.id !== null ? pr.id : "";
+                    opt.dataset.factor = pr.factor || 1;
+                    opt.dataset.costo = pr.costo || 0;
+                    opt.dataset.nombre = pr.nombre;
+                    opt.dataset.unidadBase = info.unidadBase || "Unidad";
+
+                    const factorNum = Number(pr.factor || 1);
+                    if (factorNum > 1) {
+                        opt.textContent = `${pr.nombre} (Contiene ${factorNum} ${info.unidadBase})`;
+                    } else {
+                        opt.textContent = `${pr.nombre} (Unidad base física)`;
+                    }
+
+                    if (pr.esPrincipal) {
+                        opt.selected = true;
+                        optPrincipal = opt;
+                    }
+                    builderPres.appendChild(opt);
                 });
 
-            totalCompra.value =
-                total.toFixed(2);
+                if (!optPrincipal && builderPres.options.length > 0) {
+                    builderPres.options[0].selected = true;
+                    optPrincipal = builderPres.options[0];
+                }
 
-            totalHidden.value =
-                total.toFixed(2);
+                if (optPrincipal && optPrincipal.dataset.costo) {
+                    builderCosto.value = Number(optPrincipal.dataset.costo).toFixed(2);
+                }
+
+                actualizarPreviewEnVivo();
+            });
         }
 
-
-        function configurarFila(row) {
-
-            const producto =
-                row.querySelector(".producto-select");
-
-            const cantidad =
-                row.querySelector(".cantidad-input");
-
-            const precio =
-                row.querySelector(".precio-input");
-
-
-            producto.addEventListener(
-                "change",
-                function () {
-
-                    const opcion =
-                        producto.options[
-                            producto.selectedIndex
-                            ];
-
-                    const precioProducto =
-                        opcion.getAttribute(
-                            "data-precio"
-                        );
-
-                    if (precioProducto !== null) {
-
-                        precio.value =
-                            precioProducto;
-
-                    }
-
-                    calcularFila(row);
+        // 2. Cuando cambia la presentación
+        if (builderPres) {
+            builderPres.addEventListener("change", function () {
+                ocultarErrorJs();
+                const sel = builderPres.options[builderPres.selectedIndex];
+                if (sel && sel.dataset.costo) {
+                    builderCosto.value = Number(sel.dataset.costo).toFixed(2);
                 }
-            );
-
-
-            cantidad.addEventListener(
-                "input",
-                function () {
-
-                    calcularFila(row);
-
-                }
-            );
-
-
-            precio.addEventListener(
-                "input",
-                function () {
-
-                    calcularFila(row);
-
-                }
-            );
-
-
-            const fechaFabricacion =
-                row.querySelector(
-                    ".fecha-fabricacion-input"
-                );
-
-            const fechaVencimiento =
-                row.querySelector(
-                    ".fecha-vencimiento-input"
-                );
-
-
-            fechaFabricacion.addEventListener(
-                "change",
-                function () {
-
-                    if (
-                        fechaFabricacion.value !== "" &&
-                        fechaVencimiento.value !== ""
-                    ) {
-
-                        if (
-                            fechaVencimiento.value <
-                            fechaFabricacion.value
-                        ) {
-
-                            fechaVencimiento.value = "";
-
-                            alert(
-                                "La fecha de vencimiento no puede ser anterior a la fecha de fabricación."
-                            );
-                        }
-                    }
-                }
-            );
-
-
-            fechaVencimiento.addEventListener(
-                "change",
-                function () {
-
-                    if (
-                        fechaFabricacion.value !== "" &&
-                        fechaVencimiento.value !== ""
-                    ) {
-
-                        if (
-                            fechaVencimiento.value <
-                            fechaFabricacion.value
-                        ) {
-
-                            fechaVencimiento.value = "";
-
-                            alert(
-                                "La fecha de vencimiento no puede ser anterior a la fecha de fabricación."
-                            );
-                        }
-                    }
-                }
-            );
-
+                actualizarPreviewEnVivo();
+            });
         }
 
+        // 3. Cuando cambia cantidad o costo
+        if (builderCant) {
+            builderCant.addEventListener("input", actualizarPreviewEnVivo);
+        }
+        if (builderCosto) {
+            builderCosto.addEventListener("input", actualizarPreviewEnVivo);
+        }
 
-        configurarFila(
-            container.querySelector(
-                ".producto-row"
-            )
-        );
-
-
-        agregarBtn.addEventListener(
-            "click",
-            function () {
-
-                const primeraFila =
-                    container.querySelector(
-                        ".producto-row"
-                    );
-
-                const nuevaFila =
-                    primeraFila.cloneNode(true);
-
-
-                nuevaFila
-                    .querySelector(
-                        ".producto-select"
-                    )
-                    .value = "";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".cantidad-input"
-                    )
-                    .value = "1";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".precio-input"
-                    )
-                    .value = "0";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".lote-input"
-                    )
-                    .value = "";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".fecha-fabricacion-input"
-                    )
-                    .value = "";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".fecha-vencimiento-input"
-                    )
-                    .value = "";
-
-
-                nuevaFila
-                    .querySelector(
-                        ".subtotal-input"
-                    )
-                    .value = "0";
-
-
-                container.appendChild(
-                    nuevaFila
-                );
-
-
-                configurarFila(
-                    nuevaFila
-                );
-
+        function actualizarPreviewEnVivo() {
+            if (!builderProd || !builderProd.value || !builderPres || builderPres.selectedIndex < 0) {
+                if (previewBox) previewBox.style.display = "none";
+                return;
             }
-        );
 
+            const sel = builderPres.options[builderPres.selectedIndex];
+            if (!sel) {
+                if (previewBox) previewBox.style.display = "none";
+                return;
+            }
 
-        calcularTotal();
+            const factor = parseInt(sel.dataset.factor) || 1;
+            const cant = parseInt(builderCant.value) || 0;
+            const costo = parseFloat(builderCosto.value) || 0;
+            const uBase = sel.dataset.unidadBase || "unidades";
+            const nomPres = sel.dataset.nombre || "Empaque";
 
+            const totalFisico = cant * factor;
+            const subtotal = cant * costo;
+            const costoUnitarioBase = factor > 0 ? (costo / factor) : costo;
+
+            if (previewConversionTxt) {
+                if (factor > 1) {
+                    previewConversionTxt.textContent = `📦 Conversión: ${cant} ${nomPres}(s) × ${factor} ${uBase} = ${totalFisico} ${uBase} que ingresarán a inventario`;
+                } else {
+                    previewConversionTxt.textContent = `📦 Ingreso directo: ${totalFisico} ${uBase} físicas para inventario`;
+                }
+            }
+
+            if (previewCostoBaseTxt) {
+                previewCostoBaseTxt.textContent = `Costo base equivalente: $ ${formatearMoneda(costoUnitarioBase)} por cada ${uBase}`;
+            }
+
+            if (previewSubtotalTxt) {
+                previewSubtotalTxt.textContent = `$ ${formatearMoneda(subtotal)}`;
+            }
+
+            if (previewBox) previewBox.style.display = "flex";
+        }
+
+        // 4. Agregar línea a la orden
+        if (btnAgregar) {
+            btnAgregar.addEventListener("click", function () {
+                ocultarErrorJs();
+
+                const prodId = builderProd.value;
+                if (!prodId) {
+                    mostrarErrorJs("Debe seleccionar un producto o medicamento.");
+                    builderProd.focus();
+                    return;
+                }
+
+                if (builderPres.selectedIndex < 0) {
+                    mostrarErrorJs("Debe seleccionar una presentación de compra válida.");
+                    return;
+                }
+
+                const selPres = builderPres.options[builderPres.selectedIndex];
+                const presId = selPres.value || null;
+                const nomPres = selPres.dataset.nombre;
+                const factor = parseInt(selPres.dataset.factor) || 1;
+                const uBase = selPres.dataset.unidadBase || "unidades";
+
+                const cant = parseInt(builderCant.value);
+                if (!cant || cant <= 0) {
+                    mostrarErrorJs("La cantidad a comprar debe ser mayor que cero.");
+                    builderCant.focus();
+                    return;
+                }
+
+                const costo = parseFloat(builderCosto.value);
+                if (isNaN(costo) || costo < 0) {
+                    mostrarErrorJs("El costo de compra no puede ser negativo.");
+                    builderCosto.focus();
+                    return;
+                }
+
+                const lote = builderLote.value.trim();
+                if (!lote) {
+                    mostrarErrorJs("El número de lote es obligatorio para la trazabilidad farmacéutica.");
+                    builderLote.focus();
+                    return;
+                }
+
+                const fechaFab = builderFechaFab.value;
+                if (!fechaFab) {
+                    mostrarErrorJs("La fecha de fabricación del lote es obligatoria.");
+                    builderFechaFab.focus();
+                    return;
+                }
+
+                const fechaVenc = builderFechaVenc.value;
+                if (!fechaVenc) {
+                    mostrarErrorJs("La fecha de vencimiento del lote es obligatoria.");
+                    builderFechaVenc.focus();
+                    return;
+                }
+
+                if (fechaVenc < fechaFab) {
+                    mostrarErrorJs("La fecha de vencimiento no puede ser anterior a la de fabricación.");
+                    builderFechaVenc.focus();
+                    return;
+                }
+
+                const hoy = new Date().toISOString().split("T")[0];
+                if (fechaVenc < hoy) {
+                    mostrarErrorJs("No se puede registrar un lote ya vencido.");
+                    builderFechaVenc.focus();
+                    return;
+                }
+
+                const prodOption = builderProd.options[builderProd.selectedIndex];
+                const prodNombre = prodOption.textContent.trim();
+
+                const subtotal = cant * costo;
+                const unidadesBaseTotal = cant * factor;
+
+                lineas.push({
+                    idProducto: prodId,
+                    nombreProducto: prodNombre,
+                    idPresentacion: presId,
+                    nombrePresentacion: nomPres,
+                    factor: factor,
+                    unidadBase: uBase,
+                    cantidad: cant,
+                    costo: costo,
+                    unidadesBase: unidadesBaseTotal,
+                    subtotal: subtotal,
+                    lote: lote,
+                    fechaFab: fechaFab,
+                    fechaVenc: fechaVenc
+                });
+
+                // Limpiar campos para la siguiente entrada
+                builderLote.value = "";
+                builderCant.value = "1";
+                builderFechaFab.value = "";
+                builderFechaVenc.value = "";
+                builderProd.value = "";
+                builderPres.innerHTML = '<option value="">Seleccione primero un producto</option>';
+                if (previewBox) previewBox.style.display = "none";
+
+                renderizarTablaLineas();
+            });
+        }
+
+        // 5. Renderizar la tabla de productos y los hidden inputs
+        function renderizarTablaLineas() {
+            if (!tbodyLineas || !hiddenWrapper) return;
+
+            // Limpiar filas de la tabla excepto fila vacía
+            const filas = tbodyLineas.querySelectorAll("tr.linea-row");
+            filas.forEach(f => f.remove());
+            hiddenWrapper.innerHTML = "";
+
+            if (lineas.length === 0) {
+                if (filaVacia) filaVacia.style.display = "";
+                if (badgeContador) badgeContador.textContent = "0 productos";
+                if (lblItems) lblItems.textContent = "0 líneas";
+                if (lblUnidades) lblUnidades.textContent = "0 unidades";
+                if (lblSubtotal) lblSubtotal.textContent = "$ 0.00";
+                if (lblTotal) lblTotal.textContent = "$ 0.00";
+                if (totalHidden) totalHidden.value = "0.00";
+                return;
+            }
+
+            if (filaVacia) filaVacia.style.display = "none";
+            if (badgeContador) badgeContador.textContent = `${lineas.length} producto(s)`;
+
+            let totalGeneral = 0;
+            let totalUnidadesFisicas = 0;
+
+            lineas.forEach((item, idx) => {
+                totalGeneral += item.subtotal;
+                totalUnidadesFisicas += item.unidadesBase;
+
+                // Fila visual
+                const tr = document.createElement("tr");
+                tr.className = "linea-row";
+                tr.style.borderBottom = "1px solid #f1f5f9";
+
+                tr.innerHTML = `
+                    <td style="padding: 12px;">
+                        <div style="font-weight: 700; color: #0f172a;">${item.nombreProducto}</div>
+                    </td>
+                    <td style="padding: 12px;">
+                        <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600; padding: 3px 10px; border-radius: 12px; font-size: 12px;">
+                            ${item.nombrePresentacion}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <strong style="font-size: 14px; color: #1e293b;">${item.cantidad}</strong>
+                    </td>
+                    <td style="padding: 12px;">
+                        <div style="color: #2563eb; font-weight: 700;">
+                            ${item.unidadesBase} ${item.unidadBase}
+                        </div>
+                        ${item.factor > 1 ? `<small style="color: #64748b; font-size: 11px;">(x${item.factor} por empaque)</small>` : ''}
+                    </td>
+                    <td style="padding: 12px; text-align: right;">
+                        <div style="font-weight: 600; color: #0f172a;">$ ${formatearMoneda(item.costo)}</div>
+                        ${item.factor > 1 ? `<small style="color: #64748b; font-size: 11px;">($ ${formatearMoneda(item.costo / item.factor)} / ${item.unidadBase})</small>` : ''}
+                    </td>
+                    <td style="padding: 12px;">
+                        <div style="font-weight: 600; color: #334155;">Lote: <strong>${item.lote}</strong></div>
+                        <small style="color: #64748b; font-size: 11px;">Vence: ${item.fechaVenc}</small>
+                    </td>
+                    <td style="padding: 12px; text-align: right;">
+                        <strong style="color: #15803d; font-size: 14px;">$ ${formatearMoneda(item.subtotal)}</strong>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button type="button" class="btn btn-white btn-quitar" data-index="${idx}" style="color: #ef4444; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 6px; cursor: pointer;" title="Quitar producto de la orden">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+
+                tbodyLineas.appendChild(tr);
+
+                // Hidden inputs para el backend (Spring Boot @RequestParam)
+                const inProd = document.createElement("input");
+                inProd.type = "hidden";
+                inProd.name = "id_productos[]";
+                inProd.value = item.idProducto;
+                hiddenWrapper.appendChild(inProd);
+
+                const inPres = document.createElement("input");
+                inPres.type = "hidden";
+                inPres.name = "id_presentaciones[]";
+                inPres.value = item.idPresentacion !== null && item.idPresentacion !== undefined ? item.idPresentacion : "";
+                hiddenWrapper.appendChild(inPres);
+
+                const inCant = document.createElement("input");
+                inCant.type = "hidden";
+                inCant.name = "cantidades[]";
+                inCant.value = item.cantidad;
+                hiddenWrapper.appendChild(inCant);
+
+                const inPrecio = document.createElement("input");
+                inPrecio.type = "hidden";
+                inPrecio.name = "precios[]";
+                inPrecio.value = item.costo;
+                hiddenWrapper.appendChild(inPrecio);
+
+                const inLote = document.createElement("input");
+                inLote.type = "hidden";
+                inLote.name = "lote_numeros[]";
+                inLote.value = item.lote;
+                hiddenWrapper.appendChild(inLote);
+
+                const inFab = document.createElement("input");
+                inFab.type = "hidden";
+                inFab.name = "fechas_fabricacion[]";
+                inFab.value = item.fechaFab;
+                hiddenWrapper.appendChild(inFab);
+
+                const inVenc = document.createElement("input");
+                inVenc.type = "hidden";
+                inVenc.name = "fechas_vencimiento[]";
+                inVenc.value = item.fechaVenc;
+                hiddenWrapper.appendChild(inVenc);
+            });
+
+            // Conectar botones quitar
+            tbodyLineas.querySelectorAll(".btn-quitar").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const i = parseInt(this.dataset.index);
+                    lineas.splice(i, 1);
+                    renderizarTablaLineas();
+                });
+            });
+
+            // Actualizar resumen
+            if (lblItems) lblItems.textContent = `${lineas.length} producto(s)`;
+            if (lblUnidades) lblUnidades.textContent = `${totalUnidadesFisicas} unidades físicas`;
+            if (lblSubtotal) lblSubtotal.textContent = `$ ${formatearMoneda(totalGeneral)}`;
+            if (lblTotal) lblTotal.textContent = `$ ${formatearMoneda(totalGeneral)}`;
+            if (totalHidden) totalHidden.value = totalGeneral.toFixed(2);
+        }
+
+        // 6. Validación final antes del submit
+        if (formCompra) {
+            formCompra.addEventListener("submit", function (e) {
+                if (!isEditMode && lineas.length === 0) {
+                    e.preventDefault();
+                    mostrarErrorJs("Debe agregar al menos un producto a la compra antes de confirmarla.");
+                    return false;
+                }
+            });
+        }
     });
-
 </script>
 
 </body>

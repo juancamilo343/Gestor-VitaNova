@@ -160,7 +160,7 @@
                 </div>
 
                 <span class="text-muted text-small"
-                      th:text="'ID: ' + ${producto.id_producto}">
+                      th:text="'ID: ' + ${producto.id_producto} + ' • Unidad base: ' + (${producto.unidad_base != null ? producto.unidad_base : 'Unidad'})">
                                     ID: 1
                                 </span>
 

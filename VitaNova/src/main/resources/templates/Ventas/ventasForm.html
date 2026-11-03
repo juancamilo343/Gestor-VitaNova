@@ -151,6 +151,124 @@
                     <!-- FEEDBACK DE ESCÁNER / CÓDIGO DE BARRAS -->
                     <div id="posScanFeedback" style="display: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-top: 10px;"></div>
 
+                    <!-- ============================================================= -->
+                    <!-- BARRA DE PESTAÑAS DE VENTAS ABIERTAS Y EN ESPERA (ETAPA 4) -->
+                    <!-- ============================================================= -->
+                    <style>
+                        .pos-tabs-container {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            gap: 10px;
+                            background: #ffffff;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 10px;
+                            padding: 8px 12px;
+                            margin-top: 12px;
+                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+                        }
+                        .pos-tabs-scroll {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            overflow-x: auto;
+                            flex: 1;
+                            scrollbar-width: thin;
+                            padding: 2px 0;
+                        }
+                        .pos-tab-btn {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 7px 14px;
+                            border-radius: 8px;
+                            border: 1px solid #cbd5e1;
+                            background: #f8fafc;
+                            color: #334155;
+                            font-size: 13px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.15s ease-in-out;
+                            white-space: nowrap;
+                            user-select: none;
+                        }
+                        .pos-tab-btn:hover {
+                            background: #e2e8f0;
+                            border-color: #94a3b8;
+                            color: #0f172a;
+                        }
+                        .pos-tab-btn.active {
+                            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+                            border-color: #1e40af;
+                            color: #ffffff;
+                            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+                        }
+                        .pos-tab-badge {
+                            font-size: 11px;
+                            padding: 2px 8px;
+                            border-radius: 10px;
+                            background: rgba(0, 0, 0, 0.08);
+                            font-weight: 500;
+                        }
+                        .pos-tab-btn.active .pos-tab-badge {
+                            background: rgba(255, 255, 255, 0.25);
+                            color: #ffffff;
+                        }
+                        .pos-tab-close {
+                            background: transparent;
+                            border: none;
+                            color: inherit;
+                            font-size: 16px;
+                            line-height: 1;
+                            cursor: pointer;
+                            padding: 2px 5px;
+                            border-radius: 4px;
+                            opacity: 0.65;
+                            transition: all 0.15s ease;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .pos-tab-close:hover {
+                            opacity: 1;
+                            background: rgba(239, 68, 68, 0.2);
+                            color: #ef4444;
+                        }
+                        .pos-tab-btn.active .pos-tab-close:hover {
+                            background: rgba(255, 255, 255, 0.3);
+                            color: #ffffff;
+                        }
+                        .pos-new-tab-btn {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            padding: 7px 14px;
+                            border-radius: 8px;
+                            border: 1px solid #2563eb;
+                            background: #eff6ff;
+                            color: #1d4ed8;
+                            font-size: 13px;
+                            font-weight: 700;
+                            cursor: pointer;
+                            transition: all 0.15s ease-in-out;
+                            white-space: nowrap;
+                        }
+                        .pos-new-tab-btn:hover {
+                            background: #2563eb;
+                            color: #ffffff;
+                        }
+                    </style>
+
+                    <div class="pos-tabs-container">
+                        <div class="pos-tabs-scroll" id="posTabsContainer">
+                            <!-- Pestañas generadas dinámicamente -->
+                        </div>
+                        <button type="button" class="pos-new-tab-btn" id="btnNuevaPestanaVenta" title="Abrir una nueva venta independiente (Ctrl+Alt+N)">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva venta</span>
+                        </button>
+                    </div>
+
                     <!-- GRID PRINCIPAL DE 2 COLUMNAS DEL POS -->
                     <div class="pos-grid-layout" style="margin-top: 14px;">
 
@@ -453,7 +571,7 @@
 <script type="application/json" id="presentacionesJsonData" th:utext="${presentacionesJson}">{}</script>
 
 <!-- ============================================================= -->
-<!-- JAVASCRIPT DEL PUNTO DE VENTA (POS) - NATIVO SIN PREPROCESADOR -->
+<!-- JAVASCRIPT DEL PUNTO DE VENTA (POS) - NATIVO CON PESTAÑAS MÚLTIPLES (ETAPA 4) -->
 <!-- ============================================================= -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -466,11 +584,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     var IVA_RATE = 0.19;
-    var STORAGE_KEY_SUSPENDIDAS = "vitanova_pos_suspendidas";
 
     // Elementos DOM
     var formVenta = document.getElementById("formVenta");
     if (!formVenta) return; // Si estamos en modo edición, sale directamente
+
+    // Aislamiento por empleado autenticado
+    var EMPLEADO_ID = (document.getElementById("id_empleado") && document.getElementById("id_empleado").value) 
+        ? document.getElementById("id_empleado").value : "default";
+
+    var STORAGE_KEY_TABS = "vitanova_pos_tabs_emp_" + EMPLEADO_ID;
+    var STORAGE_KEY_ACTIVE_TAB = "vitanova_pos_active_tab_emp_" + EMPLEADO_ID;
+    var STORAGE_KEY_SUSPENDIDAS = "vitanova_pos_suspendidas_emp_" + EMPLEADO_ID;
 
     var idClienteInput = document.getElementById("id_cliente");
     var posClienteTexto = document.getElementById("posClienteTexto");
@@ -492,12 +617,15 @@ document.addEventListener("DOMContentLoaded", function () {
     var posImpuestosTxt = document.getElementById("posImpuestosTxt");
     var posTotalTxt = document.getElementById("posTotalTxt");
     var descuentoHidden = document.getElementById("descuento");
+    var idMetodoPagoSelect = document.getElementById("id_metodo_pago");
 
     var btnCobrarVenta = document.getElementById("btnCobrarVenta");
     var btnSuspenderVenta = document.getElementById("btnSuspenderVenta");
     var btnLimpiarVenta = document.getElementById("btnLimpiarVenta");
     var btnVerSuspendidas = document.getElementById("btnVerSuspendidas");
     var posCountSuspendidas = document.getElementById("posCountSuspendidas");
+    var btnNuevaPestanaVenta = document.getElementById("btnNuevaPestanaVenta");
+    var posTabsContainer = document.getElementById("posTabsContainer");
 
     // Modales
     var modalCliente = document.getElementById("modalCliente");
@@ -513,7 +641,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var cuerpoSuspendidas = document.getElementById("cuerpoSuspendidas");
     var listaSuspendidasVacia = document.getElementById("listaSuspendidasVacia");
 
-    // Estado del ticket en memoria: Array de { id, nombre, precio, stock, barcode, cantidad }
+    // ESTADO DE MÚLTIPLES VENTAS (PESTAÑAS)
+    var tabsVentas = [];
+    var activeTabId = null;
     var carrito = [];
 
     // =========================================================
@@ -542,7 +672,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // 3. TOAST / FEEDBACK DE ESCÁNER
+    // 3. TOAST / FEEDBACK DE ESCÁNER Y ACCIONES
     // =========================================================
     var feedbackTimer = null;
     function mostrarFeedback(mensaje, esError) {
@@ -568,7 +698,210 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // 4. AGREGAR PRODUCTO AL TICKET (CON PRESENTACIONES)
+    // 4. GESTOR DE ESTADO DE PESTAÑAS (STORAGE Y MEMORIA)
+    // =========================================================
+    function obtenerMetodoPagoPorDefecto() {
+        if (idMetodoPagoSelect && idMetodoPagoSelect.options && idMetodoPagoSelect.options.length > 0) {
+            return idMetodoPagoSelect.options[0].value;
+        }
+        return "1";
+    }
+
+    function actualizarDatosPestanaActiva() {
+        if (!activeTabId) return;
+        var tab = tabsVentas.find(function (t) { return t.id === activeTabId; });
+        if (!tab) return;
+
+        tab.clienteId = idClienteInput ? (idClienteInput.value || null) : null;
+        tab.clienteNombre = posClienteTexto ? (posClienteTexto.textContent || "Consumidor Final") : "Consumidor Final";
+        tab.descuento = posDescuentoInput ? (posDescuentoInput.value || "0.00") : "0.00";
+        tab.metodoPagoId = idMetodoPagoSelect ? idMetodoPagoSelect.value : obtenerMetodoPagoPorDefecto();
+        tab.carrito = JSON.parse(JSON.stringify(carrito || []));
+    }
+
+    function guardarTabsEnStorage() {
+        try {
+            actualizarDatosPestanaActiva();
+            localStorage.setItem(STORAGE_KEY_TABS, JSON.stringify(tabsVentas));
+            if (activeTabId) {
+                localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, activeTabId);
+            }
+        } catch (e) {
+            console.error("Error al guardar pestañas:", e);
+        }
+    }
+
+    function cargarTabsDesdeStorage() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY_TABS);
+            var tabs = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(tabs) && tabs.length > 0) {
+                return tabs;
+            }
+        } catch (e) {
+            console.error("Error al leer pestañas:", e);
+        }
+        return null;
+    }
+
+    function crearNuevaPestana(datosIniciales) {
+        actualizarDatosPestanaActiva();
+
+        var maxNum = 0;
+        for (var i = 0; i < tabsVentas.length; i++) {
+            if (tabsVentas[i].numero && tabsVentas[i].numero > maxNum) {
+                maxNum = tabsVentas[i].numero;
+            }
+        }
+        var nuevoNum = maxNum + 1;
+
+        var nuevaTab = {
+            id: "tab_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+            numero: nuevoNum,
+            titulo: (datosIniciales && datosIniciales.titulo) ? datosIniciales.titulo : ("Venta " + nuevoNum),
+            clienteId: (datosIniciales && datosIniciales.clienteId) ? datosIniciales.clienteId : null,
+            clienteNombre: (datosIniciales && datosIniciales.clienteNombre) ? datosIniciales.clienteNombre : "Consumidor Final",
+            descuento: (datosIniciales && datosIniciales.descuento) ? datosIniciales.descuento : "0.00",
+            metodoPagoId: (datosIniciales && datosIniciales.metodoPagoId) ? datosIniciales.metodoPagoId : obtenerMetodoPagoPorDefecto(),
+            carrito: (datosIniciales && datosIniciales.carrito) ? JSON.parse(JSON.stringify(datosIniciales.carrito)) : []
+        };
+
+        tabsVentas.push(nuevaTab);
+        cambiarPestana(nuevaTab.id);
+        guardarTabsEnStorage();
+        mostrarFeedback("Nueva pestaña abierta: " + nuevaTab.titulo, false);
+        return nuevaTab;
+    }
+
+    function cambiarPestana(targetId) {
+        if (!targetId) return;
+        if (targetId === activeTabId) {
+            renderizarPestanas();
+            return;
+        }
+
+        actualizarDatosPestanaActiva();
+
+        var targetTab = tabsVentas.find(function (t) { return t.id === targetId; });
+        if (!targetTab) return;
+
+        activeTabId = targetId;
+        localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, activeTabId);
+
+        carrito = JSON.parse(JSON.stringify(targetTab.carrito || []));
+        asignarCliente(targetTab.clienteId, targetTab.clienteNombre);
+        if (posDescuentoInput) {
+            posDescuentoInput.value = targetTab.descuento || "0.00";
+        }
+        if (idMetodoPagoSelect && targetTab.metodoPagoId) {
+            idMetodoPagoSelect.value = targetTab.metodoPagoId;
+        }
+
+        renderizarTicket();
+        renderizarPestanas();
+
+        if (posBuscador) posBuscador.focus();
+    }
+
+    function cerrarPestana(tabId) {
+        var tab = tabsVentas.find(function (t) { return t.id === tabId; });
+        if (!tab) return;
+
+        var cartItems = (tab.id === activeTabId) ? carrito : (tab.carrito || []);
+        if (cartItems.length > 0) {
+            if (!confirm("¿Está seguro de cancelar y cerrar '" + tab.titulo + "'? Se descartarán los productos seleccionados en esta venta.")) {
+                return;
+            }
+        }
+
+        var idx = tabsVentas.findIndex(function (t) { return t.id === tabId; });
+        tabsVentas.splice(idx, 1);
+
+        if (tabsVentas.length === 0) {
+            var nueva = {
+                id: "tab_" + Date.now(),
+                numero: 1,
+                titulo: "Venta 1",
+                clienteId: null,
+                clienteNombre: "Consumidor Final",
+                descuento: "0.00",
+                metodoPagoId: obtenerMetodoPagoPorDefecto(),
+                carrito: []
+            };
+            tabsVentas.push(nueva);
+            activeTabId = nueva.id;
+            carrito = [];
+            asignarCliente(null, "Consumidor Final");
+            if (posDescuentoInput) posDescuentoInput.value = "0.00";
+        } else if (tabId === activeTabId) {
+            var nuevoIdx = Math.max(0, idx - 1);
+            cambiarPestana(tabsVentas[nuevoIdx].id);
+        }
+
+        guardarTabsEnStorage();
+        renderizarPestanas();
+        renderizarTicket();
+        mostrarFeedback("Venta cerrada.", false);
+    }
+
+    function renderizarPestanas() {
+        if (!posTabsContainer) return;
+        posTabsContainer.innerHTML = "";
+
+        for (var i = 0; i < tabsVentas.length; i++) {
+            (function (tab) {
+                var btn = document.createElement("div");
+                btn.className = "pos-tab-btn" + (tab.id === activeTabId ? " active" : "");
+                btn.dataset.tabId = tab.id;
+
+                var totalArts = 0;
+                var totalPrecio = 0;
+                var cartItems = (tab.id === activeTabId) ? carrito : (tab.carrito || []);
+                for (var c = 0; c < cartItems.length; c++) {
+                    totalArts += cartItems[c].cantidad;
+                    totalPrecio += (cartItems[c].cantidad * cartItems[c].precio);
+                }
+
+                var resumenTexto = totalArts > 0 ? (totalArts + " art. · " + formatoMoneda(totalPrecio)) : "Vacía";
+                var clienteTexto = (tab.id === activeTabId && posClienteTexto) ? posClienteTexto.textContent : (tab.clienteNombre || "Consumidor Final");
+                if (clienteTexto && clienteTexto !== "Consumidor Final") {
+                    resumenTexto = clienteTexto + " · " + resumenTexto;
+                }
+
+                btn.innerHTML = '<span style="display: flex; align-items: center; gap: 6px;">'
+                    + '<i class="fa-solid fa-receipt"></i>'
+                    + '<span>' + tab.titulo + '</span>'
+                    + '</span>'
+                    + '<span class="pos-tab-badge">' + resumenTexto + '</span>'
+                    + '<button type="button" class="pos-tab-close" title="Cerrar/Cancelar esta venta">&times;</button>';
+
+                btn.addEventListener("click", function (e) {
+                    if (e.target.closest(".pos-tab-close")) return;
+                    cambiarPestana(tab.id);
+                });
+
+                var btnClose = btn.querySelector(".pos-tab-close");
+                if (btnClose) {
+                    btnClose.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                        cerrarPestana(tab.id);
+                    });
+                }
+
+                posTabsContainer.appendChild(btn);
+            })(tabsVentas[i]);
+        }
+    }
+
+    if (btnNuevaPestanaVenta) {
+        btnNuevaPestanaVenta.addEventListener("click", function () {
+            crearNuevaPestana();
+        });
+    }
+
+
+    // =========================================================
+    // 5. AGREGAR PRODUCTO AL TICKET (CON PRESENTACIONES)
     // =========================================================
     function agregarProductoAlTicket(producto) {
         var idProd = Number(producto.id);
@@ -579,7 +912,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Obtener presentaciones configuradas para este producto
         var presList = PRESENTACIONES_MAP[idProd] || [];
         var presDefault = null;
         if (presList.length > 0) {
@@ -597,7 +929,6 @@ document.addEventListener("DOMContentLoaded", function () {
         var factorPres = presDefault ? Number(presDefault.factor || 1) : 1;
         var precioPres = presDefault ? Number(presDefault.precio || 0) : Number(producto.precio || 0);
 
-        // Si la presentación por defecto no cabe en el stock, buscar una que sí quepa (ej. Tableta)
         if (factorPres > stockDisponible && presList.length > 1) {
             for (var p2 = 0; p2 < presList.length; p2++) {
                 if (Number(presList[p2].factor || 1) <= stockDisponible) {
@@ -655,13 +986,15 @@ document.addEventListener("DOMContentLoaded", function () {
             mostrarFeedback('Agregado al ticket: ' + producto.nombre + ' (' + nomPres + ')', false);
         }
 
+        guardarTabsEnStorage();
         renderizarTicket();
+        renderizarPestanas();
         return true;
     }
 
 
     // =========================================================
-    // 5. RENDERIZAR TICKET Y TOTALES (CON PRESENTACIÓN SELECCIONABLE)
+    // 6. RENDERIZAR TICKET Y TOTALES (CON PRESENTACIÓN SELECCIONABLE)
     // =========================================================
     function renderizarTicket() {
         if (!cuerpoTicket) return;
@@ -690,7 +1023,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 var subtotalItem = item.cantidad * item.precio;
                 subtotalAcumulado += subtotalItem;
 
-                // Inputs ocultos para enviar al backend (POST /view/ventas/save)
                 var inputId = document.createElement("input");
                 inputId.type = "hidden";
                 inputId.name = "id_producto";
@@ -709,15 +1041,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 inputCant.value = item.cantidad;
                 hiddenInputsContainer.appendChild(inputCant);
 
-                // Fila visible en la tabla del ticket
                 var tr = document.createElement("tr");
 
-                // Columna 1: Producto
                 var tdProd = document.createElement("td");
                 tdProd.innerHTML = '<div style="font-weight: 700; color: var(--text-dark);">' + item.nombre + '</div>'
                     + '<div style="font-size: 11px; color: var(--text-muted);">' + formatoMoneda(item.precio) + ' c/u · Disp: ' + item.stock + ' ' + (item.unidadBase || 'unid') + '</div>';
 
-                // Columna 2: Presentación (Selector si tiene múltiples o Badge si es única)
                 var tdPres = document.createElement("td");
                 if (item.presentaciones && item.presentaciones.length > 1) {
                     var select = document.createElement("select");
@@ -747,7 +1076,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                 item.cantidad = maxPermitido;
                                 mostrarFeedback('Cantidad ajustada a ' + maxPermitido + ' por stock disponible.', true);
                             }
+                            guardarTabsEnStorage();
                             renderizarTicket();
+                            renderizarPestanas();
                         }
                     });
                     tdPres.appendChild(select);
@@ -757,7 +1088,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         + '</span>';
                 }
 
-                // Columna 3: Cantidad
                 var tdCant = document.createElement("td");
                 tdCant.style.textAlign = "center";
                 var maxCantParaPres = Math.max(1, Math.floor(item.stock / item.factor));
@@ -767,14 +1097,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     + '<button type="button" class="pos-qty-btn btn-sumar">+</button>'
                     + '</div>';
 
-                // Columna 4: Subtotal
                 var tdSub = document.createElement("td");
                 tdSub.style.textAlign = "right";
                 tdSub.style.fontWeight = "800";
                 tdSub.style.color = "#166534";
                 tdSub.textContent = formatoMoneda(subtotalItem);
 
-                // Columna 5: Eliminar
                 var tdDel = document.createElement("td");
                 tdDel.style.textAlign = "center";
                 tdDel.innerHTML = '<button type="button" class="pos-btn-del btn-quitar-item" title="Quitar producto">'
@@ -787,22 +1115,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 tr.appendChild(tdSub);
                 tr.appendChild(tdDel);
 
-                // Eventos de botones dentro de la fila
                 tdCant.querySelector(".btn-restar").addEventListener("click", function () {
                     if (item.cantidad > 1) {
                         item.cantidad -= 1;
-                        renderizarTicket();
                     } else {
                         carrito.splice(index, 1);
-                        renderizarTicket();
                     }
+                    guardarTabsEnStorage();
+                    renderizarTicket();
+                    renderizarPestanas();
                 });
 
                 tdCant.querySelector(".btn-sumar").addEventListener("click", function () {
                     var unidadesSiguientes = (item.cantidad + 1) * item.factor;
                     if (unidadesSiguientes <= item.stock) {
                         item.cantidad += 1;
+                        guardarTabsEnStorage();
                         renderizarTicket();
+                        renderizarPestanas();
                     } else {
                         mostrarFeedback('Límite de stock alcanzado (' + item.stock + ' ' + (item.unidadBase || 'unid') + ' disp.)', true);
                     }
@@ -817,19 +1147,22 @@ document.addEventListener("DOMContentLoaded", function () {
                         mostrarFeedback('Ajustado al máximo disponible (' + maxPermitido + ' ' + item.nombrePresentacion + ')', true);
                     }
                     item.cantidad = val;
+                    guardarTabsEnStorage();
                     renderizarTicket();
+                    renderizarPestanas();
                 });
 
                 tdDel.querySelector(".btn-quitar-item").addEventListener("click", function () {
                     carrito.splice(index, 1);
+                    guardarTabsEnStorage();
                     renderizarTicket();
+                    renderizarPestanas();
                 });
 
                 cuerpoTicket.appendChild(tr);
             })(idx);
         }
 
-        // Cálculos finales
         if (posTicketItemCount) {
             posTicketItemCount.textContent = totalArticulos + (totalArticulos === 1 ? " artículo" : " artículos");
         }
@@ -848,13 +1181,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (posDescuentoInput) {
         posDescuentoInput.addEventListener("input", function () {
+            guardarTabsEnStorage();
             renderizarTicket();
+            renderizarPestanas();
+        });
+    }
+
+    if (idMetodoPagoSelect) {
+        idMetodoPagoSelect.addEventListener("change", function () {
+            guardarTabsEnStorage();
         });
     }
 
 
     // =========================================================
-    // 6. CATÁLOGO: CLIC EN MEDICAMENTO
+    // 7. CATÁLOGO: CLIC EN MEDICAMENTO
     // =========================================================
     if (posCatalogGrid) {
         var tarjetas = posCatalogGrid.querySelectorAll(".pos-med-card");
@@ -876,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // 7. BÚSQUEDA Y LECTOR DE CÓDIGO DE BARRAS
+    // 8. BÚSQUEDA Y LECTOR DE CÓDIGO DE BARRAS
     // =========================================================
     function procesarEntradaBuscador() {
         if (!posBuscador) return;
@@ -968,7 +1309,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Filtros de categoría rápida
     if (posCategoryFilter) {
         var tags = posCategoryFilter.querySelectorAll(".pos-tag");
         tags.forEach(function (tag) {
@@ -991,7 +1331,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // 8. ASIGNACIÓN DE CLIENTE (MODAL Y CHIP)
+    // 9. ASIGNACIÓN DE CLIENTE (MODAL Y CHIP)
     // =========================================================
     function abrirModalCliente() {
         if (modalCliente) {
@@ -1016,7 +1356,8 @@ document.addEventListener("DOMContentLoaded", function () {
             btnRestablecerConsumidorFinal.style.display = id ? "inline-block" : "none";
         }
         cerrarModalCliente();
-        mostrarFeedback('Cliente asignado: ' + (nombre || "Consumidor Final"), false);
+        guardarTabsEnStorage();
+        renderizarPestanas();
     }
 
     if (btnAbrirModalCliente) btnAbrirModalCliente.addEventListener("click", abrirModalCliente);
@@ -1025,12 +1366,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (btnRestablecerConsumidorFinal) {
         btnRestablecerConsumidorFinal.addEventListener("click", function () {
             asignarCliente(null, "Consumidor Final");
+            mostrarFeedback('Cliente restablecido a Consumidor Final', false);
         });
     }
 
     if (btnEstablecerConsumidorFinal) {
         btnEstablecerConsumidorFinal.addEventListener("click", function () {
             asignarCliente(null, "Consumidor Final");
+            mostrarFeedback('Cliente asignado: Consumidor Final', false);
         });
     }
 
@@ -1056,13 +1399,14 @@ document.addEventListener("DOMContentLoaded", function () {
             btn.addEventListener("click", function () {
                 var fila = this.closest(".fila-cliente-modal");
                 asignarCliente(fila.dataset.id, fila.dataset.nombre);
+                mostrarFeedback('Cliente asignado: ' + fila.dataset.nombre, false);
             });
         });
     }
 
 
     // =========================================================
-    // 9. VENTAS SUSPENDIDAS (HOLD/RESUME - LOCALSTORAGE)
+    // 10. VENTAS SUSPENDIDAS (HOLD/RESUME - LOCALSTORAGE AISLADO)
     // =========================================================
     function obtenerSuspendidas() {
         try {
@@ -1088,20 +1432,23 @@ document.addEventListener("DOMContentLoaded", function () {
     if (btnSuspenderVenta) {
         btnSuspenderVenta.addEventListener("click", function () {
             if (carrito.length === 0) {
-                mostrarFeedback("No hay productos en el ticket para suspender.", true);
+                mostrarFeedback("No hay productos en esta venta para suspender.", true);
                 return;
             }
 
             var clienteId = idClienteInput ? idClienteInput.value : null;
             var clienteNombre = posClienteTexto ? posClienteTexto.textContent : "Consumidor Final";
+            var activeTab = tabsVentas.find(function (t) { return t.id === activeTabId; });
+            var tituloTab = activeTab ? activeTab.titulo : "Venta";
 
             var ventaSuspendida = {
                 idTemp: Date.now(),
+                tituloOriginal: tituloTab,
                 fechaHora: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
                 clienteId: clienteId,
                 clienteNombre: clienteNombre,
                 descuento: posDescuentoInput ? posDescuentoInput.value : "0.00",
-                metodoPagoId: document.getElementById("id_metodo_pago") ? document.getElementById("id_metodo_pago").value : "",
+                metodoPagoId: idMetodoPagoSelect ? idMetodoPagoSelect.value : obtenerMetodoPagoPorDefecto(),
                 carrito: JSON.parse(JSON.stringify(carrito))
             };
 
@@ -1109,12 +1456,35 @@ document.addEventListener("DOMContentLoaded", function () {
             lista.push(ventaSuspendida);
             guardarSuspendidas(lista);
 
-            carrito = [];
-            asignarCliente(null, "Consumidor Final");
-            if (posDescuentoInput) posDescuentoInput.value = "0.00";
-            renderizarTicket();
+            mostrarFeedback("Venta '" + tituloTab + "' suspendida y guardada en espera.", false);
 
-            mostrarFeedback("Venta suspendida guardada con éxito.", false);
+            var idx = tabsVentas.findIndex(function (t) { return t.id === activeTabId; });
+            tabsVentas.splice(idx, 1);
+
+            if (tabsVentas.length === 0) {
+                var nueva = {
+                    id: "tab_" + Date.now(),
+                    numero: 1,
+                    titulo: "Venta 1",
+                    clienteId: null,
+                    clienteNombre: "Consumidor Final",
+                    descuento: "0.00",
+                    metodoPagoId: obtenerMetodoPagoPorDefecto(),
+                    carrito: []
+                };
+                tabsVentas.push(nueva);
+                activeTabId = nueva.id;
+                carrito = [];
+                asignarCliente(null, "Consumidor Final");
+                if (posDescuentoInput) posDescuentoInput.value = "0.00";
+            } else {
+                var nuevoIdx = Math.max(0, idx - 1);
+                cambiarPestana(tabsVentas[nuevoIdx].id);
+            }
+
+            guardarTabsEnStorage();
+            renderizarPestanas();
+            renderizarTicket();
         });
     }
 
@@ -1139,7 +1509,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     var tdHora = document.createElement("td");
                     tdHora.style.padding = "10px";
-                    tdHora.textContent = v.fechaHora;
+                    tdHora.textContent = v.fechaHora + (v.tituloOriginal ? " (" + v.tituloOriginal + ")" : "");
 
                     var tdCli = document.createElement("td");
                     tdCli.style.padding = "10px";
@@ -1166,34 +1536,64 @@ document.addEventListener("DOMContentLoaded", function () {
                     btnRec.type = "button";
                     btnRec.className = "btn btn-primary";
                     btnRec.style.cssText = "padding: 4px 10px; font-size: 12px; margin-right: 4px;";
-                    btnRec.textContent = "Recuperar";
+                    btnRec.textContent = "Reanudar";
                     btnRec.addEventListener("click", function () {
                         var list = obtenerSuspendidas();
                         var recuperada = list.splice(i, 1)[0];
                         guardarSuspendidas(list);
 
-                        carrito = recuperada.carrito || [];
-                        asignarCliente(recuperada.clienteId, recuperada.clienteNombre);
-                        if (posDescuentoInput) posDescuentoInput.value = recuperada.descuento || "0.00";
-                        if (recuperada.metodoPagoId && document.getElementById("id_metodo_pago")) {
-                            document.getElementById("id_metodo_pago").value = recuperada.metodoPagoId;
+                        // Si la pestaña actual está vacía, usarla; si no, crear una nueva
+                        if (carrito.length === 0) {
+                            var activeTab = tabsVentas.find(function (t) { return t.id === activeTabId; });
+                            if (activeTab) {
+                                activeTab.titulo = recuperada.tituloOriginal || activeTab.titulo;
+                                activeTab.clienteId = recuperada.clienteId;
+                                activeTab.clienteNombre = recuperada.clienteNombre;
+                                activeTab.descuento = recuperada.descuento || "0.00";
+                                activeTab.metodoPagoId = recuperada.metodoPagoId;
+                                activeTab.carrito = recuperada.carrito || [];
+
+                                carrito = JSON.parse(JSON.stringify(activeTab.carrito));
+                                asignarCliente(activeTab.clienteId, activeTab.clienteNombre);
+                                if (posDescuentoInput) posDescuentoInput.value = activeTab.descuento;
+                                if (recuperada.metodoPagoId && idMetodoPagoSelect) {
+                                    idMetodoPagoSelect.value = recuperada.metodoPagoId;
+                                }
+                                guardarTabsEnStorage();
+                                renderizarPestanas();
+                                renderizarTicket();
+                                modalSuspendidas.style.display = "none";
+                                mostrarFeedback("Venta reanudada en pestaña actual: " + activeTab.titulo, false);
+                                return;
+                            }
                         }
 
-                        renderizarTicket();
+                        var nuevaPestana = crearNuevaPestana({
+                            titulo: recuperada.tituloOriginal || ("Venta " + (tabsVentas.length + 1)),
+                            clienteId: recuperada.clienteId,
+                            clienteNombre: recuperada.clienteNombre,
+                            descuento: recuperada.descuento || "0.00",
+                            metodoPagoId: recuperada.metodoPagoId,
+                            carrito: recuperada.carrito || []
+                        });
+
                         modalSuspendidas.style.display = "none";
-                        mostrarFeedback("Venta recuperada en el ticket.", false);
+                        mostrarFeedback("Venta reanudada en nueva pestaña: " + nuevaPestana.titulo, false);
                     });
 
                     var btnDel = document.createElement("button");
                     btnDel.type = "button";
                     btnDel.className = "pos-btn-del";
-                    btnDel.title = "Descartar";
+                    btnDel.title = "Descartar definitivamente";
                     btnDel.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
                     btnDel.addEventListener("click", function () {
-                        var list = obtenerSuspendidas();
-                        list.splice(i, 1);
-                        guardarSuspendidas(list);
-                        abrirModalSuspendidas();
+                        if (confirm("¿Desea descartar esta venta en espera?")) {
+                            var list = obtenerSuspendidas();
+                            list.splice(i, 1);
+                            guardarSuspendidas(list);
+                            abrirModalSuspendidas();
+                            mostrarFeedback("Venta en espera descartada.", false);
+                        }
                     });
 
                     tdAcc.appendChild(btnRec);
@@ -1219,24 +1619,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // 10. LIMPIAR VENTA ACTIVA
+    // 11. LIMPIAR VENTA ACTIVA
     // =========================================================
     if (btnLimpiarVenta) {
         btnLimpiarVenta.addEventListener("click", function () {
             if (carrito.length === 0) return;
-            if (confirm("¿Está seguro de que desea limpiar la venta actual?")) {
+            if (confirm("¿Está seguro de que desea limpiar todos los productos de la venta activa?")) {
                 carrito = [];
                 asignarCliente(null, "Consumidor Final");
                 if (posDescuentoInput) posDescuentoInput.value = "0.00";
+                guardarTabsEnStorage();
                 renderizarTicket();
+                renderizarPestanas();
                 if (posBuscador) posBuscador.focus();
+                mostrarFeedback("Venta activa limpiada.", false);
             }
         });
     }
 
 
     // =========================================================
-    // 11. CONFIRMAR Y COBRAR VENTA (SUBMIT AL BACKEND)
+    // 12. CONFIRMAR Y COBRAR VENTA (FINALIZAR ÚNICAMENTE LA VENTA SELECCIONADA)
     // =========================================================
     if (btnCobrarVenta) {
         btnCobrarVenta.addEventListener("click", function () {
@@ -1246,10 +1649,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            var metodoPago = document.getElementById("id_metodo_pago");
-            if (!metodoPago || !metodoPago.value) {
+            if (!idMetodoPagoSelect || !idMetodoPagoSelect.value) {
                 mostrarFeedback("Por favor seleccione un método de pago.", true);
-                if (metodoPago) metodoPago.focus();
+                if (idMetodoPagoSelect) idMetodoPagoSelect.focus();
                 return;
             }
 
@@ -1262,18 +1664,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            // Deshabilitar botón para prevenir doble submit accidental
+            // Remover ÚNICAMENTE la venta confirmada de las pestañas abiertas para preservar las demás
+            var remainingTabs = tabsVentas.filter(function (t) { return t.id !== activeTabId; });
+            try {
+                if (remainingTabs.length > 0) {
+                    localStorage.setItem(STORAGE_KEY_TABS, JSON.stringify(remainingTabs));
+                    localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, remainingTabs[0].id);
+                } else {
+                    localStorage.removeItem(STORAGE_KEY_TABS);
+                    localStorage.removeItem(STORAGE_KEY_ACTIVE_TAB);
+                }
+            } catch (e) {
+                console.error("Error al actualizar storage al cobrar:", e);
+            }
+
             btnCobrarVenta.disabled = true;
             btnCobrarVenta.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando venta...';
 
-            // Enviar formulario (POST /view/ventas/save)
             formVenta.submit();
         });
     }
 
 
     // =========================================================
-    // 12. ATAJOS DE TECLADO PARA MÁXIMA VELOCIDAD
+    // 13. ATAJOS DE TECLADO PARA MÁXIMA VELOCIDAD
     // =========================================================
     document.addEventListener("keydown", function (e) {
         // F2 o '/': Enfocar buscador de medicamentos
@@ -1281,16 +1695,45 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             if (posBuscador) posBuscador.focus();
         }
-        // F8: Suspender venta
+
+        // Ctrl + Alt + N o Alt + N: Nueva pestaña de venta
+        if ((e.ctrlKey && e.altKey && (e.key === "n" || e.key === "N")) || (e.altKey && (e.key === "n" || e.key === "N"))) {
+            e.preventDefault();
+            crearNuevaPestana();
+        }
+
+        // Alt + Flecha Derecha: Siguiente pestaña
+        if (e.altKey && e.key === "ArrowRight") {
+            e.preventDefault();
+            var currIdx = tabsVentas.findIndex(function (t) { return t.id === activeTabId; });
+            if (currIdx !== -1 && tabsVentas.length > 1) {
+                var nextIdx = (currIdx + 1) % tabsVentas.length;
+                cambiarPestana(tabsVentas[nextIdx].id);
+            }
+        }
+
+        // Alt + Flecha Izquierda: Pestaña anterior
+        if (e.altKey && e.key === "ArrowLeft") {
+            e.preventDefault();
+            var currIdx2 = tabsVentas.findIndex(function (t) { return t.id === activeTabId; });
+            if (currIdx2 !== -1 && tabsVentas.length > 1) {
+                var prevIdx = (currIdx2 - 1 + tabsVentas.length) % tabsVentas.length;
+                cambiarPestana(tabsVentas[prevIdx].id);
+            }
+        }
+
+        // F8: Suspender venta activa
         if (e.key === "F8") {
             e.preventDefault();
             if (btnSuspenderVenta) btnSuspenderVenta.click();
         }
-        // F9 o Ctrl+Enter: Cobrar venta
+
+        // F9 o Ctrl+Enter: Cobrar venta activa
         if (e.key === "F9" || (e.ctrlKey && e.key === "Enter")) {
             e.preventDefault();
             if (btnCobrarVenta) btnCobrarVenta.click();
         }
+
         // Escape: Cerrar modales
         if (e.key === "Escape") {
             cerrarModalCliente();
@@ -1298,8 +1741,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Inicializar estado
+    // =========================================================
+    // 14. INICIALIZACIÓN DE PESTAÑAS AL CARGAR EL POS
+    // =========================================================
+    var tabsGuardadas = cargarTabsDesdeStorage();
+    if (tabsGuardadas && tabsGuardadas.length > 0) {
+        tabsVentas = tabsGuardadas;
+        var activeGuardado = localStorage.getItem(STORAGE_KEY_ACTIVE_TAB);
+        var existeActive = tabsVentas.some(function (t) { return t.id === activeGuardado; });
+        activeTabId = existeActive ? activeGuardado : tabsVentas[0].id;
+    } else {
+        var tabInicial = {
+            id: "tab_" + Date.now(),
+            numero: 1,
+            titulo: "Venta 1",
+            clienteId: null,
+            clienteNombre: "Consumidor Final",
+            descuento: "0.00",
+            metodoPagoId: obtenerMetodoPagoPorDefecto(),
+            carrito: []
+        };
+        tabsVentas = [tabInicial];
+        activeTabId = tabInicial.id;
+        guardarTabsEnStorage();
+    }
+
+    var activeTab = tabsVentas.find(function (t) { return t.id === activeTabId; });
+    if (activeTab) {
+        carrito = JSON.parse(JSON.stringify(activeTab.carrito || []));
+        asignarCliente(activeTab.clienteId, activeTab.clienteNombre);
+        if (posDescuentoInput) posDescuentoInput.value = activeTab.descuento || "0.00";
+        if (idMetodoPagoSelect && activeTab.metodoPagoId) {
+            idMetodoPagoSelect.value = activeTab.metodoPagoId;
+        }
+    }
+
     renderizarTicket();
+    renderizarPestanas();
     filtrarCatalogo("");
 });
 </script>

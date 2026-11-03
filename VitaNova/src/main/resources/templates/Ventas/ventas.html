@@ -421,6 +421,20 @@
                                     </a>
 
 
+                                    <!-- TIRILLA POS -->
+
+                                    <a th:href="@{/view/ventas/{id}/comprobante(id=${venta.id_venta})}"
+                                       target="_blank"
+                                       class="btn btn-white"
+                                       title="Imprimir tirilla o comprobante POS">
+
+                                        <i class="fa-solid fa-receipt"></i>
+
+                                        Tirilla
+
+                                    </a>
+
+
                                     <!-- EDITAR -->
 
                                     <a th:if="${puedeModificar}"

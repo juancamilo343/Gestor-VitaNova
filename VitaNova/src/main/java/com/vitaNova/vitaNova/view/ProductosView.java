@@ -4,6 +4,11 @@ import com.vitaNova.vitaNova.model.Productos;
 import com.vitaNova.vitaNova.repository.ProductosRepository;
 import com.vitaNova.vitaNova.repository.CategoriaRepository;
 import com.vitaNova.vitaNova.repository.ProveedorRepository;
+import com.vitaNova.vitaNova.model.ProductoPresentacion;
+import com.vitaNova.vitaNova.repository.ProductoPresentacionRepository;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,6 +30,9 @@ public class ProductosView {
 
     @Autowired
     private ProveedorRepository proveedorRepository;
+
+    @Autowired
+    private ProductoPresentacionRepository productoPresentacionRepository;
 
 
     // ==========================================================
@@ -114,6 +122,14 @@ public class ProductosView {
                 "Registre un nuevo producto dentro del sistema VitaNova."
         );
 
+        producto.setUnidad_base("Unidad");
+        producto.setPermite_fraccionamiento(false);
+
+        model.addAttribute(
+                "presentaciones",
+                Collections.emptyList()
+        );
+
         model.addAttribute(
                 "editMode",
                 false
@@ -183,6 +199,14 @@ public class ProductosView {
                 "Actualice la información del producto seleccionado."
         );
 
+        List<ProductoPresentacion> presentaciones =
+                productoPresentacionRepository.findPorProducto(id);
+
+        model.addAttribute(
+                "presentaciones",
+                presentaciones
+        );
+
         model.addAttribute(
                 "editMode",
                 true
@@ -197,8 +221,18 @@ public class ProductosView {
     // SOLO ADMINISTRADOR Y FARMACÉUTICO
     // ==========================================================
     @PostMapping("/save")
+    @Transactional
     public String save(
             @ModelAttribute Productos producto,
+            @RequestParam(value = "pres_id[]", required = false) List<Long> presIds,
+            @RequestParam(value = "pres_nombre[]", required = false) List<String> presNombres,
+            @RequestParam(value = "pres_factor[]", required = false) List<Integer> presFactores,
+            @RequestParam(value = "pres_precio_venta[]", required = false) List<BigDecimal> presPreciosVenta,
+            @RequestParam(value = "pres_costo_compra[]", required = false) List<BigDecimal> presCostosCompra,
+            @RequestParam(value = "pres_permite_venta[]", required = false) List<String> presPermiteVenta,
+            @RequestParam(value = "pres_permite_compra[]", required = false) List<String> presPermiteCompra,
+            @RequestParam(value = "pres_es_principal", required = false) Integer presPrincipalIdx,
+            @RequestParam(value = "pres_estado[]", required = false) List<String> presEstados,
             Authentication authentication,
             RedirectAttributes ra
     ) {
@@ -222,20 +256,124 @@ public class ProductosView {
             producto.setEstado("ACTIVO");
         }
 
-        productosRepository.save(producto);
+        if (producto.getUnidad_base() == null || producto.getUnidad_base().isBlank()) {
+            producto.setUnidad_base("Unidad");
+        }
+
+        if (producto.getPermite_fraccionamiento() == null) {
+            producto.setPermite_fraccionamiento(false);
+        }
+
+        Productos productoGuardado = productosRepository.save(producto);
+
+        // Procesar presentaciones comerciales
+        if (presNombres != null && !presNombres.isEmpty()) {
+            boolean tienePrincipal = false;
+            java.util.Set<Long> idsGuardados = new java.util.HashSet<>();
+            for (int i = 0; i < presNombres.size(); i++) {
+                String nombre = presNombres.get(i) != null ? presNombres.get(i).trim() : "";
+                if (nombre.isBlank()) {
+                    continue;
+                }
+
+                int factor = (presFactores != null && i < presFactores.size() && presFactores.get(i) != null && presFactores.get(i) > 0)
+                        ? presFactores.get(i) : 1;
+
+                BigDecimal pVenta = (presPreciosVenta != null && i < presPreciosVenta.size() && presPreciosVenta.get(i) != null)
+                        ? presPreciosVenta.get(i)
+                        : (productoGuardado.getPrecio_venta() != null ? productoGuardado.getPrecio_venta() : BigDecimal.ZERO);
+
+                BigDecimal cCompra = (presCostosCompra != null && i < presCostosCompra.size() && presCostosCompra.get(i) != null)
+                        ? presCostosCompra.get(i)
+                        : (productoGuardado.getPrecio_compra() != null ? productoGuardado.getPrecio_compra() : BigDecimal.ZERO);
+
+                boolean pVentaFlag = presPermiteVenta == null || i >= presPermiteVenta.size() || "true".equalsIgnoreCase(presPermiteVenta.get(i));
+                boolean pCompraFlag = presPermiteCompra == null || i >= presPermiteCompra.size() || "true".equalsIgnoreCase(presPermiteCompra.get(i));
+                boolean esPrincipal = (presPrincipalIdx != null && presPrincipalIdx == i);
+                if (esPrincipal) tienePrincipal = true;
+
+                String estadoStr = (presEstados != null && i < presEstados.size() && "INACTIVO".equalsIgnoreCase(presEstados.get(i)))
+                        ? "INACTIVO" : "ACTIVO";
+
+                Long presId = (presIds != null && i < presIds.size()) ? presIds.get(i) : null;
+
+                ProductoPresentacion pres = null;
+                if (presId != null) {
+                    pres = productoPresentacionRepository.findById(presId).orElse(null);
+                }
+                if (pres == null) {
+                    pres = new ProductoPresentacion();
+                    pres.setId_producto(productoGuardado.getId_producto());
+                }
+
+                pres.setNombre_presentacion(nombre);
+                pres.setFactor_unidades(factor);
+                pres.setPrecio_venta(pVenta);
+                pres.setCosto_compra(cCompra);
+                pres.setPermite_venta(pVentaFlag);
+                pres.setPermite_compra(pCompraFlag);
+                pres.setEs_principal(esPrincipal);
+                pres.setEstado(ProductoPresentacion.EstadoPresentacion.valueOf(estadoStr));
+
+                ProductoPresentacion presGuardada = productoPresentacionRepository.save(pres);
+                idsGuardados.add(presGuardada.getId_presentacion());
+            }
+
+            // Sincronizar y depurar presentaciones eliminadas en el formulario
+            List<ProductoPresentacion> existentes = productoPresentacionRepository.findPorProducto(productoGuardado.getId_producto());
+            for (ProductoPresentacion ex : existentes) {
+                if (!idsGuardados.contains(ex.getId_presentacion())) {
+                    try {
+                        productoPresentacionRepository.delete(ex);
+                    } catch (Exception e) {
+                        ex.setEstado(ProductoPresentacion.EstadoPresentacion.INACTIVO);
+                        ex.setPermite_compra(false);
+                        ex.setPermite_venta(false);
+                        productoPresentacionRepository.save(ex);
+                    }
+                }
+            }
+
+            // Asegurar que al menos una presentación sea principal si ninguna fue marcada
+            if (!tienePrincipal) {
+                List<ProductoPresentacion> activas = productoPresentacionRepository.findActivasPorProducto(productoGuardado.getId_producto());
+                if (!activas.isEmpty()) {
+                    ProductoPresentacion primera = activas.get(0);
+                    primera.setEs_principal(true);
+                    productoPresentacionRepository.save(primera);
+                }
+            }
+        } else {
+            // Si no se enviaron presentaciones, asegurar la presentación base automática
+            List<ProductoPresentacion> existentes = productoPresentacionRepository.findPorProducto(productoGuardado.getId_producto());
+            if (existentes.isEmpty()) {
+                ProductoPresentacion base = ProductoPresentacion.builder()
+                        .id_producto(productoGuardado.getId_producto())
+                        .nombre_presentacion(productoGuardado.getUnidad_base())
+                        .factor_unidades(1)
+                        .precio_venta(productoGuardado.getPrecio_venta() != null ? productoGuardado.getPrecio_venta() : BigDecimal.ZERO)
+                        .costo_compra(productoGuardado.getPrecio_compra() != null ? productoGuardado.getPrecio_compra() : BigDecimal.ZERO)
+                        .es_principal(true)
+                        .permite_venta(true)
+                        .permite_compra(true)
+                        .estado(ProductoPresentacion.EstadoPresentacion.ACTIVO)
+                        .build();
+                productoPresentacionRepository.save(base);
+            }
+        }
 
         if (nuevo) {
 
             ra.addFlashAttribute(
                     "success",
-                    "Producto registrado con éxito"
+                    "Producto y presentaciones registrados con éxito"
             );
 
         } else {
 
             ra.addFlashAttribute(
                     "success",
-                    "Producto actualizado con éxito"
+                    "Producto y presentaciones actualizados con éxito"
             );
         }
 

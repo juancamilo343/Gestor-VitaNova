@@ -33,14 +33,27 @@
 
                 </div>
 
-                <div class="page-actions">
+                <div class="page-actions" style="display: flex; gap: 8px;">
+
+                    <a th:href="@{/view/ventas/{id}/comprobante(id=${venta.id_venta})}"
+                       target="_blank"
+                       class="btn btn-primary"
+                       title="Imprimir comprobante / tirilla POS">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Imprimir Tirilla POS</span>
+                    </a>
+
+                    <a th:href="@{/view/ventas/form}"
+                       class="btn btn-white"
+                       title="Ir al punto de venta">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Nueva venta</span>
+                    </a>
 
                     <a th:href="@{/view/ventas}"
                        class="btn btn-white">
-
                         <i class="fa-solid fa-arrow-left"></i>
-                        Volver a ventas
-
+                        <span>Historial de ventas</span>
                     </a>
 
                 </div>
@@ -91,27 +104,27 @@
                         <div class="field-group">
                             <label>Cliente</label>
                             <input type="text"
-                                   th:value="${venta.id_cliente != null
-                                       ? 'Cliente #' + venta.id_cliente
-                                       : 'Consumidor final'}"
+                                   th:value="${venta.id_cliente != null && nombresClientes != null && nombresClientes[venta.id_cliente] != null
+                                       ? nombresClientes[venta.id_cliente]
+                                       : (venta.id_cliente != null ? 'Cliente #' + venta.id_cliente : 'Consumidor final')}"
                                    readonly>
                         </div>
 
                         <div class="field-group">
                             <label>Empleado</label>
                             <input type="text"
-                                   th:value="${venta.id_empleado != null
-                                       ? 'Empleado #' + venta.id_empleado
-                                       : '-'}"
+                                   th:value="${venta.id_empleado != null && nombresEmpleados != null && nombresEmpleados[venta.id_empleado] != null
+                                       ? nombresEmpleados[venta.id_empleado]
+                                       : (venta.id_empleado != null ? 'Empleado #' + venta.id_empleado : '-')}"
                                    readonly>
                         </div>
 
                         <div class="field-group">
                             <label>Método de pago</label>
                             <input type="text"
-                                   th:value="${venta.id_metodo_pago != null
-                                       ? 'Método #' + venta.id_metodo_pago
-                                       : '-'}"
+                                   th:value="${venta.id_metodo_pago != null && nombresMetodosPago != null && nombresMetodosPago[venta.id_metodo_pago] != null
+                                       ? nombresMetodosPago[venta.id_metodo_pago]
+                                       : (venta.id_metodo_pago != null ? 'Método #' + venta.id_metodo_pago : '-')}"
                                    readonly>
                         </div>
 

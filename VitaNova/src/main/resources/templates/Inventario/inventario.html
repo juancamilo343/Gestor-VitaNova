@@ -157,16 +157,20 @@
 
                             <td>
 
-                                <strong th:text="${inventario.stock_actual}">
+                                <strong th:text="${inventario.stock_actual} + ' ' + (${inventario.producto != null && inventario.producto.unidad_base != null ? inventario.producto.unidad_base : 'unid.'})">
                                     0
                                 </strong>
+                                <div th:if="${desglosesInventario != null && desglosesInventario[inventario.id_producto] != null}"
+                                     style="font-size: 11px; color: #2563eb; font-weight: 500; margin-top: 3px;"
+                                     th:text="${desglosesInventario[inventario.id_producto]}">
+                                </div>
 
                             </td>
 
 
                             <td>
 
-                                <span th:text="${inventario.stock_minimo}">
+                                <span th:text="${inventario.stock_minimo} + ' ' + (${inventario.producto != null && inventario.producto.unidad_base != null ? inventario.producto.unidad_base : 'unid.'})">
                                     0
                                 </span>
 
@@ -175,7 +179,7 @@
 
                             <td>
 
-                                <span th:text="${inventario.stock_maximo}">
+                                <span th:text="${inventario.stock_maximo} + ' ' + (${inventario.producto != null && inventario.producto.unidad_base != null ? inventario.producto.unidad_base : 'unid.'})">
                                     0
                                 </span>
 

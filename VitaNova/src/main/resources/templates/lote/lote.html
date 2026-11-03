@@ -235,7 +235,7 @@
                             <!-- CANTIDAD -->
                             <td>
 
-                                <strong th:text="${lote.cantidad}">
+                                <strong th:text="${lote.cantidad} + ' ' + (${lote.producto != null && lote.producto.unidad_base != null ? lote.producto.unidad_base : 'unid.'})">
                                     50
                                 </strong>
 

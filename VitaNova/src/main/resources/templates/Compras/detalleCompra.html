@@ -221,12 +221,17 @@
 
                                 </div>
 
+                                <div th:if="${detalle.nombre_presentacion != null}" style="font-size: 12px; color: #6b7280; margin-top: 4px; padding-left: 36px;">
+                                    Presentación: <strong th:text="${detalle.nombre_presentacion}">Caja</strong>
+                                    <span th:text="'(Factor: ' + ${detalle.factor_unidades} + ' • Total físico: ' + ${detalle.unidades_base} + ' unid. base)'"></span>
+                                </div>
+
                             </td>
 
 
                             <td>
 
-                                <span th:text="${detalle.cantidad}">
+                                <span th:text="${detalle.cantidad} + ' ' + (${detalle.nombre_presentacion != null ? detalle.nombre_presentacion : 'paq.'})">
                                     0
                                 </span>
 
@@ -238,6 +243,9 @@
                                 <span th:text="'$ ' + ${detalle.precio}">
                                     $ 0.00
                                 </span>
+                                <div th:if="${detalle.costo_unitario_base != null}" style="font-size: 11px; color: #9ca3af;">
+                                    <span th:text="'($ ' + ${detalle.costo_unitario_base} + ' / unid. base)'"></span>
+                                </div>
 
                             </td>
 

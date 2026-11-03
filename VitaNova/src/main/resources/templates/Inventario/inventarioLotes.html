@@ -127,14 +127,11 @@
                                 </strong>
 
 
-                                <span th:text="${stockTotal}">
+                                <span th:text="${stockTotal} + ' ' + (${producto.unidad_base != null ? producto.unidad_base : 'unidades'})">
 
                                     0
 
                                 </span>
-
-
-                                unidades
 
 
                             </div>
@@ -298,7 +295,7 @@
                             <td>
 
 
-                                <strong th:text="${lote.cantidad}">
+                                <strong th:text="${lote.cantidad} + ' ' + (${producto.unidad_base != null ? producto.unidad_base : 'unid.'})">
 
                                     0
 

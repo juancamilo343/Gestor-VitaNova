@@ -38,9 +38,21 @@ public class ProductoPresentacion {
     @Column(name = "precio_venta", precision = 10, scale = 2, nullable = false)
     private BigDecimal precio_venta;
 
+    @Column(name = "costo_compra", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal costo_compra = BigDecimal.ZERO;
+
     @Column(name = "es_principal")
     @Builder.Default
     private Boolean es_principal = false;
+
+    @Column(name = "permite_venta", nullable = false)
+    @Builder.Default
+    private Boolean permite_venta = true;
+
+    @Column(name = "permite_compra", nullable = false)
+    @Builder.Default
+    private Boolean permite_compra = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
