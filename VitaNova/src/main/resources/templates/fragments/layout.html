@@ -30,6 +30,20 @@
     <link rel="stylesheet"
           th:href="@{/css/style.css}">
 
+    <!-- Previene salto visual (FOUC) aplicando el estado guardado del Sidebar antes del render -->
+    <script>
+        (function() {
+            try {
+                if (window.innerWidth > 980 && localStorage.getItem('vitanova_sidebar_collapsed') === 'true') {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    <!-- Script de control y persistencia del Sidebar -->
+    <script th:src="@{/js/script.js}" defer></script>
+
 </head>
 
 
@@ -38,9 +52,10 @@
 ========================================================= -->
 
 <aside th:fragment="sidebar(activeMenu)"
-       class="sidebar">
+       class="sidebar"
+       id="appSidebar">
 
-    <!-- MARCA -->
+    <!-- MARCA CON BOTÓN DE 3 RAYAS DENTRO DEL SIDEBAR -->
     <div class="sidebar-brand">
 
         <div class="brand-icon">
@@ -48,16 +63,22 @@
         </div>
 
         <div class="brand-text">
-
             <span class="brand-name">
                 VitaNova
             </span>
-
             <span class="brand-subtitle">
                 PHARMA ERP
             </span>
-
         </div>
+
+        <!-- Botón de 3 rayas dentro de la barra lateral para cerrarla -->
+        <button type="button"
+                id="sidebarInsideToggleBtn"
+                class="sidebar-inside-toggle-btn"
+                title="Cerrar menú lateral"
+                aria-label="Cerrar menú lateral">
+            <i class="fa-solid fa-bars"></i>
+        </button>
 
     </div>
 
@@ -72,12 +93,12 @@
         <div class="sidebar-user-info">
 
             <span class="sidebar-user-name"
-                  th:text="${usuarioActual}">
+                  th:text="${usuarioActual != null ? usuarioActual : (userName != null ? userName : 'admin')}">
                 admin
             </span>
 
             <span class="sidebar-user-role"
-                  th:text="${rolUsuarioActual}">
+                  th:text="${rolUsuarioActual != null ? rolUsuarioActual : (userRole != null ? userRole : 'Administrador')}">
                 Administrador
             </span>
 
@@ -296,11 +317,31 @@
 
 
 <!-- =========================================================
-     TOPBAR
+     TOPBAR (Visible cuando el sidebar está cerrado)
 ========================================================= -->
 
 <header th:fragment="topbar"
         class="topbar">
+
+    <div class="topbar-left">
+
+        <!-- Botón de 3 rayas para volver a abrir cuando está cerrado -->
+        <button type="button"
+                id="sidebarOutsideToggleBtn"
+                class="topbar-toggle-btn"
+                title="Abrir menú lateral"
+                aria-label="Abrir menú lateral">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Nombre de la farmacia pequeño con icono al estar cerrado -->
+        <div class="topbar-brand-collapsed">
+            <i class="fa-solid fa-prescription-bottle-medical"></i>
+            <span class="brand-name">VitaNova</span>
+        </div>
+
+    </div>
+
 </header>
 
 
